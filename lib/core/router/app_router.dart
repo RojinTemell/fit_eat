@@ -1,3 +1,4 @@
+import 'package:fit_eat/features/auth_page/view/login_page.dart';
 import 'package:fit_eat/features/home_page/test_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,7 @@ class AppRouter {
         GoRoute(
           path: "/test",
           name: "test",
-          builder: (context, state) => TestPage(),
+          builder: (context, state) => LoginPage(),
         ),
         // StatefulShellRoute.indexedStack(
         //   // builder: (context, state, navigationShell) => ,
