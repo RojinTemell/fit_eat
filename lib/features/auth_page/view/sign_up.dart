@@ -4,24 +4,26 @@ import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/constants/text_constants.dart';
 import 'package:fit_eat/core/theme/custom_themes/text_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class SignUp extends StatelessWidget {
+  const SignUp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(),
       body: Padding(
         padding: EdgeInsetsGeometry.all(20),
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: 80),
 
-            // Spacer(),
             Text('FITEAT', style: Theme.of(context).textTheme.displayMedium),
+            Text(
+              'SIGN UP FREE',
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
             SizedBox(height: 20),
             TextInputWidget(
               hintText: 'Email',
@@ -71,13 +73,16 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'New to FITEAT',
+                  'Already have an account ',
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
-                Text(
-                  ' Sign up for free',
-                  style: Theme.of(context).textTheme.labelStrong.copyWith(
-                    color: Constant.errorText(context),
+                GestureDetector(
+                  onTap: () => context.pushNamed('login'),
+                  child: Text(
+                    'Login ',
+                    style: Theme.of(context).textTheme.labelStrong.copyWith(
+                      color: Constant.errorText(context),
+                    ),
                   ),
                 ),
               ],
