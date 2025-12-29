@@ -39,7 +39,7 @@ class SignUp extends StatelessWidget {
             SizedBox(height: 20),
 
             BaseButton(
-              title: 'Login',
+              title: 'Register',
               baseButtonType: BaseButtonType.filledDark,
               baseButtonSize: BaseButtonSize.medium,
               width: context.dynamicWidth(1),

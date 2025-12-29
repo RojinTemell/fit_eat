@@ -4,6 +4,7 @@ import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/constants/text_constants.dart';
 import 'package:fit_eat/core/theme/custom_themes/text_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../core/components/appbar.dart';
@@ -69,6 +70,7 @@ class ForgotPassword extends StatelessWidget {
             ),
             SizedBox(height: 30),
             BaseButton(
+              callback: () => context.pushNamed('verificationCode'),
               title: 'Save',
               baseButtonType: BaseButtonType.filledDark,
               baseButtonSize: BaseButtonSize.medium,

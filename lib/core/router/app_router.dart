@@ -5,6 +5,7 @@ import 'package:fit_eat/features/home_page/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth_page/view/sign_up.dart';
+import '../../features/auth_page/view/verification_code.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -41,6 +42,11 @@ class AppRouter {
                   path: "/forgotPassword",
                   name: "forgotPassword",
                   builder: (context, state) => ForgotPassword(),
+                ),
+                GoRoute(
+                  path: "/verificationCode",
+                  name: "verificationCode",
+                  builder: (context, state) => VerificationCode(),
                 ),
               ],
             ),
