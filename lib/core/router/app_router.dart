@@ -1,11 +1,14 @@
 import 'package:fit_eat/core/components/bottom_nav_bar.dart';
+import 'package:fit_eat/features/account_page/view/account.dart';
 import 'package:fit_eat/features/auth_page/view/forgot_password.dart';
 import 'package:fit_eat/features/auth_page/view/login.dart';
+import 'package:fit_eat/features/favorite_page/view/list_tab_page.dart';
 import 'package:fit_eat/features/home_page/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth_page/view/sign_up.dart';
 import '../../features/auth_page/view/verification_code.dart';
+import '../../features/home_page/view/product_detail.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -16,7 +19,7 @@ class AppRouter {
   static GoRouter createRouter() {
     return GoRouter(
       navigatorKey: navigatorKey,
-      initialLocation: "/login",
+      initialLocation: "/home",
       observers: [KeyboardDismissObserver()],
       routes: [
         StatefulShellRoute.indexedStack(
@@ -28,25 +31,17 @@ class AppRouter {
                   path: "/home",
                   name: "home",
                   builder: (context, state) => Home(),
+                  routes: [],
                 ),
               ],
             ),
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: "/login",
-                  name: "login",
-                  builder: (context, state) => Login(),
-                ),
-                GoRoute(
-                  path: "/forgotPassword",
-                  name: "forgotPassword",
-                  builder: (context, state) => ForgotPassword(),
-                ),
-                GoRoute(
-                  path: "/verificationCode",
-                  name: "verificationCode",
-                  builder: (context, state) => VerificationCode(),
+                  path: "/listsTabPage",
+                  name: "listsTabPage",
+                  builder: (context, state) => ListsTabPage(),
+                  routes: [],
                 ),
               ],
             ),
@@ -59,7 +54,21 @@ class AppRouter {
                 ),
               ],
             ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: "/account",
+                  name: "account",
+                  builder: (context, state) => Account(),
+                ),
+              ],
+            ),
           ],
+        ),
+        GoRoute(
+          path: "/productDetail",
+          name: "productDetail",
+          builder: (context, state) => ProductDetail(),
         ),
 
         // GoRoute(

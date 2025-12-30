@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../constants/dynamic_constants.dart';
 import '../constants/text_constants.dart';
 
@@ -19,6 +18,7 @@ class BaseSwitch extends StatefulWidget {
     this.width,
   });
   @override
+  // ignore: library_private_types_in_public_api
   _BaseSwitchState createState() => _BaseSwitchState();
 }
 

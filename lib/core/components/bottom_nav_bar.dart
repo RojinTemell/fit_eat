@@ -100,7 +100,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 }
 
-enum BottomTabType { home, login, signUp }
+enum BottomTabType { home, listsTabPage, signUp, account }
 
 extension BottomTabExtension on BottomTabType {
   String get label => name;
@@ -109,10 +109,12 @@ extension BottomTabExtension on BottomTabType {
     switch (this) {
       case BottomTabType.home:
         return PhosphorIcons.houseSimple(style);
-      case BottomTabType.login:
+      case BottomTabType.listsTabPage:
         return PhosphorIcons.squaresFour(style);
       case BottomTabType.signUp:
         return PhosphorIcons.heart(style);
+      case BottomTabType.account:
+        return PhosphorIcons.carProfile(style);
     }
   }
 }

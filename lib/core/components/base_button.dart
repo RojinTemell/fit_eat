@@ -56,9 +56,9 @@ class BaseButton extends StatelessWidget {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        Color(0xFFFFFB00),
-                        Color(0xFF7CFFC4),
-                        Color(0xFFCB3DEB),
+                        Color.fromARGB(255, 222, 220, 87),
+                        Color.fromARGB(255, 57, 220, 146),
+                        Color.fromARGB(255, 188, 24, 225),
                       ],
                     )
                   : null,

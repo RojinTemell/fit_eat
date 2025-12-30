@@ -25,3 +25,11 @@ extension ContextExtension on BuildContext {
 
   ThemeData get theme => Theme.of(this);
 }
+
+extension PaddingConstant on BuildContext {
+  EdgeInsets allPadding(double val) => EdgeInsets.all(val);
+  EdgeInsets symmetricPadding(double val1, double val2) =>
+      EdgeInsets.symmetric(vertical: val1, horizontal: val2);
+  EdgeInsets onlyPadding(double val1, double val2, double val3, double val4) =>
+      EdgeInsets.only(top: val1, right: val2, bottom: val3, left: val4);
+}

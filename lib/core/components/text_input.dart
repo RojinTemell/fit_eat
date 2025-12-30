@@ -6,7 +6,7 @@ import '../constants/text_constants.dart';
 import '../theme/custom_themes/text_theme.dart';
 
 class TextInputWidget extends StatelessWidget {
-  TextInputWidget({
+  const TextInputWidget({
     super.key,
     required this.controller,
     this.buildCounter,
@@ -69,9 +69,6 @@ class TextInputWidget extends StatelessWidget {
     final bool multiline = effectiveMaxLines > 1 || effectiveMinLines > 1;
 
     // Tek satırda sabit ve stabil padding (yukarı yapışma problemini çözer)
-    final EdgeInsets resolvedPadding = multiline
-        ? const EdgeInsets.symmetric(vertical: 12, horizontal: 12)
-        : const EdgeInsets.symmetric(vertical: 14, horizontal: 12);
     // final bool _obscure = isPassword ?? false;
     // final bool _useExpands = !_obscure; // şifre değilse expands serbest
     return Column(

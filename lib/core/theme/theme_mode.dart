@@ -6,7 +6,6 @@ class ThemeProvider extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
 
   void toggleThemeMode(ThemeMode mode) async {
-    print('$mode mode');
     _themeMode = mode;
     notifyListeners();
     SharedPreferences prefs = await SharedPreferences.getInstance();

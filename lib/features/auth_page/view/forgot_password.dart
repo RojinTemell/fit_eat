@@ -84,6 +84,7 @@ class ForgotPassword extends StatelessWidget {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row IncludePassword(BuildContext context) {
     return Row(
       children: [
