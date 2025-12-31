@@ -2,10 +2,12 @@ import 'package:fit_eat/features/favorite_page/view/favorite.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/text_constants.dart';
+import '../../../core/theme/custom_themes/text_theme.dart';
+import 'my_lists.dart';
 
 // ignore: must_be_immutable
 class ListsTabPage extends StatefulWidget {
-  ListsTabPage({super.key});
+  const ListsTabPage({super.key});
 
   @override
   State<ListsTabPage> createState() => _ListsTabPageState();
@@ -32,29 +34,30 @@ class _ListsTabPageState extends State<ListsTabPage>
           children: [
             SizedBox(height: 20),
             TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              indicatorSize: TabBarIndicatorSize.tab,
               indicatorColor: Constant.borderPrimary(context),
               labelColor: Constant.textDarker(context),
-              unselectedLabelColor: Constant.textDark(context),
-              labelStyle: const TextStyle(
-                height: 16 / 12,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+              unselectedLabelColor: Constant.textDarker(context),
+              labelStyle: Theme.of(context).textTheme.labelBaseStrong,
+              unselectedLabelStyle: Theme.of(context).textTheme.labelBaseStrong,
+              controller: _tabController,
+              isScrollable: false,
+              indicatorSize: TabBarIndicatorSize.tab,
 
               tabs: List.generate(
                 tabs.length,
-                (index) => Text(
-                  tabs[index].label,
-                  style: Theme.of(context).textTheme.labelLarge,
+                (index) => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    tabs[index].label,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ),
               ),
             ),
 
             Expanded(
               child: TabBarView(
+                controller: _tabController,
                 children: List.generate(
                   tabs.length,
                   (index) => tabs[index].page,
@@ -85,7 +88,7 @@ extension ListsTabExtension on ListsTabType {
       case ListsTabType.favorite:
         return Favorite();
       case ListsTabType.myLists:
-        return SizedBox();
+        return MyLists();
     }
   }
 }
