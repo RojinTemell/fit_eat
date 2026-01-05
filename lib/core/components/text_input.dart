@@ -86,6 +86,7 @@ class TextInputWidget extends StatelessWidget {
                       : (Constant.textDarker(context)),
                 ),
               ),
+              SizedBox(width: 2),
               if (isRequired ?? false)
                 Text(
                   '*',

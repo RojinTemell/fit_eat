@@ -85,7 +85,7 @@ class _BottomNavBarState extends State<BottomNavBar>
 
   BottomNavigationBarItem tabItem(BottomTabType tab, bool isSelected) {
     return BottomNavigationBarItem(
-      label: tab.title,
+      label: '',
       icon: SizedBox(
         width: 26,
         height: 26,
@@ -100,7 +100,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 }
 
-enum BottomTabType { home, listsTabPage, signUp, account }
+enum BottomTabType { home, listsTabPage, createRecipe, signUp, account }
 
 extension BottomTabExtension on BottomTabType {
   String get label => name;
@@ -115,6 +115,8 @@ extension BottomTabExtension on BottomTabType {
         return 'Sign up';
       case BottomTabType.account:
         return "Account";
+      case BottomTabType.createRecipe:
+        return "Create Recipe";
     }
   }
 
@@ -124,6 +126,8 @@ extension BottomTabExtension on BottomTabType {
         return PhosphorIcons.houseSimple(style);
       case BottomTabType.listsTabPage:
         return PhosphorIcons.squaresFour(style);
+      case BottomTabType.createRecipe:
+        return PhosphorIcons.plus(style);
       case BottomTabType.signUp:
         return PhosphorIcons.heart(style);
       case BottomTabType.account:

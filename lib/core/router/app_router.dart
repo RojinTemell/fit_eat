@@ -4,7 +4,13 @@ import 'package:fit_eat/features/favorite_page/view/list_tab_page.dart';
 import 'package:fit_eat/features/home_page/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth_page/view/forgot_password.dart';
+import '../../features/auth_page/view/login.dart';
 import '../../features/auth_page/view/sign_up.dart';
+import '../../features/auth_page/view/verification_code.dart';
+import '../../features/create_recipe_page/view/categories.dart';
+import '../../features/create_recipe_page/view/categories_sub_liste.dart';
+import '../../features/create_recipe_page/view/create_recipe.dart';
 import '../../features/home_page/view/product_detail.dart';
 
 class AppRouter {
@@ -45,9 +51,34 @@ class AppRouter {
             StatefulShellBranch(
               routes: [
                 GoRoute(
+                  path: "/createRecipe",
+                  name: "createRecipe",
+                  builder: (context, state) => CreateRecipe(),
+                  routes: [],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
                   path: "/signUp",
                   name: "signUp",
                   builder: (context, state) => SignUp(),
+                ),
+                GoRoute(
+                  path: "/login",
+                  name: "login",
+                  builder: (context, state) => Login(),
+                ),
+                GoRoute(
+                  path: "/forgotPassword",
+                  name: "forgotPassword",
+                  builder: (context, state) => ForgotPassword(),
+                ),
+                GoRoute(
+                  path: "/verificationCode",
+                  name: "verificationCode",
+                  builder: (context, state) => VerificationCode(),
                 ),
               ],
             ),
@@ -66,6 +97,18 @@ class AppRouter {
           path: "/productDetail",
           name: "productDetail",
           builder: (context, state) => ProductDetail(),
+        ),
+        GoRoute(
+          path: "/categories",
+          name: "categories",
+          builder: (context, state) => Categories(),
+          routes: [],
+        ),
+        GoRoute(
+          path: "/categoriesSubListe",
+          name: "categoriesSubListe",
+          builder: (context, state) => CategoriesSubListe(),
+          routes: [],
         ),
 
         // GoRoute(
