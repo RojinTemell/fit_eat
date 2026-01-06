@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:fit_eat/core/components/appbar.dart';
 import 'package:fit_eat/core/components/base_button.dart';
 import 'package:fit_eat/core/components/list_item_selection.dart';
@@ -41,28 +42,117 @@ class CreateRecipe extends StatelessWidget {
           padding: context.allPadding(20),
           child: Column(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Constant.fillWhite(context),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                height: context.dynamicHeight(0.2),
-                width: context.dynamicWidth(1),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Choose Image or Video',
-                      style: Theme.of(context).textTheme.titleMedium,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Upload recipe images or video',
+                        style: Theme.of(context).textTheme.labelBaseStrong,
+                      ),
+                      SizedBox(width: 2),
+                      Text(
+                        '*',
+                        style: Theme.of(context).textTheme.labelBaseStrong
+                            .copyWith(color: Constant.errorIcon(context)),
+                      ),
+                    ],
+                  ),
+
+                  Padding(
+                    padding: context.symmetricPadding(8, 0),
+                    child: DottedBorder(
+                      options: RoundedRectDottedBorderOptions(
+                        color: Constant.borderLight(context),
+                        radius: Radius.circular(8),
+                        dashPattern: [5, 5],
+                        strokeWidth: 1.2,
+                        // padding: EdgeInsets.all(16),
+                      ),
+                      child: Container(
+                        width: context.dynamicWidth(1),
+                        height: context.dynamicHeight(0.16),
+                        decoration: BoxDecoration(
+                          color: Constant.fillMidDark(context),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Upload images & video',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: Constant.textBase(context)),
+                            ),
+                            SizedBox(height: 8),
+                            PhosphorIcon(
+                              PhosphorIconsBold.plusCircle,
+                              color: Constant.iconBase(context),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    SizedBox(height: 8),
-                    PhosphorIcon(
-                      PhosphorIconsBold.plusCircle,
-                      color: Constant.iconDark(context),
-                    ),
-                  ],
-                ),
+                  ),
+                  Wrap(
+                    children: List.generate(4, (index) {
+                      return Stack(
+                        children: [
+                          Padding(
+                            padding: context.onlyPadding(8, 8, 0, 0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                'assets/images/salad.jpeg',
+                                height: context.dynamicHeight(0.1),
+                                width: context.dynamicWidth(0.24),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              child: PhosphorIcon(
+                                PhosphorIconsFill.xCircle,
+                                color: Constant.iconTertiaryLight(context),
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     color: Constant.fillWhite(context),
+                  //     borderRadius: BorderRadius.circular(8),
+                  //   ),
+                  //   height: context.dynamicHeight(0.2),
+                  //   width: context.dynamicWidth(1),
+                  //   child: Column(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //     children: [
+                  //       Text(
+                  //         'Upload images & video',
+                  //         style: Theme.of(context).textTheme.titleMedium,
+                  //       ),
+                  //       SizedBox(height: 8),
+                  //       PhosphorIcon(
+                  //         PhosphorIconsBold.plusCircle,
+                  //         color: Constant.iconDark(context),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                ],
               ),
+
               SizedBox(height: 12),
               Padding(
                 padding: context.symmetricPadding(16, 0),
@@ -124,6 +214,10 @@ class CreateRecipe extends StatelessWidget {
               TextInputWidget(
                 isRequired: true,
                 title: 'Directions',
+                hintText: '1. first step \n 2.second step',
+                height: context.dynamicHeight(0.18),
+                minLines: 6,
+                maxLines: 8,
                 controller: TextEditingController(),
                 keyboardType: TextInputType.text,
               ),
@@ -192,8 +286,9 @@ class CreateRecipe extends StatelessWidget {
                       ),
                       keyboardType: TextInputType.text,
                       suffixIcon: PhosphorIcon(
-                        PhosphorIcons.xCircle(),
-                        color: Constant.fillFixDark(context),
+                        PhosphorIcons.trash(),
+                        size: 20,
+                        color: Constant.iconBase(context),
                       ),
                     ),
                   );

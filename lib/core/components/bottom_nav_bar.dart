@@ -125,11 +125,11 @@ extension BottomTabExtension on BottomTabType {
       case BottomTabType.home:
         return PhosphorIcons.houseSimple(style);
       case BottomTabType.listsTabPage:
-        return PhosphorIcons.squaresFour(style);
+        return PhosphorIcons.heart(style);
       case BottomTabType.createRecipe:
         return PhosphorIcons.plus(style);
       case BottomTabType.signUp:
-        return PhosphorIcons.heart(style);
+        return PhosphorIcons.log(style);
       case BottomTabType.account:
         return PhosphorIcons.user(style);
     }

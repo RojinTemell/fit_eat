@@ -64,9 +64,9 @@ class TextInputWidget extends StatelessWidget {
     final bool obscure = isPassword ?? false;
 
     // Multiline istendi mi?
-    final int effectiveMaxLines = (maxLines ?? 1) < 1 ? 1 : (maxLines ?? 1);
-    final int effectiveMinLines = (minLines ?? 1) < 1 ? 1 : (minLines ?? 1);
-    final bool multiline = effectiveMaxLines > 1 || effectiveMinLines > 1;
+    // final int effectiveMaxLines = (maxLines ?? 1) < 1 ? 1 : (maxLines ?? 1);
+    // final int effectiveMinLines = (minLines ?? 1) < 1 ? 1 : (minLines ?? 1);
+    // final bool multiline = effectiveMaxLines > 1 || effectiveMinLines > 1;
 
     // Tek satırda sabit ve stabil padding (yukarı yapışma problemini çözer)
     // final bool _obscure = isPassword ?? false;
@@ -106,8 +106,8 @@ class TextInputWidget extends StatelessWidget {
             expands: false,
 
             // ✅ Tek satır / çok satır kontrolü
-            maxLines: multiline ? effectiveMaxLines : 1,
-            minLines: multiline ? effectiveMinLines : 1,
+            maxLines: maxLines ?? 1,
+            minLines: minLines ?? 1,
             // expands: _useExpands,
             // maxLines: _useExpands ? null : 1,
             // minLines: _useExpands ? null : 1,

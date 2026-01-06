@@ -4,6 +4,7 @@ import 'package:fit_eat/features/favorite_page/view/list_tab_page.dart';
 import 'package:fit_eat/features/home_page/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/ai_asistan_page/view/ai_assist.dart';
 import '../../features/auth_page/view/forgot_password.dart';
 import '../../features/auth_page/view/login.dart';
 import '../../features/auth_page/view/sign_up.dart';
@@ -61,25 +62,30 @@ class AppRouter {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: "/signUp",
-                  name: "signUp",
-                  builder: (context, state) => SignUp(),
+                  path: "/aiAssist",
+                  name: "aiAssist",
+                  builder: (context, state) => AiAssist(),
                 ),
-                GoRoute(
-                  path: "/login",
-                  name: "login",
-                  builder: (context, state) => Login(),
-                ),
-                GoRoute(
-                  path: "/forgotPassword",
-                  name: "forgotPassword",
-                  builder: (context, state) => ForgotPassword(),
-                ),
-                GoRoute(
-                  path: "/verificationCode",
-                  name: "verificationCode",
-                  builder: (context, state) => VerificationCode(),
-                ),
+                // GoRoute(
+                //   path: "/signUp",
+                //   name: "signUp",
+                //   builder: (context, state) => SignUp(),
+                // ),
+                // GoRoute(
+                //   path: "/login",
+                //   name: "login",
+                //   builder: (context, state) => Login(),
+                // ),
+                // GoRoute(
+                //   path: "/forgotPassword",
+                //   name: "forgotPassword",
+                //   builder: (context, state) => ForgotPassword(),
+                // ),
+                // GoRoute(
+                //   path: "/verificationCode",
+                //   name: "verificationCode",
+                //   builder: (context, state) => VerificationCode(),
+                // ),
               ],
             ),
             StatefulShellBranch(

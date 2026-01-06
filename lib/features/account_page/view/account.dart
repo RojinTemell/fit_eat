@@ -1,5 +1,8 @@
+import 'package:fit_eat/core/components/base_button.dart';
+import 'package:fit_eat/core/components/circle_button.dart';
 import 'package:fit_eat/core/components/toggle.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/components/list_item_selection.dart';
@@ -16,6 +19,25 @@ class Account extends StatefulWidget {
 
 class _AccountState extends State<Account> {
   bool isDark = true;
+  List settingList = [
+    {'title': 'Beğendiklerim', "icon": PhosphorIconsBold.heart},
+    {'title': 'Dil Ayarı', "icon": PhosphorIconsBold.globe},
+    {'title': 'Tariflerim', "icon": PhosphorIconsBold.forkKnife},
+    {'title': 'Listelerim', "icon": PhosphorIconsBold.list},
+  ];
+  List rozets = [
+    'chef',
+    'egg',
+    'fire',
+    'frying_pan',
+    'north-pole',
+    'rabbit',
+    'reward',
+    'robot',
+    'sunshine',
+    'world',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -67,36 +89,133 @@ class _AccountState extends State<Account> {
                   ],
                 ),
               ),
-
-              Container(
-                width: context.dynamicWidth(1),
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.only(top: 16, left: 12, right: 12),
-                decoration: BoxDecoration(
-                  color: Constant.fillWhite(context),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+              SizedBox(height: 20),
+              Padding(
+                padding: context.onlyPadding(0, 0, 0, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'Easy',
+                      'Rozetler',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    Divider(),
-                    Column(
-                      children: List.generate(5, (index) {
-                        return ListItemSelection(
-                          title: 'Settings',
-                          callback: () {},
-                          listItemSelectionType:
-                              ListItemSelectionType.selectedFull,
-                        );
-                      }),
+                    SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: List.generate(rozets.length, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: SizedBox(
+                              height: context.dynamicHeight(0.1),
+                              width: context.dynamicHeight(0.1), // KARE ALAN
+                              child: Image.asset(
+                                'assets/rozets/${rozets[index]}.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            // Container(
+                            //   height: context.dynamicHeight(0.1),
+                            //   width: context.dynamicWidth(0.18),
+                            //   // color: Colors.amber,
+                            //   child: Image.asset(
+                            //     'assets/rozets/${rozets[index]}.png',
+
+                            //     height: context.dynamicHeight(0.1),
+                            //     width: context.dynamicWidth(0.2),
+                            //     fit: BoxFit.fitHeight,
+                            //   ),
+                            // ),
+                          );
+                        }),
+                      ),
                     ),
                   ],
                 ),
               ),
+
+              Container(
+                width: context.dynamicWidth(1),
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Constant.fillWhite(context),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      children: [
+                        // PhosphorIcon(PhosphorIconsBold.heart),
+                        Text(
+                          '613',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Following',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        // PhosphorIcon(PhosphorIconsBold.heart),
+                        Text(
+                          '233.3K',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Followers',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        // PhosphorIcon(PhosphorIconsBold.heart),
+                        Text(
+                          '112M',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Likes',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        // PhosphorIcon(PhosphorIconsBold.heart),
+                        Text(
+                          '113',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Recipes',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
+                    ),
+                    // Column(
+                    //   children: [
+                    //     // PhosphorIcon(PhosphorIconsBold.shareFat),
+                    //     SizedBox(height: 4),
+                    //     Text(
+                    //       '1,876',
+                    //       style: Theme.of(context).textTheme.labelMedium,
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
+                ),
+              ),
+              // SizedBox(height: 20),
               Container(
                 width: context.dynamicWidth(1),
                 margin: EdgeInsets.symmetric(horizontal: 20),
@@ -109,14 +228,15 @@ class _AccountState extends State<Account> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Easy',
+                      'Settings',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Divider(),
                     Column(
-                      children: List.generate(5, (index) {
+                      children: List.generate(settingList.length, (index) {
                         return ListItemSelection(
-                          title: 'Settings',
+                          leading: PhosphorIcon(settingList[index]['icon']),
+                          title: settingList[index]['title'],
                           callback: () {},
                           listItemSelectionType:
                               ListItemSelectionType.selectedFull,
@@ -159,35 +279,17 @@ class _AccountState extends State<Account> {
                   ],
                 ),
               ),
-              Container(
-                width: context.dynamicWidth(1),
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.only(top: 16, left: 12, right: 12),
-                decoration: BoxDecoration(
-                  color: Constant.fillWhite(context),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Easy',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Divider(),
-                    Column(
-                      children: List.generate(5, (index) {
-                        return ListItemSelection(
-                          title: 'Settings',
-                          callback: () {},
-                          listItemSelectionType:
-                              ListItemSelectionType.selectedFull,
-                        );
-                      }),
-                    ),
-                  ],
+
+              Padding(
+                padding: context.symmetricPadding(20, 20),
+                child: BaseButton(
+                  width: context.dynamicWidth(0.9),
+                  title: 'Çıkış Yap',
+                  baseButtonType: BaseButtonType.filledGrey,
+                  baseButtonSize: BaseButtonSize.medium,
                 ),
               ),
+              // SizedBox(height: 20),
             ],
           ),
         ),
