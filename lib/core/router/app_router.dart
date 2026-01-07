@@ -12,7 +12,9 @@ import '../../features/auth_page/view/verification_code.dart';
 import '../../features/create_recipe_page/view/categories.dart';
 import '../../features/create_recipe_page/view/categories_sub_liste.dart';
 import '../../features/create_recipe_page/view/create_recipe.dart';
+import '../../features/home_page/view/answer_questions.dart';
 import '../../features/home_page/view/product_detail.dart';
+import '../../features/home_page/view/profile.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -114,6 +116,18 @@ class AppRouter {
           path: "/categoriesSubListe",
           name: "categoriesSubListe",
           builder: (context, state) => CategoriesSubListe(),
+          routes: [],
+        ),
+        GoRoute(
+          path: "/answerQuestions",
+          name: "answerQuestions",
+          builder: (context, state) => AnswerQuestions(),
+          routes: [],
+        ),
+        GoRoute(
+          path: "/profile",
+          name: "profile",
+          builder: (context, state) => Profile(),
           routes: [],
         ),
 

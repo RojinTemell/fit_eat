@@ -192,12 +192,15 @@ class _ProductDetailState extends State<ProductDetail> {
                           ),
                         ),
                         SizedBox(width: 4),
-                        Text(
-                          'Rojin Temel',
-                          style: Theme.of(context).textTheme.labelMediumStrong
-                              .copyWith(decoration: TextDecoration.underline),
+                        GestureDetector(
+                          onTap: () => context.pushNamed("profile"),
+                          child: Text(
+                            'Rojin Temel',
+                            style: Theme.of(context).textTheme.labelMediumStrong
+                                .copyWith(decoration: TextDecoration.underline),
 
-                          maxLines: 1,
+                            maxLines: 1,
+                          ),
                         ),
                       ],
                     ),
@@ -299,10 +302,13 @@ class _ProductDetailState extends State<ProductDetail> {
                     'Comments',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  Text(
-                    'Tümünü Gör',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      decoration: TextDecoration.underline,
+                  GestureDetector(
+                    onTap: () => context.pushNamed('answerQuestions'),
+                    child: Text(
+                      'Tümünü Gör',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ],
@@ -318,6 +324,7 @@ class _ProductDetailState extends State<ProductDetail> {
                     height: context.dynamicHeight(0.2),
                     width: context.dynamicWidth(0.8),
                     decoration: BoxDecoration(
+                      border: Border.all(color: Constant.borderLight(context)),
                       borderRadius: BorderRadius.circular(8),
                       color: Constant.bgPrimary(context),
                     ),
