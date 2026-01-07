@@ -1,5 +1,4 @@
 import 'package:fit_eat/core/components/base_button.dart';
-import 'package:fit_eat/core/components/circle_button.dart';
 import 'package:fit_eat/core/components/toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -20,22 +19,23 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   bool isDark = true;
   List settingList = [
-    {'title': 'Beğendiklerim', "icon": PhosphorIconsBold.heart},
-    {'title': 'Dil Ayarı', "icon": PhosphorIconsBold.globe},
+    {'title': 'Profil Ayarları', "icon": PhosphorIconsBold.gear},
+    {'title': 'Dil Ayarları', "icon": PhosphorIconsBold.globe},
     {'title': 'Tariflerim', "icon": PhosphorIconsBold.forkKnife},
     {'title': 'Listelerim', "icon": PhosphorIconsBold.list},
+    {'title': 'Beğendiklerim', "icon": PhosphorIconsBold.heart},
   ];
   List rozets = [
-    'chef',
-    'egg',
-    'fire',
-    'frying_pan',
-    'north-pole',
-    'rabbit',
     'reward',
     'robot',
     'sunshine',
     'world',
+    'chef',
+    'fire',
+    'frying_pan',
+    'egg',
+    'north-pole',
+    'rabbit',
   ];
 
   @override
@@ -91,47 +91,39 @@ class _AccountState extends State<Account> {
               ),
               SizedBox(height: 20),
               Padding(
-                padding: context.onlyPadding(0, 0, 0, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Rozetler',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: List.generate(rozets.length, (index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 20),
-                            child: SizedBox(
-                              height: context.dynamicHeight(0.1),
-                              width: context.dynamicHeight(0.1), // KARE ALAN
-                              child: Image.asset(
-                                'assets/rozets/${rozets[index]}.png',
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                            // Container(
-                            //   height: context.dynamicHeight(0.1),
-                            //   width: context.dynamicWidth(0.18),
-                            //   // color: Colors.amber,
-                            //   child: Image.asset(
-                            //     'assets/rozets/${rozets[index]}.png',
-
-                            //     height: context.dynamicHeight(0.1),
-                            //     width: context.dynamicWidth(0.2),
-                            //     fit: BoxFit.fitHeight,
-                            //   ),
-                            // ),
-                          );
-                        }),
+                padding: context.onlyPadding(0, 0, 0, 0),
+                child: Container(
+                  color: Constant.fillWhite(context),
+                  padding: context.onlyPadding(16, 0, 16, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Rozetler',
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 8),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(rozets.length, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: SizedBox(
+                                height: context.dynamicHeight(0.07),
+                                width: context.dynamicHeight(0.07),
+                                child: Image.asset(
+                                  'assets/rozets/${rozets[index]}.png',
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -147,13 +139,15 @@ class _AccountState extends State<Account> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // PhosphorIcon(PhosphorIconsBold.heart),
                         Text(
                           '613',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 6),
                         Text(
                           'Following',
                           style: Theme.of(context).textTheme.labelMedium,
@@ -161,13 +155,15 @@ class _AccountState extends State<Account> {
                       ],
                     ),
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // PhosphorIcon(PhosphorIconsBold.heart),
                         Text(
                           '233.3K',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 6),
                         Text(
                           'Followers',
                           style: Theme.of(context).textTheme.labelMedium,
@@ -175,13 +171,15 @@ class _AccountState extends State<Account> {
                       ],
                     ),
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // PhosphorIcon(PhosphorIconsBold.heart),
                         Text(
                           '112M',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 6),
                         Text(
                           'Likes',
                           style: Theme.of(context).textTheme.labelMedium,
@@ -189,13 +187,15 @@ class _AccountState extends State<Account> {
                       ],
                     ),
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // PhosphorIcon(PhosphorIconsBold.heart),
                         Text(
                           '113',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 6),
                         Text(
                           'Recipes',
                           style: Theme.of(context).textTheme.labelMedium,
@@ -285,7 +285,7 @@ class _AccountState extends State<Account> {
                 child: BaseButton(
                   width: context.dynamicWidth(0.9),
                   title: 'Çıkış Yap',
-                  baseButtonType: BaseButtonType.filledGrey,
+                  baseButtonType: BaseButtonType.filledRed,
                   baseButtonSize: BaseButtonSize.medium,
                 ),
               ),

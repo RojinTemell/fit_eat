@@ -70,7 +70,7 @@ class BaseButton extends StatelessWidget {
                   : Border.all(
                       color: baseButtonType.buttonBorderColor(context),
                     ),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
