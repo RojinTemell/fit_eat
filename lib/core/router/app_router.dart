@@ -4,6 +4,7 @@ import 'package:fit_eat/features/favorite_page/view/list_tab_page.dart';
 import 'package:fit_eat/features/home_page/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/account_page/view/setting.dart';
 import '../../features/ai_asistan_page/view/ai_assist.dart';
 import '../../features/auth_page/view/forgot_password.dart';
 import '../../features/auth_page/view/login.dart';
@@ -128,6 +129,12 @@ class AppRouter {
           path: "/profile",
           name: "profile",
           builder: (context, state) => Profile(),
+          routes: [],
+        ),
+        GoRoute(
+          path: "/setting",
+          name: "setting",
+          builder: (context, state) => Setting(),
           routes: [],
         ),
 
