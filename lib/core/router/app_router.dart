@@ -16,6 +16,7 @@ import '../../features/create_recipe_page/view/create_recipe.dart';
 import '../../features/home_page/view/answer_questions.dart';
 import '../../features/home_page/view/product_detail.dart';
 import '../../features/home_page/view/profile.dart';
+import '../../features/splash_page/view/splash.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -26,7 +27,7 @@ class AppRouter {
   static GoRouter createRouter() {
     return GoRouter(
       navigatorKey: navigatorKey,
-      initialLocation: "/home",
+      initialLocation: "/splash",
       observers: [KeyboardDismissObserver()],
       routes: [
         StatefulShellRoute.indexedStack(
@@ -135,6 +136,12 @@ class AppRouter {
           path: "/setting",
           name: "setting",
           builder: (context, state) => Setting(),
+          routes: [],
+        ),
+        GoRoute(
+          path: "/splash",
+          name: "splash",
+          builder: (context, state) => Splash(),
           routes: [],
         ),
 

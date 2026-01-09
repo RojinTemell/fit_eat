@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "838996762286",
+    "project_id": "fiteat-f1407",
+    "storage_bucket": "fiteat-f1407.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:838996762286:android:ea3710f6f6d2e18d7d973f",
+        "android_client_info": {
+          "package_name": "com.example.fit_eat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcCw8MN2KNLsTiXc620zr71lXtl37_Cx4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
