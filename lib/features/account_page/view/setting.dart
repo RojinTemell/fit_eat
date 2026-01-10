@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
-
 import '../../../core/components/appbar.dart';
 import '../../../core/components/base_button.dart';
 import '../../../core/components/list_item_selection.dart';
@@ -12,7 +10,7 @@ import '../../../core/constants/text_constants.dart';
 import '../../../core/theme/theme_mode.dart';
 
 class Setting extends StatefulWidget {
-  Setting({super.key});
+  const Setting({super.key});
 
   @override
   State<Setting> createState() => _SettingState();

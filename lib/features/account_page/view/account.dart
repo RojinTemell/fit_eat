@@ -1,16 +1,8 @@
-import 'package:fit_eat/core/components/appbar.dart';
-import 'package:fit_eat/core/components/base_button.dart';
-import 'package:fit_eat/core/components/toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:provider/provider.dart';
-
-import '../../../core/components/list_item_selection.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
-import '../../../core/theme/custom_themes/text_theme.dart';
-import '../../../core/theme/theme_mode.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});

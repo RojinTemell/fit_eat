@@ -199,7 +199,6 @@ extension ChipColor on ColorType {
       case ColorType.outlinedWarning:
         return Constant.warningBorderDark(context);
       case ColorType.auto:
-        // TODO: Handle this case.
         throw UnimplementedError();
     }
   }
