@@ -7,6 +7,17 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
   CreateRecipeViewModel(this.recipeService)
     : super(CreateRecipeState(isLoading: false, recipe: RecipeModel()));
   final IRecipeService recipeService;
+
+  void toggleCategory(String id) {
+    final categories = List<String>.from(state.recipe.categories ?? []);
+    if (categories.contains(id)) {
+      categories.remove(id);
+    } else {
+      categories.add(id);
+    }
+    emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
+  }
+
   changeLoading({required bool isLoading}) =>
       emit(state.copyWith(isLoading: isLoading));
 

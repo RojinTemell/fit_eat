@@ -31,6 +31,7 @@ class _BaseFitreItemState extends State<BaseFitreItem> {
     return GestureDetector(
       onTap: widget.onChanged,
       child: Container(
+        height: context.dynamicHeight(0.08),
         padding: context.symmetricPadding(8, 8),
         color: filterItemType.backgroundColor(context),
         child: Row(

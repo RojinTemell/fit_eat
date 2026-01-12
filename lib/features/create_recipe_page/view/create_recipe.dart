@@ -5,304 +5,343 @@ import 'package:fit_eat/core/components/list_item_selection.dart';
 import 'package:fit_eat/core/components/text_input.dart';
 import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/theme/custom_themes/text_theme.dart';
+import 'package:fit_eat/features/create_recipe_page/intites/selected_categories_title.dart';
+import 'package:fit_eat/features/create_recipe_page/widget/categories_bottomsheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../core/components/bottom_bar_container.dart';
 import '../../../core/components/chip.dart';
 import '../../../core/constants/text_constants.dart';
+import '../../../core/cubits/bottom_sheet.dart';
+import '../../home_page/state/category_state.dart';
+import '../../home_page/viewmodel/category_view_model.dart';
+import '../state/create_recipe_state.dart';
+import '../viewmodel/create_recipe_viewmodel.dart';
 
 // ignore: must_be_immutable
-class CreateRecipe extends StatelessWidget {
+class CreateRecipe extends StatefulWidget {
   const CreateRecipe({super.key});
 
   @override
+  State<CreateRecipe> createState() => _CreateRecipeState();
+}
+
+class _CreateRecipeState extends State<CreateRecipe> {
+  late CreateRecipeViewModel viewModel;
+  @override
+  void initState() {
+    viewModel = context.read<CreateRecipeViewModel>();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Create Recipe',
-        actions: [],
-        isVisibleLeading: false,
-      ),
-      bottomNavigationBar: BottomActionBar(
-        color: Constant.fillBase(context),
-        baseButtonType: BaseButtonType.filledGreen,
-        title: 'Create Your Recipe',
-        callback: () {
-          // context.pushNamed('addListingsSettingsPage');
-        },
-        // suffixIcon: PhosphorIcon(
-        //   PhosphorIcons.arrowCircleRight(PhosphorIconsStyle.bold),
-        //   size: 18,
-        //   color: Constant.iconWhite(context),
-        // ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: context.allPadding(20),
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocBuilder<CreateRecipeViewModel, CreateRecipeState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: 'Create Recipe',
+            actions: [],
+            isVisibleLeading: false,
+          ),
+          bottomNavigationBar: BottomActionBar(
+            color: Constant.fillBase(context),
+            baseButtonType: BaseButtonType.filledGreen,
+            title: 'Create Your Recipe',
+            callback: () {
+              // context.pushNamed('addListingsSettingsPage');
+            },
+            // suffixIcon: PhosphorIcon(
+            //   PhosphorIcons.arrowCircleRight(PhosphorIconsStyle.bold),
+            //   size: 18,
+            //   color: Constant.iconWhite(context),
+            // ),
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: context.allPadding(20),
+              child: Column(
                 children: [
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Upload recipe images or video',
-                        style: Theme.of(context).textTheme.labelBaseStrong,
+                      Row(
+                        children: [
+                          Text(
+                            'Upload recipe images or video',
+                            style: Theme.of(context).textTheme.labelBaseStrong,
+                          ),
+                          SizedBox(width: 2),
+                          Text(
+                            '*',
+                            style: Theme.of(context).textTheme.labelBaseStrong
+                                .copyWith(color: Constant.errorIcon(context)),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 2),
-                      Text(
-                        '*',
-                        style: Theme.of(context).textTheme.labelBaseStrong
-                            .copyWith(color: Constant.errorIcon(context)),
+
+                      Padding(
+                        padding: context.symmetricPadding(8, 0),
+                        child: DottedBorder(
+                          options: RoundedRectDottedBorderOptions(
+                            color: Constant.borderLight(context),
+                            radius: Radius.circular(8),
+                            dashPattern: [5, 5],
+                            strokeWidth: 1.2,
+                            // padding: EdgeInsets.all(16),
+                          ),
+                          child: Container(
+                            width: context.dynamicWidth(1),
+                            height: context.dynamicHeight(0.16),
+                            decoration: BoxDecoration(
+                              color: Constant.fillMidDark(context),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Upload images & video',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        color: Constant.textBase(context),
+                                      ),
+                                ),
+                                SizedBox(height: 8),
+                                PhosphorIcon(
+                                  PhosphorIconsBold.plusCircle,
+                                  color: Constant.iconBase(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
+                      Wrap(
+                        children: List.generate(4, (index) {
+                          return Stack(
+                            children: [
+                              Padding(
+                                padding: context.onlyPadding(8, 8, 0, 0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.asset(
+                                    'assets/images/salad.jpeg',
+                                    height: context.dynamicHeight(0.1),
+                                    width: context.dynamicWidth(0.24),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  child: PhosphorIcon(
+                                    PhosphorIconsFill.xCircle,
+                                    color: Constant.iconTertiaryLight(context),
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ),
+
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: Constant.fillWhite(context),
+                      //     borderRadius: BorderRadius.circular(8),
+                      //   ),
+                      //   height: context.dynamicHeight(0.2),
+                      //   width: context.dynamicWidth(1),
+                      //   child: Column(
+                      //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     children: [
+                      //       Text(
+                      //         'Upload images & video',
+                      //         style: Theme.of(context).textTheme.titleMedium,
+                      //       ),
+                      //       SizedBox(height: 8),
+                      //       PhosphorIcon(
+                      //         PhosphorIconsBold.plusCircle,
+                      //         color: Constant.iconDark(context),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
 
+                  SizedBox(height: 12),
                   Padding(
-                    padding: context.symmetricPadding(8, 0),
-                    child: DottedBorder(
-                      options: RoundedRectDottedBorderOptions(
-                        color: Constant.borderLight(context),
-                        radius: Radius.circular(8),
-                        dashPattern: [5, 5],
-                        strokeWidth: 1.2,
-                        // padding: EdgeInsets.all(16),
-                      ),
-                      child: Container(
-                        width: context.dynamicWidth(1),
-                        height: context.dynamicHeight(0.16),
-                        decoration: BoxDecoration(
-                          color: Constant.fillMidDark(context),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    padding: context.symmetricPadding(16, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
                             Text(
-                              'Upload images & video',
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(color: Constant.textBase(context)),
+                              'Choose Type',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelBaseStrong,
                             ),
-                            SizedBox(height: 8),
-                            PhosphorIcon(
-                              PhosphorIconsBold.plusCircle,
-                              color: Constant.iconBase(context),
+                            SizedBox(width: 2),
+                            Text(
+                              '*',
+                              style: Theme.of(context).textTheme.labelBaseStrong
+                                  .copyWith(color: Constant.errorIcon(context)),
                             ),
                           ],
+                        ),
+                        Row(
+                          children: [
+                            BaseChip(
+                              type: ColorType.filledWarning,
+                              title: 'EASY',
+                              size: ChipSize.smallChip,
+                            ),
+                            SizedBox(width: 8),
+                            BaseChip(
+                              type: ColorType.filledInfo,
+                              title: 'MEDIUM',
+                              size: ChipSize.smallChip,
+                            ),
+                            SizedBox(width: 8),
+                            BaseChip(
+                              type: ColorType.filledError,
+                              title: 'HARD',
+                              size: ChipSize.smallChip,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextInputWidget(
+                    isRequired: true,
+                    title: 'Title',
+                    controller: TextEditingController(),
+                    keyboardType: TextInputType.text,
+                  ),
+                  Padding(
+                    padding: context.symmetricPadding(8, 0),
+                    child: TextInputWidget(
+                      title: 'Detail',
+                      controller: TextEditingController(),
+                      keyboardType: TextInputType.text,
+                    ),
+                  ),
+                  TextInputWidget(
+                    isRequired: true,
+                    title: 'Directions',
+                    hintText: '1. first step \n 2.second step',
+                    height: context.dynamicHeight(0.18),
+                    minLines: 6,
+                    maxLines: 8,
+                    controller: TextEditingController(),
+                    keyboardType: TextInputType.text,
+                  ),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextInputWidget(
+                          title: 'Server',
+                          hintText: 'How many people',
+                          controller: TextEditingController(),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: TextInputWidget(
+                          title: 'Minute',
+                          hintText: 'How much times',
+                          controller: TextEditingController(),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      // Text(
+                      //   'Server Amount',
+                      //   style: Theme.of(context).textTheme.labelBaseStrong,
+                      // ),
+                    ],
+                  ),
+                  Padding(
+                    padding: context.symmetricPadding(8, 0),
+                    child: BlocBuilder<CategoryViewModel, CategoryState>(
+                      builder: (context, catState) {
+                        return ListItemSelection(
+                          title: 'Categories',
+                          callback: () {
+                            context.read<BottomSheetBloc>().showBottomSheet(
+                              context: context,
+                              widget: CategoriesBottomsheet(),
+                            );
+                            // context.pushNamed('categories');
+                          },
+                          listItemSelectionType: ListItemSelectionType.idleCard,
+                          subtitle: selectedCategoriesString(
+                            state.recipe.categories ?? [],
+                            catState.categoryList,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: context.dynamicWidth(1),
+                    child: TextInputWidget(
+                      hintText: 'Choose or write item',
+                      controller: TextEditingController(),
+                      keyboardType: TextInputType.text,
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          context.pushNamed('categories');
+                        },
+                        child: PhosphorIcon(
+                          PhosphorIcons.caretCircleDown(),
+                          color: Constant.iconFix(context),
+                          size: 24,
                         ),
                       ),
                     ),
                   ),
-                  Wrap(
-                    children: List.generate(4, (index) {
-                      return Stack(
-                        children: [
-                          Padding(
-                            padding: context.onlyPadding(8, 8, 0, 0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset(
-                                'assets/images/salad.jpeg',
-                                height: context.dynamicHeight(0.1),
-                                width: context.dynamicWidth(0.24),
-                                fit: BoxFit.fill,
-                              ),
-                            ),
+                  Column(
+                    children: List.generate(5, (index) {
+                      return SizedBox(
+                        child: TextInputWidget(
+                          // hintText: '1/2 Pound of Andoulle Sausage',
+                          controller: TextEditingController(
+                            text: '1/2 Pound of Andoulle Sausage',
                           ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              child: PhosphorIcon(
-                                PhosphorIconsFill.xCircle,
-                                color: Constant.iconTertiaryLight(context),
-                                size: 28,
-                              ),
-                            ),
+                          keyboardType: TextInputType.text,
+                          suffixIcon: PhosphorIcon(
+                            PhosphorIcons.trash(),
+                            size: 20,
+                            color: Constant.iconBase(context),
                           ),
-                        ],
+                        ),
                       );
                     }),
                   ),
 
-                  // Container(
-                  //   decoration: BoxDecoration(
-                  //     color: Constant.fillWhite(context),
-                  //     borderRadius: BorderRadius.circular(8),
-                  //   ),
-                  //   height: context.dynamicHeight(0.2),
-                  //   width: context.dynamicWidth(1),
-                  //   child: Column(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     children: [
-                  //       Text(
-                  //         'Upload images & video',
-                  //         style: Theme.of(context).textTheme.titleMedium,
-                  //       ),
-                  //       SizedBox(height: 8),
-                  //       PhosphorIcon(
-                  //         PhosphorIconsBold.plusCircle,
-                  //         color: Constant.iconDark(context),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ],
-              ),
-
-              SizedBox(height: 12),
-              Padding(
-                padding: context.symmetricPadding(16, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Choose Type',
-                          style: Theme.of(context).textTheme.labelBaseStrong,
-                        ),
-                        SizedBox(width: 2),
-                        Text(
-                          '*',
-                          style: Theme.of(context).textTheme.labelBaseStrong
-                              .copyWith(color: Constant.errorIcon(context)),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        BaseChip(
-                          type: ColorType.filledWarning,
-                          title: 'EASY',
-                          size: ChipSize.smallChip,
-                        ),
-                        SizedBox(width: 8),
-                        BaseChip(
-                          type: ColorType.filledInfo,
-                          title: 'MEDIUM',
-                          size: ChipSize.smallChip,
-                        ),
-                        SizedBox(width: 8),
-                        BaseChip(
-                          type: ColorType.filledError,
-                          title: 'HARD',
-                          size: ChipSize.smallChip,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              TextInputWidget(
-                isRequired: true,
-                title: 'Title',
-                controller: TextEditingController(),
-                keyboardType: TextInputType.text,
-              ),
-              Padding(
-                padding: context.symmetricPadding(8, 0),
-                child: TextInputWidget(
-                  title: 'Detail',
-                  controller: TextEditingController(),
-                  keyboardType: TextInputType.text,
-                ),
-              ),
-              TextInputWidget(
-                isRequired: true,
-                title: 'Directions',
-                hintText: '1. first step \n 2.second step',
-                height: context.dynamicHeight(0.18),
-                minLines: 6,
-                maxLines: 8,
-                controller: TextEditingController(),
-                keyboardType: TextInputType.text,
-              ),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextInputWidget(
-                      title: 'Server',
-                      hintText: 'How many people',
-                      controller: TextEditingController(),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: TextInputWidget(
-                      title: 'Minute',
-                      hintText: 'How much times',
-                      controller: TextEditingController(),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
                   // Text(
-                  //   'Server Amount',
-                  //   style: Theme.of(context).textTheme.labelBaseStrong,
+                  //   'Easy',
+                  //   style: Theme.of(context).textTheme.labelMediumStrong.copyWith(),
                   // ),
                 ],
               ),
-              Padding(
-                padding: context.symmetricPadding(8, 0),
-                child: ListItemSelection(
-                  title: 'Categories',
-                  callback: () {
-                    context.pushNamed('categories');
-                  },
-                  listItemSelectionType: ListItemSelectionType.idleCard,
-                  subtitle: 'Dinner, healty, salad',
-                ),
-              ),
-              SizedBox(
-                width: context.dynamicWidth(1),
-                child: TextInputWidget(
-                  hintText: 'Choose or write item',
-                  controller: TextEditingController(),
-                  keyboardType: TextInputType.text,
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      context.pushNamed('categories');
-                    },
-                    child: PhosphorIcon(
-                      PhosphorIcons.caretCircleDown(),
-                      color: Constant.iconFix(context),
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-              Column(
-                children: List.generate(5, (index) {
-                  return SizedBox(
-                    child: TextInputWidget(
-                      // hintText: '1/2 Pound of Andoulle Sausage',
-                      controller: TextEditingController(
-                        text: '1/2 Pound of Andoulle Sausage',
-                      ),
-                      keyboardType: TextInputType.text,
-                      suffixIcon: PhosphorIcon(
-                        PhosphorIcons.trash(),
-                        size: 20,
-                        color: Constant.iconBase(context),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-
-              // Text(
-              //   'Easy',
-              //   style: Theme.of(context).textTheme.labelMediumStrong.copyWith(),
-              // ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

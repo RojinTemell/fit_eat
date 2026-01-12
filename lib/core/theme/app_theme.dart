@@ -9,7 +9,7 @@ class AppTheme {
       fontFamily: 'Open Sans',
       textTheme: AppTextTheme.lightTextTheme,
       brightness: Brightness.light,
-
+     
       // Brightness.light,
       scaffoldBackgroundColor: Color(0xFFEDEEF1),
       // inputDecorationTheme: AppTextFormFieldTheme.inputDecorationTheme(context),

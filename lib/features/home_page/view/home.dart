@@ -4,14 +4,15 @@ import 'package:fit_eat/core/constants/text_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../core/components/text_input.dart';
+import '../../../core/entities/category/category_list.dart';
 import '../widget/last_visited_widget.dart';
 import '../widget/product_widget.dart';
 
 // ignore: must_be_immutable
 class Home extends StatelessWidget {
   Home({super.key});
-  List categoryList = ['Dinner', 'Breakfast', 'Salads', 'Lunch', 'Snacks'];
-  List categoryImageList = ['salad', 'fastfood', 'breakfast', 'snacks'];
+  // List categoryList = ['Dinner', 'Breakfast', 'Salads', 'Lunch', 'Snacks'];
+  // List categoryImageList = ['salad', 'fastfood', 'breakfast', 'snacks'];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,13 +128,13 @@ class Home extends StatelessWidget {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: List.generate(categoryImageList.length, (index) {
+                  children: List.generate(categoryList.length, (index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 20),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/images/${categoryImageList[index]}.jpeg',
+                        child: Image.network(
+                          categoryList[index].imageUrl,
                           height: context.dynamicHeight(0.12),
                           width: context.dynamicWidth(0.28),
                           fit: BoxFit.fill,
