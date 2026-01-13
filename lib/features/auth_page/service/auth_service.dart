@@ -11,7 +11,7 @@ class AuthService {
     }
 
     final credential = await _auth.signInAnonymously();
-    print('${credential.user}');
+    // print('${credential.user}');
     return credential.user!;
   }
 

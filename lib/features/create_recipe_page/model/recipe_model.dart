@@ -1,10 +1,12 @@
 import 'package:equatable/equatable.dart';
+import '../../ingredient/entities/recipe_ingredient.dart';
+import '../../ingredient/model/recipe_ingredient_model.dart';
 
 class RecipeModel extends Equatable {
   final String? title; //
   final String? about; //
-  final List<Media>? media;//
-  final List<String>? ingredients; //
+  final List<Media>? media; //
+  final List<RecipeIngredient>? ingredients; //
   final List<String>? steps; //
   final String? difficulty; //
   final int? serving; //
@@ -42,7 +44,7 @@ class RecipeModel extends Equatable {
     String? title,
     String? about,
     List<Media>? media,
-    List<String>? ingredients,
+    List<RecipeIngredient>? ingredients,
     List<String>? steps,
     String? difficulty,
     int? serving,
@@ -85,7 +87,9 @@ class RecipeModel extends Equatable {
           ? (json['media'] as List).map((v) => Media.fromJson(v)).toList()
           : null,
       ingredients: json['ingredients'] != null
-          ? List<String>.from(json['ingredients'])
+          ? (json['ingredients'] as List)
+                .map((e) => RecipeIngredientModel.fromJson(e))
+                .toList()
           : null,
       steps: json['steps'] != null ? List<String>.from(json['steps']) : null,
       difficulty: json['difficulty'],
@@ -109,7 +113,16 @@ class RecipeModel extends Equatable {
       'title': title,
       'about': about,
       'media': media?.map((v) => v.toJson()).toList(),
-      'ingredients': ingredients,
+      'ingredients': ingredients
+          ?.map(
+            (e) => RecipeIngredientModel(
+              ingredientId: e.ingredientId,
+              name: e.name,
+              quantity: e.quantity,
+              unit: e.unit,
+            ).toJson(),
+          )
+          .toList(),
       'steps': steps,
       'difficulty': difficulty,
       'serving': serving,

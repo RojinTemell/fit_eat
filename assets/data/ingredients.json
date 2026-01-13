@@ -1,0 +1,96 @@
+[
+    {
+        "id": "1",
+        "name": "Yumurta",
+        "category": "Protein",
+        "image": "https://images.unsplash.com/photo-1607690424560-35d967d6ad7c?q=80&w=987&auto=format&fit=crop",
+        "allowedUnits": [
+            "adet"
+        ],
+        "defaultUnit": "adet"
+    },
+    {
+        "id": "2",
+        "name": "Tavuk Göğsü",
+        "category": "Protein",
+        "allowedUnits": [
+            "gram"
+        ],
+        "defaultUnit": "gram"
+    },
+    {
+        "id": "3",
+        "name": "Somon",
+        "category": "Protein",
+        "allowedUnits": [
+            "gram"
+        ],
+        "defaultUnit": "gram"
+    },
+    {
+        "id": "4",
+        "name": "Yoğurt",
+        "category": "Süt Ürünleri",
+        "allowedUnits": [
+            "gram",
+            "su bardağı"
+        ],
+        "defaultUnit": "gram"
+    },
+    {
+        "id": "5",
+        "name": "Peynir",
+        "category": "Süt Ürünleri",
+        "allowedUnits": [
+            "gram"
+        ],
+        "defaultUnit": "gram"
+    },
+    {
+        "id": "6",
+        "name": "Brokoli",
+        "category": "Sebze",
+        "allowedUnits": [
+            "gram"
+        ],
+        "defaultUnit": "gram"
+    },
+    {
+        "id": "7",
+        "name": "Domates",
+        "category": "Sebze",
+        "allowedUnits": [
+            "adet",
+            "gram"
+        ],
+        "defaultUnit": "adet"
+    },
+    {
+        "id": "8",
+        "name": "Muz",
+        "category": "Meyve",
+        "allowedUnits": [
+            "adet"
+        ],
+        "defaultUnit": "adet"
+    },
+    {
+        "id": "9",
+        "name": "Elma",
+        "category": "Meyve",
+        "allowedUnits": [
+            "adet"
+        ],
+        "defaultUnit": "adet"
+    },
+    {
+        "id": "10",
+        "name": "Zeytinyağı",
+        "category": "Yağ",
+        "allowedUnits": [
+            "yemek kaşığı",
+            "su bardağı"
+        ],
+        "defaultUnit": "yemek kaşığı"
+    }
+]

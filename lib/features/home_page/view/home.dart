@@ -10,7 +10,7 @@ import '../widget/product_widget.dart';
 
 // ignore: must_be_immutable
 class Home extends StatelessWidget {
-  Home({super.key});
+  const Home({super.key});
   // List categoryList = ['Dinner', 'Breakfast', 'Salads', 'Lunch', 'Snacks'];
   // List categoryImageList = ['salad', 'fastfood', 'breakfast', 'snacks'];
   @override

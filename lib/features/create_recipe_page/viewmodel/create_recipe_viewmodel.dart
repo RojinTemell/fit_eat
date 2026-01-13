@@ -1,5 +1,8 @@
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
+import 'package:fit_eat/features/ingredient/entities/ingredient.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../ingredient/entities/recipe_ingredient.dart';
+import '../../ingredient/model/ingredient_model.dart';
 import '../service/abstract_recipe_service.dart';
 import '../state/create_recipe_state.dart';
 
@@ -16,6 +19,53 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       categories.add(id);
     }
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
+  }
+
+  void updateIngredients({
+    required IngredientModel ingredient,
+    required String quantity,
+    required String unit,
+  }) {
+    final ingredientList = List<RecipeIngredient>.from(
+      state.recipe.ingredients ?? [],
+    );
+    bool isExist = ingredientList.any(
+      (item) =>
+          item.ingredientId == ingredient.id &&
+          item.quantity == quantity &&
+          item.unit == unit,
+    );
+    final changedIndex = ingredientList.indexWhere(
+      (item) =>
+          item.ingredientId == ingredient.id &&
+          item.quantity != quantity &&
+          item.unit != unit,
+    );
+
+    if (changedIndex != -1) {
+      // ingredientList[changedIndex] = ingredientList[changedIndex].copyWith(
+      //   quantity: quantity,
+      //   unit: unit,
+      // );
+    }
+    if (isExist) {
+      ingredientList.removeWhere((e) => e.ingredientId == ingredient.id);
+    } else {
+      ingredientList.add(
+        RecipeIngredient(
+          ingredientId: ingredient.id,
+          name: ingredient.name,
+          quantity: quantity,
+          unit: unit,
+        ),
+      );
+    }
+
+    emit(
+      state.copyWith(
+        recipe: state.recipe.copyWith(ingredients: ingredientList),
+      ),
+    );
   }
 
   changeLoading({required bool isLoading}) =>
@@ -39,12 +89,6 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
 
   void updateDuration(int duration) {
     emit(state.copyWith(recipe: state.recipe.copyWith(duration: duration)));
-  }
-
-  void updateIngredients(List<String> ingredients) {
-    emit(
-      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
-    );
   }
 
   void updateSteps(List<String> steps) {

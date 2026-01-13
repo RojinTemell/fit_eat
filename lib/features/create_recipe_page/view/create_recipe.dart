@@ -267,10 +267,6 @@ class _CreateRecipeState extends State<CreateRecipe> {
                           keyboardType: TextInputType.number,
                         ),
                       ),
-                      // Text(
-                      //   'Server Amount',
-                      //   style: Theme.of(context).textTheme.labelBaseStrong,
-                      // ),
                     ],
                   ),
                   Padding(
