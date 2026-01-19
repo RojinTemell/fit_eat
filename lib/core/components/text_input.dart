@@ -31,6 +31,7 @@ class TextInputWidget extends StatelessWidget {
     this.maxLines,
     this.minLines,
     this.inputFormatters,
+    this.isEnabled,
     // this.textkey,
   });
 
@@ -56,6 +57,7 @@ class TextInputWidget extends StatelessWidget {
   final Color? fillColor;
   final int? maxLines;
   final int? minLines;
+  final bool? isEnabled;
   // final Key? textkey;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -104,7 +106,7 @@ class TextInputWidget extends StatelessWidget {
             readOnly: readOnly ?? false,
             enableInteractiveSelection: !(readOnly ?? false),
             expands: false,
-
+            enabled: isEnabled ?? true,
             // ✅ Tek satır / çok satır kontrolü
             maxLines: maxLines ?? 1,
             minLines: minLines ?? 1,
@@ -133,6 +135,14 @@ class TextInputWidget extends StatelessWidget {
                 color: borderColor ?? Constant.textBase(context),
               ),
               enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: (errorText != '' && errorText != null)
+                      ? (Constant.errorBorder(context))
+                      : (Constant.borderLight(context)),
+                ),
+              ),
+              disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
                   color: (errorText != '' && errorText != null)

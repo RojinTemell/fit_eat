@@ -21,50 +21,104 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
   }
 
-  void updateIngredients({
-    required IngredientModel ingredient,
-    required String quantity,
-    required String unit,
-  }) {
-    final ingredientList = List<RecipeIngredient>.from(
-      state.recipe.ingredients ?? [],
-    );
-    bool isExist = ingredientList.any(
-      (item) =>
-          item.ingredientId == ingredient.id &&
-          item.quantity == quantity &&
-          item.unit == unit,
-    );
-    final changedIndex = ingredientList.indexWhere(
-      (item) =>
-          item.ingredientId == ingredient.id &&
-          item.quantity != quantity &&
-          item.unit != unit,
-    );
+  // void updateIngredients({
+  //   required IngredientModel ingredient,
+  //   required String quantity,
+  //   required String unit,
+  // }) {
+  //   final ingredientList = List<RecipeIngredient>.from(
+  //     state.recipe.ingredients ?? [],
+  //   );
+  //   bool isExist = ingredientList.any(
+  //     (item) =>
+  //         item.ingredientId == ingredient.id &&
+  //         item.quantity == quantity &&
+  //         item.unit == unit,
+  //   );
+  //   final changedIndex = ingredientList.indexWhere(
+  //     (item) =>
+  //         item.ingredientId == ingredient.id &&
+  //         item.quantity != quantity &&
+  //         item.unit != unit,
+  //   );
 
-    if (changedIndex != -1) {
-      // ingredientList[changedIndex] = ingredientList[changedIndex].copyWith(
-      //   quantity: quantity,
-      //   unit: unit,
-      // );
-    }
-    if (isExist) {
-      ingredientList.removeWhere((e) => e.ingredientId == ingredient.id);
+  //   if (changedIndex != -1) {
+  //     // ingredientList[changedIndex] = ingredientList[changedIndex].copyWith(
+  //     //   quantity: quantity,
+  //     //   unit: unit,
+  //     // );
+  //   }
+  //   if (isExist) {
+  //     ingredientList.removeWhere((e) => e.ingredientId == ingredient.id);
+  //   } else {
+  //     ingredientList.add(
+  //       RecipeIngredient(
+  //         ingredientId: ingredient.id,
+  //         name: ingredient.name,
+  //         quantity: quantity,
+  //         unit: unit,
+  //       ),
+  //     );
+  //   }
+
+  //   emit(
+  //     state.copyWith(
+  //       recipe: state.recipe.copyWith(ingredients: ingredientList),
+  //     ),
+  //   );
+  // }
+
+  void toggleIngredient(IngredientModel ingredient) {
+    final current = List<RecipeIngredient>.from(state.recipe.ingredients ?? []);
+
+    final index = current.indexWhere((e) => e.ingredientId == ingredient.id);
+
+    if (index >= 0) {
+      // çıkar
+      current.removeAt(index);
     } else {
-      ingredientList.add(
+      // ekle (quantity boş başlar)
+      current.add(
         RecipeIngredient(
           ingredientId: ingredient.id,
           name: ingredient.name,
-          quantity: quantity,
-          unit: unit,
+          quantity: '',
+          unit: ingredient.defaultUnit,
         ),
       );
     }
 
+    emit(state.copyWith(recipe: state.recipe.copyWith(ingredients: current)));
+  }
+
+  void updateIngredientQuantity({
+    required String ingredientId,
+    required String quantity,
+  }) {
+    final ingredients = List<RecipeIngredient>.from(
+      state.recipe.ingredients ?? [],
+    );
+
+    final index = ingredients.indexWhere((e) => e.ingredientId == ingredientId);
+
+    if (index == -1) return;
+
+    final old = ingredients[index];
+
+    ingredients[index] = old.copyWith(quantity: quantity);
+
     emit(
-      state.copyWith(
-        recipe: state.recipe.copyWith(ingredients: ingredientList),
-      ),
+      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
+    );
+  }
+
+  void removeIngredient(String ingredientId) {
+    final ingredients = List<RecipeIngredient>.from(
+      state.recipe.ingredients ?? [],
+    )..removeWhere((e) => e.ingredientId == ingredientId);
+
+    emit(
+      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
     );
   }
 

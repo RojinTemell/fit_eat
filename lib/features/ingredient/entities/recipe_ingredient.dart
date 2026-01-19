@@ -11,3 +11,14 @@ class RecipeIngredient {
     required this.unit,
   });
 }
+
+extension RecipeIngredientCopy on RecipeIngredient {
+  RecipeIngredient copyWith({String? quantity, String? unit}) {
+    return RecipeIngredient(
+      ingredientId: ingredientId,
+      name: name,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
+    );
+  }
+}

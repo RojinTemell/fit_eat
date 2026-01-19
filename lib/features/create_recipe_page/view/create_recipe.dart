@@ -17,6 +17,7 @@ import '../../../core/constants/text_constants.dart';
 import '../../../core/cubits/bottom_sheet.dart';
 import '../../home_page/state/category_state.dart';
 import '../../home_page/viewmodel/category_view_model.dart';
+import '../../ingredient/entities/recipe_ingredient.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 
@@ -30,6 +31,7 @@ class CreateRecipe extends StatefulWidget {
 
 class _CreateRecipeState extends State<CreateRecipe> {
   late CreateRecipeViewModel viewModel;
+
   @override
   void initState() {
     viewModel = context.read<CreateRecipeViewModel>();
@@ -40,6 +42,7 @@ class _CreateRecipeState extends State<CreateRecipe> {
   Widget build(BuildContext context) {
     return BlocBuilder<CreateRecipeViewModel, CreateRecipeState>(
       builder: (context, state) {
+        final ingredients = state.recipe.ingredients ?? [];
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Create Recipe',
@@ -299,7 +302,7 @@ class _CreateRecipeState extends State<CreateRecipe> {
                       keyboardType: TextInputType.text,
                       suffixIcon: GestureDetector(
                         onTap: () {
-                          context.pushNamed('categories');
+                          context.pushNamed('categoriesSubListe');
                         },
                         child: PhosphorIcon(
                           PhosphorIcons.caretCircleDown(),
@@ -309,24 +312,66 @@ class _CreateRecipeState extends State<CreateRecipe> {
                       ),
                     ),
                   ),
-                  Column(
-                    children: List.generate(5, (index) {
-                      return SizedBox(
-                        child: TextInputWidget(
-                          // hintText: '1/2 Pound of Andoulle Sausage',
-                          controller: TextEditingController(
-                            text: '1/2 Pound of Andoulle Sausage',
-                          ),
-                          keyboardType: TextInputType.text,
-                          suffixIcon: PhosphorIcon(
-                            PhosphorIcons.trash(),
-                            size: 20,
-                            color: Constant.iconBase(context),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
+                  if (state.recipe.ingredients != [])
+                    Column(
+                      children: List.generate(ingredients.length, (index) {
+                        RecipeIngredient model = ingredients[index];
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // SizedBox(width: 8),
+                            SizedBox(
+                              width: context.dynamicWidth(0.5),
+                              child: TextInputWidget(
+                                isEnabled: false,
+                                // hintText: '1/2 Pound of Andoulle Sausage',
+                                controller: TextEditingController(
+                                  text: model.name,
+                                ),
+                                keyboardType: TextInputType.text,
+                              ),
+                            ),
+                            SizedBox(
+                              width: context.dynamicWidth(0.25),
+                              child: TextInputWidget(
+                                hintText: '1/2 Adet',
+                                controller: TextEditingController(),
+                                onChanged: (value) {
+                                  viewModel.updateIngredientQuantity(
+                                    ingredientId: model.ingredientId,
+                                    quantity: value,
+                                  );
+                                },
+                                keyboardType: TextInputType.text,
+                              ),
+                            ),
+
+                            GestureDetector(
+                              onTap: () {
+                                viewModel.removeIngredient(model.ingredientId);
+                              },
+                              child: Container(
+                                height: context.dynamicHeight(0.056),
+                                width: context.dynamicWidth(0.1),
+
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Constant.borderLight(context),
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Constant.fillWhite(context),
+                                ),
+                                child: PhosphorIcon(
+                                  PhosphorIcons.trash(),
+                                  size: 20,
+                                  color: Constant.iconBase(context),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
 
                   // Text(
                   //   'Easy',

@@ -17,4 +17,16 @@ class IngredientViewmodel extends Cubit<IngredientState> {
       emit(state.copyWith(isLoading: false));
     }
   }
+
+  void toggleIngredient(String id) {
+    final tempList = List<String>.from(state.selectedIngredientIds);
+
+    if (tempList.contains(id)) {
+      tempList.remove(id);
+    } else {
+      tempList.add(id);
+    }
+
+    emit(state.copyWith(selectedIngredientIds: tempList));
+  }
 }
