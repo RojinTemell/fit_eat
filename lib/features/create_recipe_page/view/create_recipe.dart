@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:fit_eat/core/components/appbar.dart';
 import 'package:fit_eat/core/components/base_button.dart';
@@ -18,8 +20,10 @@ import '../../../core/cubits/bottom_sheet.dart';
 import '../../home_page/state/category_state.dart';
 import '../../home_page/viewmodel/category_view_model.dart';
 import '../../ingredient/entities/recipe_ingredient.dart';
+import '../model/recipe_media_model.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
+import '../widget/show_pick_media_bottomsheet.dart';
 
 // ignore: must_be_immutable
 class CreateRecipe extends StatefulWidget {
@@ -87,73 +91,95 @@ class _CreateRecipeState extends State<CreateRecipe> {
 
                       Padding(
                         padding: context.symmetricPadding(8, 0),
-                        child: DottedBorder(
-                          options: RoundedRectDottedBorderOptions(
-                            color: Constant.borderLight(context),
-                            radius: Radius.circular(8),
-                            dashPattern: [5, 5],
-                            strokeWidth: 1.2,
-                            // padding: EdgeInsets.all(16),
-                          ),
-                          child: Container(
-                            width: context.dynamicWidth(1),
-                            height: context.dynamicHeight(0.16),
-                            decoration: BoxDecoration(
-                              color: Constant.fillMidDark(context),
-                              borderRadius: BorderRadius.circular(8),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.read<BottomSheetBloc>().showBottomSheet(
+                              context: context,
+                              widget: MediaPickerBottomSheet(),
+                            );
+                          },
+                          child: DottedBorder(
+                            options: RoundedRectDottedBorderOptions(
+                              color: Constant.borderLight(context),
+                              radius: Radius.circular(8),
+                              dashPattern: [5, 5],
+                              strokeWidth: 1.2,
+                              // padding: EdgeInsets.all(16),
                             ),
+                            child: Container(
+                              width: context.dynamicWidth(1),
+                              height: context.dynamicHeight(0.16),
+                              decoration: BoxDecoration(
+                                color: Constant.fillMidDark(context),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
 
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Upload images & video',
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: Constant.textBase(context),
-                                      ),
-                                ),
-                                SizedBox(height: 8),
-                                PhosphorIcon(
-                                  PhosphorIconsBold.plusCircle,
-                                  color: Constant.iconBase(context),
-                                ),
-                              ],
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Upload images & video',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          color: Constant.textBase(context),
+                                        ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  PhosphorIcon(
+                                    PhosphorIconsBold.plusCircle,
+                                    color: Constant.iconBase(context),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Wrap(
-                        children: List.generate(4, (index) {
-                          return Stack(
-                            children: [
-                              Padding(
-                                padding: context.onlyPadding(8, 8, 0, 0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.asset(
-                                    'assets/images/salad.jpeg',
-                                    height: context.dynamicHeight(0.1),
-                                    width: context.dynamicWidth(0.24),
-                                    fit: BoxFit.fill,
+                      if (state.mediaList.isNotEmpty)
+                        Wrap(
+                          children: List.generate(state.mediaList.length, (
+                            index,
+                          ) {
+                            return Stack(
+                              children: [
+                                Padding(
+                                  padding: context.onlyPadding(8, 8, 0, 0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      File(state.mediaList[index].file.path),
+                                      height: context.dynamicHeight(0.1),
+                                      width: context.dynamicWidth(0.24),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: GestureDetector(
-                                  child: PhosphorIcon(
-                                    PhosphorIconsFill.xCircle,
-                                    color: Constant.iconTertiaryLight(context),
-                                    size: 28,
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      viewModel.removeMedia(
+                                        state.mediaList[index],
+                                      );
+                                    },
+                                    child: GestureDetector(
+                                      child: PhosphorIcon(
+                                        PhosphorIconsFill.xCircle,
+                                        color: Constant.iconTertiaryLight(
+                                          context,
+                                        ),
+                                        size: 28,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
-                        }),
-                      ),
+                              ],
+                            );
+                          }),
+                        ),
 
                       // Container(
                       //   decoration: BoxDecoration(

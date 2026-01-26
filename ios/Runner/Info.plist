@@ -16,6 +16,14 @@
 	<string>fit_eat</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>NSCameraUsageDescription</key>
+    <string>We need camera access to upload recipe photos and videos.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need photo library access to upload recipe media.</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need microphone access for video recording.</string>
+
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>

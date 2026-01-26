@@ -11,7 +11,7 @@ class BottomSheetBloc extends Cubit<String> {
     required BuildContext context,
     bool? isPadding,
     Color? backgroundColor,
-    Color? backgroundOverrideColor, // ✅ dışarıdan özel zemin rengi
+    Color? backgroundOverrideColor, //  dışarıdan özel zemin rengi
   }) {
     showModalBottomSheet(
       useRootNavigator: true,
@@ -46,17 +46,3 @@ class BottomSheetBloc extends Cubit<String> {
     );
   }
 }
-
-abstract class BottomSheetEvent {}
-
-class OpenBottomSheetEvent extends BottomSheetEvent {}
-
-class CloseBottomSheetEvent extends BottomSheetEvent {}
-
-abstract class BottomSheetState {}
-
-class BottomSheetOpenState extends BottomSheetState {}
-
-class BottomSheetCloseState extends BottomSheetState {}
-
-class BottomSheetInitial extends BottomSheetState {}

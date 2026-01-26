@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../ingredient/entities/recipe_ingredient.dart';
 import '../../ingredient/model/recipe_ingredient_model.dart';
+import 'recipe_media_model.dart';
 
 class RecipeModel extends Equatable {
   final String? title; //
@@ -175,5 +176,3 @@ class Media extends Equatable {
   @override
   List<Object?> get props => [url, type];
 }
-
-enum MediaType { image, video }
