@@ -8,7 +8,9 @@ class SplashViewmodel extends Cubit<bool> {
   }
   final AuthService authService;
   Future<void> init() async {
-    await authService.ensureSignedIn();
+    await authService.ensureFirebaseSignedIn();
+    await authService.ensureSupabaseSignedIn();
+
     emit(true);
   }
 }

@@ -10,7 +10,21 @@ class CreateRecipeService implements IRecipeService {
   final FirebaseFirestore firestore;
 
   @override
-  Future<void> createRecipe({required RecipeModel model}) async {
-    await firestore.collection('recipes').add(model.toJson());
+  Future<String> createRecipe({required RecipeModel model}) async {
+    final docRef = firestore.collection('recipes').doc();
+
+    final data = model
+        .copyWith(
+          createdAt: DateTime.now(), // UI için
+        )
+        .toJson();
+
+    await docRef.set({
+      ...data,
+      'id': docRef.id, // 🔥 çok önemli
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    return docRef.id;
   }
 }

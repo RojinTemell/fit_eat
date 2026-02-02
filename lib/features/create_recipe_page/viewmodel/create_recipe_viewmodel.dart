@@ -1,11 +1,13 @@
 import 'dart:io';
-
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:video_player/video_player.dart';
 import '../../ingredient/entities/recipe_ingredient.dart';
 import '../../ingredient/model/ingredient_model.dart';
+import '../intites/media_rules.dart';
 import '../model/recipe_media_model.dart';
 import '../service/abstract_recipe_service.dart';
 import '../state/create_recipe_state.dart';
@@ -23,49 +25,74 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
   final IRecipeService recipeService;
 
   final ImagePicker _picker = ImagePicker();
+
   Future<void> pickMedia(MediaType type, ImageSource source) async {
     try {
-      XFile? pickedFile;
+      XFile? file;
 
       if (type == MediaType.image) {
-        pickedFile = await _picker.pickImage(
+        file = await _picker.pickImage(
           source: source,
-          imageQuality: 80,
-          maxWidth: 1920,
+          imageQuality: MediaRules.imageQuality,
+          maxWidth: MediaRules.maxImageWidth.toDouble(),
         );
       } else {
-        pickedFile = await _picker.pickVideo(
+        file = await _picker.pickVideo(
           source: source,
-          maxDuration: const Duration(minutes: 2),
+          maxDuration: MediaRules.maxVideoDuration,
         );
       }
 
-      if (pickedFile == null) return;
+      if (file == null) return;
 
-      if (!_validateMedia(pickedFile, type)) return;
+      final isValid = await _validateMedia(file, type);
+      if (!isValid) return;
 
-      final media = RecipeMedia(file: pickedFile, type: type);
-
-      emit(state.copyWith(mediaList: [...state.mediaList, media]));
+      emit(
+        state.copyWith(
+          mediaList: [
+            ...state.mediaList,
+            RecipeMedia(file: file, type: type),
+          ],
+        ),
+      );
     } catch (e) {
       debugPrint('pickMedia error: $e');
     }
   }
 
-  bool _validateMedia(XFile file, MediaType type) {
+  Future<bool> _validateMedia(XFile file, MediaType type) async {
     final sizeMb = File(file.path).lengthSync() / (1024 * 1024);
 
-    if (type == MediaType.image && sizeMb > 5) {
-      debugPrint('Image size too large');
-      return false;
+    if (type == MediaType.image) {
+      if (sizeMb > MediaRules.maxImageSizeMb) {
+        debugPrint('Image too large');
+        return false;
+      }
     }
 
-    if (type == MediaType.video && sizeMb > 50) {
-      debugPrint('Video size too large');
-      return false;
+    if (type == MediaType.video) {
+      if (sizeMb > MediaRules.maxVideoSizeMb) {
+        debugPrint('Video too large');
+        return false;
+      }
+
+      final duration = await _getVideoDuration(file.path);
+      if (duration > MediaRules.maxVideoDuration) {
+        debugPrint('Video duration too long');
+        return false;
+      }
     }
 
     return true;
+  }
+
+  Future<Duration> _getVideoDuration(String path) async {
+    final controller = VideoPlayerController.file(File(path));
+    await controller.initialize();
+    final duration = controller.value.duration;
+    await controller.dispose();
+    return duration;
   }
 
   void removeMedia(RecipeMedia media) {
@@ -74,6 +101,28 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
         mediaList: state.mediaList.where((e) => e != media).toList(),
       ),
     );
+  }
+
+  Future<List<Media>> uploadMediaToSupabase() async {
+    final supabase = Supabase.instance.client;
+    final List<Media> uploaded = [];
+
+    for (final media in state.mediaList) {
+      final ext = media.file.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+      final bucket = media.type == MediaType.image ? 'image' : 'video';
+
+      await supabase.storage
+          .from(bucket)
+          .upload(fileName, File(media.file.path));
+
+      final url = supabase.storage.from(bucket).getPublicUrl(fileName);
+
+      uploaded.add(Media(url: url, type: media.type));
+    }
+
+    return uploaded;
   }
 
   void toggleCategory(String id) {
@@ -171,32 +220,28 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
   }
 
-  // void addImage({required MediaType type, required String url}) {
-  //   final List<Media> tempList = List.from(state.recipe.media ?? []);
-  //   bool isAdded = tempList.any(
-  //     (model) => model.type == type && model.url == url,
-  //   );
-  //   if (!isAdded) {
-  //     tempList.add(Media(type: type, url: url));
-  //   }
-  //   emit(state.copyWith(recipe: state.recipe.copyWith(media: tempList)));
-  // }
+  Future<void> createRecipe() async {
+    try {
+      emit(state.copyWith(isLoading: true));
 
-  // void removeImage({required MediaType type, required String url}) {
-  //   final List<Media> tempList = List.from(state.recipe.media ?? []);
-  //   tempList.removeWhere((model) => model.type == type && model.url == url);
-  //   emit(state.copyWith(recipe: state.recipe.copyWith(media: tempList)));
-  // }
+      final uploadedMedia = await uploadMediaToSupabase();
 
-  Future<void> sendRecipe({required String userId}) async {
-    changeLoading(isLoading: true);
-    final RecipeModel model = state.recipe.copyWith(
-      calorie: calculateCalorie(model: state.recipe),
-      userId: userId,
-      createdAt: DateTime.now(),
-    );
-    await recipeService.createRecipe(model: model);
-    changeLoading(isLoading: false);
+      final recipe = state.recipe.copyWith(
+        media: uploadedMedia,
+        createdAt: DateTime.now(),
+        viewCount: 0,
+        favoriteCount: 0,
+        ratingAverage: 0,
+        ratingCount: 0,
+      );
+      print(recipe.toJson());
+      await recipeService.createRecipe(model: recipe);
+
+      emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+      debugPrint('sendRecipe error: $e');
+    }
   }
 
   //burası yapılacak

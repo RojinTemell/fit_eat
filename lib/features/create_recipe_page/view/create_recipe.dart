@@ -20,7 +20,6 @@ import '../../../core/cubits/bottom_sheet.dart';
 import '../../home_page/state/category_state.dart';
 import '../../home_page/viewmodel/category_view_model.dart';
 import '../../ingredient/entities/recipe_ingredient.dart';
-import '../model/recipe_media_model.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 import '../widget/show_pick_media_bottomsheet.dart';
@@ -35,6 +34,7 @@ class CreateRecipe extends StatefulWidget {
 
 class _CreateRecipeState extends State<CreateRecipe> {
   late CreateRecipeViewModel viewModel;
+  late CreateRecipeViewModel mediaViewModel;
 
   @override
   void initState() {
@@ -58,6 +58,8 @@ class _CreateRecipeState extends State<CreateRecipe> {
             baseButtonType: BaseButtonType.filledGreen,
             title: 'Create Your Recipe',
             callback: () {
+              viewModel.createRecipe();
+
               // context.pushNamed('addListingsSettingsPage');
             },
             // suffixIcon: PhosphorIcon(

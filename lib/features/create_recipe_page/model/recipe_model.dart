@@ -162,15 +162,19 @@ class RecipeModel extends Equatable {
 
 class Media extends Equatable {
   const Media({this.url, this.type});
+
   final String? url;
   final MediaType? type;
 
   factory Media.fromJson(Map<String, dynamic> json) {
-    return Media(url: json['url'], type: json['type']);
+    return Media(
+      url: json['url'],
+      type: json['type'] != null ? MediaType.values.byName(json['type']) : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    return {'url': url, 'type': type};
+    return {'url': url, 'type': type?.name};
   }
 
   @override
