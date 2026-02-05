@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/account_page/view/setting.dart';
 import '../../features/ai_asistan_page/view/ai_assist.dart';
 import '../../features/create_recipe_page/view/categories.dart';
-import '../../features/create_recipe_page/view/categories_sub_liste.dart';
+import '../../features/create_recipe_page/view/ingredients.dart';
 import '../../features/create_recipe_page/view/create_recipe.dart';
 import '../../features/home_page/view/answer_questions.dart';
 import '../../features/home_page/view/product_detail.dart';
@@ -111,9 +111,9 @@ class AppRouter {
           routes: [],
         ),
         GoRoute(
-          path: "/categoriesSubListe",
-          name: "categoriesSubListe",
-          builder: (context, state) => CategoriesSubListe(),
+          path: "/ingredientsPage",
+          name: "ingredientsPage",
+          builder: (context, state) => IngredientsPage(),
           routes: [],
         ),
         GoRoute(

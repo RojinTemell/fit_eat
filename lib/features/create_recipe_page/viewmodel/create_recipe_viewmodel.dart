@@ -244,8 +244,10 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     }
   }
 
-  //burası yapılacak
-  int calculateCalorie({required RecipeModel model}) {
+ 
+int calculateCalorie({required RecipeModel model}) {
     return 0;
   }
+
+
 }

@@ -1,6 +1,7 @@
 import 'package:fit_eat/features/ingredient/state/ingredient_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../model/ingredient_model.dart';
 import '../repository/ingredient_reposiory.dart';
 
 class IngredientViewmodel extends Cubit<IngredientState> {
@@ -12,7 +13,13 @@ class IngredientViewmodel extends Cubit<IngredientState> {
     try {
       final ingredients = await repository.getIngredients();
 
-      emit(state.copyWith(isLoading: false, ingredients: ingredients));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          ingredients: ingredients,
+          defaultIngredients: ingredients,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isLoading: false));
     }
@@ -29,4 +36,21 @@ class IngredientViewmodel extends Cubit<IngredientState> {
 
     emit(state.copyWith(selectedIngredientIds: tempList));
   }
+
+  void searchIngredient({required String key}) {
+    List<IngredientModel> templeList = List.from(
+      state.defaultIngredients ?? [],
+    );
+    templeList.removeWhere((item) {
+      print(item.name.toLowerCase());
+      return !item.name.toLowerCase().contains(key);
+    });
+    emit(state.copyWith(ingredients: templeList));
+  }
+
+  void clearSearch() {
+    emit(state.copyWith(ingredients: state.defaultIngredients));
+  }
+
+  void addIngredient() {}
 }

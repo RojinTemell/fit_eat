@@ -20,6 +20,8 @@ import '../../../core/cubits/bottom_sheet.dart';
 import '../../home_page/state/category_state.dart';
 import '../../home_page/viewmodel/category_view_model.dart';
 import '../../ingredient/entities/recipe_ingredient.dart';
+import '../intites/difficulty_list.dart';
+import '../mixin/create_recipe_mixin.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 import '../widget/show_pick_media_bottomsheet.dart';
@@ -32,16 +34,8 @@ class CreateRecipe extends StatefulWidget {
   State<CreateRecipe> createState() => _CreateRecipeState();
 }
 
-class _CreateRecipeState extends State<CreateRecipe> {
-  late CreateRecipeViewModel viewModel;
-  late CreateRecipeViewModel mediaViewModel;
-
-  @override
-  void initState() {
-    viewModel = context.read<CreateRecipeViewModel>();
-    super.initState();
-  }
-
+class _CreateRecipeState extends State<CreateRecipe>
+    with CreateRecipePageMixin {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateRecipeViewModel, CreateRecipeState>(
@@ -68,6 +62,7 @@ class _CreateRecipeState extends State<CreateRecipe> {
             //   color: Constant.iconWhite(context),
             // ),
           ),
+         
           body: SingleChildScrollView(
             child: Padding(
               padding: context.allPadding(20),
@@ -106,7 +101,6 @@ class _CreateRecipeState extends State<CreateRecipe> {
                               radius: Radius.circular(8),
                               dashPattern: [5, 5],
                               strokeWidth: 1.2,
-                              // padding: EdgeInsets.all(16),
                             ),
                             child: Container(
                               width: context.dynamicWidth(1),
@@ -182,29 +176,6 @@ class _CreateRecipeState extends State<CreateRecipe> {
                             );
                           }),
                         ),
-
-                      // Container(
-                      //   decoration: BoxDecoration(
-                      //     color: Constant.fillWhite(context),
-                      //     borderRadius: BorderRadius.circular(8),
-                      //   ),
-                      //   height: context.dynamicHeight(0.2),
-                      //   width: context.dynamicWidth(1),
-                      //   child: Column(
-                      //     mainAxisAlignment: MainAxisAlignment.center,
-                      //     children: [
-                      //       Text(
-                      //         'Upload images & video',
-                      //         style: Theme.of(context).textTheme.titleMedium,
-                      //       ),
-                      //       SizedBox(height: 8),
-                      //       PhosphorIcon(
-                      //         PhosphorIconsBold.plusCircle,
-                      //         color: Constant.iconDark(context),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
                     ],
                   ),
 
@@ -231,25 +202,29 @@ class _CreateRecipeState extends State<CreateRecipe> {
                           ],
                         ),
                         Row(
-                          children: [
-                            BaseChip(
-                              type: ColorType.filledWarning,
-                              title: 'EASY',
-                              size: ChipSize.smallChip,
-                            ),
-                            SizedBox(width: 8),
-                            BaseChip(
-                              type: ColorType.filledInfo,
-                              title: 'MEDIUM',
-                              size: ChipSize.smallChip,
-                            ),
-                            SizedBox(width: 8),
-                            BaseChip(
-                              type: ColorType.filledError,
-                              title: 'HARD',
-                              size: ChipSize.smallChip,
-                            ),
-                          ],
+                          children: List.generate(
+                            RecipeDifficulty.values.length,
+                            (index) {
+                              var difficulty = RecipeDifficulty.values[index];
+                              return GestureDetector(
+                                onTap: () => viewModel.updateDifficulty(
+                                  difficulty.title,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: BaseChip(
+                                    type:
+                                        difficulty.title ==
+                                            state.recipe.difficulty
+                                        ? difficulty.selectedType
+                                        : difficulty.type,
+                                    title: difficulty.title,
+                                    size: ChipSize.smallChip,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -257,35 +232,36 @@ class _CreateRecipeState extends State<CreateRecipe> {
                   TextInputWidget(
                     isRequired: true,
                     title: 'Title',
-                    controller: TextEditingController(),
+                    controller: titleController,
                     keyboardType: TextInputType.text,
                   ),
                   Padding(
                     padding: context.symmetricPadding(8, 0),
                     child: TextInputWidget(
                       title: 'Detail',
-                      controller: TextEditingController(),
+                      controller: detailController,
                       keyboardType: TextInputType.text,
                     ),
                   ),
                   TextInputWidget(
                     isRequired: true,
                     title: 'Directions',
-                    hintText: '1. first step \n 2.second step',
+                    hintText: '1- first step \n2-second step',
                     height: context.dynamicHeight(0.18),
                     minLines: 6,
                     maxLines: 8,
-                    controller: TextEditingController(),
-                    keyboardType: TextInputType.text,
+                    controller: directionsController,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
 
                   Row(
                     children: [
                       Expanded(
                         child: TextInputWidget(
-                          title: 'Server',
+                          title: 'Servings',
                           hintText: 'How many people',
-                          controller: TextEditingController(),
+                          controller: servingController,
                           keyboardType: TextInputType.number,
                         ),
                       ),
@@ -294,7 +270,7 @@ class _CreateRecipeState extends State<CreateRecipe> {
                         child: TextInputWidget(
                           title: 'Minute',
                           hintText: 'How much times',
-                          controller: TextEditingController(),
+                          controller: minuteController,
                           keyboardType: TextInputType.number,
                         ),
                       ),
@@ -326,11 +302,11 @@ class _CreateRecipeState extends State<CreateRecipe> {
                     width: context.dynamicWidth(1),
                     child: TextInputWidget(
                       hintText: 'Choose or write item',
-                      controller: TextEditingController(),
+                      controller: ingredientSearchController,
                       keyboardType: TextInputType.text,
                       suffixIcon: GestureDetector(
                         onTap: () {
-                          context.pushNamed('categoriesSubListe');
+                          context.pushNamed('ingredientsPage');
                         },
                         child: PhosphorIcon(
                           PhosphorIcons.caretCircleDown(),
@@ -347,12 +323,11 @@ class _CreateRecipeState extends State<CreateRecipe> {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // SizedBox(width: 8),
                             SizedBox(
                               width: context.dynamicWidth(0.5),
                               child: TextInputWidget(
                                 isEnabled: false,
-                                // hintText: '1/2 Pound of Andoulle Sausage',
+
                                 controller: TextEditingController(
                                   text: model.name,
                                 ),
@@ -400,11 +375,6 @@ class _CreateRecipeState extends State<CreateRecipe> {
                         );
                       }),
                     ),
-
-                  // Text(
-                  //   'Easy',
-                  //   style: Theme.of(context).textTheme.labelMediumStrong.copyWith(),
-                  // ),
                 ],
               ),
             ),

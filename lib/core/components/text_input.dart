@@ -32,6 +32,7 @@ class TextInputWidget extends StatelessWidget {
     this.minLines,
     this.inputFormatters,
     this.isEnabled,
+    this.textInputAction,
     // this.textkey,
   });
 
@@ -58,6 +59,7 @@ class TextInputWidget extends StatelessWidget {
   final int? maxLines;
   final int? minLines;
   final bool? isEnabled;
+  final TextInputAction? textInputAction;
   // final Key? textkey;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -110,6 +112,7 @@ class TextInputWidget extends StatelessWidget {
             // ✅ Tek satır / çok satır kontrolü
             maxLines: maxLines ?? 1,
             minLines: minLines ?? 1,
+            textInputAction: textInputAction,
             // expands: _useExpands,
             // maxLines: _useExpands ? null : 1,
             // minLines: _useExpands ? null : 1,
