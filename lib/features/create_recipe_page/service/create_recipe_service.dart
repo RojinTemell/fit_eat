@@ -13,15 +13,11 @@ class CreateRecipeService implements IRecipeService {
   Future<String> createRecipe({required RecipeModel model}) async {
     final docRef = firestore.collection('recipes').doc();
 
-    final data = model
-        .copyWith(
-          createdAt: DateTime.now(), // UI için
-        )
-        .toJson();
+    final data = model.copyWith(createdAt: DateTime.now()).toJson();
 
     await docRef.set({
       ...data,
-      'id': docRef.id, // 🔥 çok önemli
+      'id': docRef.id,
       'createdAt': FieldValue.serverTimestamp(),
     });
 

@@ -48,14 +48,17 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       final isValid = await _validateMedia(file, type);
       if (!isValid) return;
 
-      emit(
-        state.copyWith(
-          mediaList: [
-            ...state.mediaList,
-            RecipeMedia(file: file, type: type),
-          ],
-        ),
-      );
+      List<RecipeMedia> updatedList = List.from(state.mediaList);
+
+      if (type == MediaType.video) {
+        updatedList.removeWhere((element) => element.type == MediaType.video);
+
+        updatedList.insert(0, RecipeMedia(file: file, type: type));
+      } else {
+        updatedList.add(RecipeMedia(file: file, type: type));
+      }
+
+      emit(state.copyWith(mediaList: updatedList));
     } catch (e) {
       debugPrint('pickMedia error: $e');
     }
@@ -101,28 +104,6 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
         mediaList: state.mediaList.where((e) => e != media).toList(),
       ),
     );
-  }
-
-  Future<List<Media>> uploadMediaToSupabase() async {
-    final supabase = Supabase.instance.client;
-    final List<Media> uploaded = [];
-
-    for (final media in state.mediaList) {
-      final ext = media.file.path.split('.').last;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
-
-      final bucket = media.type == MediaType.image ? 'image' : 'video';
-
-      await supabase.storage
-          .from(bucket)
-          .upload(fileName, File(media.file.path));
-
-      final url = supabase.storage.from(bucket).getPublicUrl(fileName);
-
-      uploaded.add(Media(url: url, type: media.type));
-    }
-
-    return uploaded;
   }
 
   void toggleCategory(String id) {
@@ -220,6 +201,28 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
   }
 
+  Future<List<Media>> uploadMediaToSupabase() async {
+    final supabase = Supabase.instance.client;
+    final List<Media> uploaded = [];
+
+    for (final media in state.mediaList) {
+      final ext = media.file.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+      final bucket = media.type == MediaType.image ? 'image' : 'video';
+
+      await supabase.storage
+          .from(bucket)
+          .upload(fileName, File(media.file.path));
+
+      final url = supabase.storage.from(bucket).getPublicUrl(fileName);
+
+      uploaded.add(Media(url: url, type: media.type));
+    }
+
+    return uploaded;
+  }
+
   Future<void> createRecipe() async {
     try {
       emit(state.copyWith(isLoading: true));
@@ -234,7 +237,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
         ratingAverage: 0,
         ratingCount: 0,
       );
-      print(recipe.toJson());
+
       await recipeService.createRecipe(model: recipe);
 
       emit(state.copyWith(isLoading: false));
@@ -244,10 +247,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     }
   }
 
- 
-int calculateCalorie({required RecipeModel model}) {
+  int calculateCalorie({required RecipeModel model}) {
     return 0;
   }
-
-
 }

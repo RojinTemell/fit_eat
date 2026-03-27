@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../constants/dynamic_constants.dart';
 import '../constants/text_constants.dart';
 import '../theme/custom_themes/text_theme.dart';
@@ -21,7 +20,7 @@ class TextInputWidget extends StatelessWidget {
     this.prefixIcon,
     this.prefix,
     this.isRequired,
-    this.errorText,
+
     this.focusNode,
     this.height,
     this.borderColor,
@@ -33,6 +32,7 @@ class TextInputWidget extends StatelessWidget {
     this.inputFormatters,
     this.isEnabled,
     this.textInputAction,
+    this.validator,
     // this.textkey,
   });
 
@@ -42,7 +42,7 @@ class TextInputWidget extends StatelessWidget {
   final VoidCallback? onEditingComplete;
   final VoidCallback? onTap;
   final String? hintText;
-  final String? errorText;
+
   final String? title;
   final TextStyle? textStyle;
   final TextInputType keyboardType;
@@ -60,6 +60,7 @@ class TextInputWidget extends StatelessWidget {
   final int? minLines;
   final bool? isEnabled;
   final TextInputAction? textInputAction;
+  final String? Function(String?)? validator;
   // final Key? textkey;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -67,14 +68,6 @@ class TextInputWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool obscure = isPassword ?? false;
 
-    // Multiline istendi mi?
-    // final int effectiveMaxLines = (maxLines ?? 1) < 1 ? 1 : (maxLines ?? 1);
-    // final int effectiveMinLines = (minLines ?? 1) < 1 ? 1 : (minLines ?? 1);
-    // final bool multiline = effectiveMaxLines > 1 || effectiveMinLines > 1;
-
-    // Tek satırda sabit ve stabil padding (yukarı yapışma problemini çözer)
-    // final bool _obscure = isPassword ?? false;
-    // final bool _useExpands = !_obscure; // şifre değilse expands serbest
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,9 +78,7 @@ class TextInputWidget extends StatelessWidget {
               Text(
                 title ?? '',
                 style: Theme.of(context).textTheme.labelBaseStrong.copyWith(
-                  color: (errorText != '' && errorText != null)
-                      ? Constant.errorIcon(context)
-                      : (Constant.textDarker(context)),
+                  color: (Constant.textDarker(context)),
                 ),
               ),
               SizedBox(width: 2),
@@ -102,10 +93,12 @@ class TextInputWidget extends StatelessWidget {
           ),
         if (title != null) SizedBox(height: 2),
         SizedBox(
-          height: height ?? context.dynamicHeight(0.06),
-          child: TextField(
+          // height: height ?? context.dynamicHeight(0.06),
+          child: TextFormField(
+            validator: validator,
             // key: textkey ?? UniqueKey(),
             readOnly: readOnly ?? false,
+
             enableInteractiveSelection: !(readOnly ?? false),
             expands: false,
             enabled: isEnabled ?? true,
@@ -113,9 +106,6 @@ class TextInputWidget extends StatelessWidget {
             maxLines: maxLines ?? 1,
             minLines: minLines ?? 1,
             textInputAction: textInputAction,
-            // expands: _useExpands,
-            // maxLines: _useExpands ? null : 1,
-            // minLines: _useExpands ? null : 1,
             onEditingComplete: onEditingComplete,
             focusNode: focusNode,
             style: textStyle ?? Theme.of(context).textTheme.labelStrong,
@@ -139,33 +129,26 @@ class TextInputWidget extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: (errorText != '' && errorText != null)
-                      ? (Constant.errorBorder(context))
-                      : (Constant.borderLight(context)),
-                ),
+                borderSide: BorderSide(color: (Constant.borderLight(context))),
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: (errorText != '' && errorText != null)
-                      ? (Constant.errorBorder(context))
-                      : (Constant.borderLight(context)),
-                ),
+                borderSide: BorderSide(color: (Constant.borderLight(context))),
               ),
-              // errorBorder: OutlineInputBorder(
-              //     borderRadius: context.allCircular(10),
-              //     borderSide: BorderSide(color: Constant.errorIcon)),
-              // focusedErrorBorder: OutlineInputBorder(
-              //     borderRadius: context.allCircular(10),
-              //     borderSide: BorderSide(color: Constant.errorIcon)),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Constant.errorBorder(context)),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Constant.errorBorder(context)),
+              ),
+
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
                   // ignore: unrelated_type_equality_checks
-                  color: (errorText != '' && errorText != null)
-                      ? Constant.errorBorder(context)
-                      : Constant.borderLight(context),
+                  color: Constant.borderLight(context),
                 ),
               ),
               fillColor: fillColor ?? Constant.fillWhite(context),
@@ -179,16 +162,6 @@ class TextInputWidget extends StatelessWidget {
             ),
           ),
         ),
-        if (errorText != null && errorText!.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 4),
-            child: Text(
-              errorText ?? '',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Constant.errorText(context),
-              ),
-            ),
-          ),
       ],
     );
   }

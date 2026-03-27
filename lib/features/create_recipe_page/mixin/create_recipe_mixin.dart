@@ -7,7 +7,7 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
   // ViewModel
   late CreateRecipeViewModel viewModel;
   late CreateRecipeViewModel mediaViewModel;
-
+  final createRecipeFormKey = GlobalKey<FormState>();
   // Text Controllers
   late TextEditingController titleController;
   late TextEditingController detailController;
