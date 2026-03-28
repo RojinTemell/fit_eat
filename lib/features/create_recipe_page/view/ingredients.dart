@@ -1,4 +1,5 @@
 import 'package:fit_eat/core/components/appbar.dart';
+import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -6,9 +7,8 @@ import '../../../core/components/base_button.dart';
 import '../../../core/components/text_input.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
-import '../../ingredient/model/ingredient_model.dart';
-import '../../ingredient/state/ingredient_state.dart';
-import '../../ingredient/viewmodel/ingredient_viewmodel.dart';
+import '../../new_ingredient/state/ingredient_state.dart';
+import '../../new_ingredient/viewmodel/ingredient_viewmodel.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 import '../widget/base_filtre_item.dart';
@@ -35,12 +35,12 @@ class _IngredientsPageState extends State<IngredientsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<IngredientViewmodel, IngredientState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(actions: [], title: "Ingredients"),
+    return Scaffold(
+      appBar: CustomAppBar(actions: [], title: "Ingredients"),
 
-          body: SafeArea(
+      body: BlocBuilder<IngredientViewmodel, IngredientState>(
+        builder: (context, state) {
+          return SafeArea(
             child: Column(
               children: [
                 Padding(
@@ -54,7 +54,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                       padding: EdgeInsets.all(9),
                       child: GestureDetector(
                         onTap: () {
-                          viewmodel.clearSearch();
+                          // viewmodel.clearSearch();
                           searchController.clear();
                         },
                         child: Container(
@@ -95,18 +95,19 @@ class _IngredientsPageState extends State<IngredientsPage> {
                           child: ListView.builder(
                             itemCount: state.ingredients.length,
                             itemBuilder: (context, index) {
-                              IngredientModel item = state.ingredients[index];
+                              Ingredient item = state.ingredients[index];
                               final isChecked = createRecipeState
                                   .recipe
                                   .ingredients
-                                  ?.any((e) => e.ingredientId == item.id);
+                                  ?.any((e) => e.id == item.id);
                               return BaseFitreItem(
                                 isChecked: isChecked ?? false,
+                                isIcon: true,
                                 onChanged: () {
                                   createRecipeViewModel.toggleIngredient(item);
                                 },
                                 title: item.name,
-                                image: item.image,
+                                image: item.emoji,
                               );
                             },
                           ),
@@ -171,9 +172,9 @@ class _IngredientsPageState extends State<IngredientsPage> {
                 ),
               ],
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

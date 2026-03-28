@@ -1,0 +1,18 @@
+const List<String> kUnits = [
+  'adet',
+  'gram',
+  'kilogram',
+  'ml',
+  'litre',
+  'yemek kaşığı',
+  'tatlı kaşığı',
+  'çay kaşığı',
+  'su bardağı',
+  'çay bardağı',
+  'tutam',
+  'diş',
+  'dilim',
+  'demet',
+  'paket',
+  'kutu',
+];

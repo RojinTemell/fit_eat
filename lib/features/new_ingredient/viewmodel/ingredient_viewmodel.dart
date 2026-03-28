@@ -1,18 +1,25 @@
-import 'package:fit_eat/features/ingredient/state/ingredient_state.dart';
+import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
+import 'package:fit_eat/features/new_ingredient/state/ingredient_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../model/ingredient_model.dart';
-import '../repository/ingredient_reposiory.dart';
+import '../services/ingredients_service.dart';
 
 class IngredientViewmodel extends Cubit<IngredientState> {
-  final IngredientRepository repository;
-  IngredientViewmodel(this.repository) : super(IngredientState.initial());
+  IngredientViewmodel()
+    : super(
+        IngredientState(
+          isLoading: false,
+          ingredients: [],
+          selectedIngredientIds: [],
+          defaultIngredients: [],
+        ),
+      );
+  IngredientsService service = IngredientsService();
   Future<void> fetchIngredients() async {
     emit(state.copyWith(isLoading: true));
+    List<Ingredient> ingredients = await service.fetchIngredients();
 
     try {
-      final ingredients = await repository.getIngredients();
-
       emit(
         state.copyWith(
           isLoading: false,
@@ -38,11 +45,8 @@ class IngredientViewmodel extends Cubit<IngredientState> {
   }
 
   void searchIngredient({required String key}) {
-    List<IngredientModel> templeList = List.from(
-      state.defaultIngredients ?? [],
-    );
+    List<Ingredient> templeList = List.from(state.defaultIngredients);
     templeList.removeWhere((item) {
-      print(item.name.toLowerCase());
       return !item.name.toLowerCase().contains(key);
     });
     emit(state.copyWith(ingredients: templeList));

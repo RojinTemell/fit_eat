@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
+import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
-import '../../ingredient/entities/recipe_ingredient.dart';
-import '../../ingredient/model/ingredient_model.dart';
+import '../../new_ingredient/models/recipe_ingredient.dart';
+import '../../new_ingredient/services/nutrition_service.dart';
 import '../intites/media_rules.dart';
 import '../model/recipe_media_model.dart';
 import '../service/abstract_recipe_service.dart';
@@ -25,7 +26,8 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
   final IRecipeService recipeService;
 
   final ImagePicker _picker = ImagePicker();
-
+  final Map<String, TextEditingController> ingredientControllers = {};
+  // Upload image or video
   Future<void> pickMedia(MediaType type, ImageSource source) async {
     try {
       XFile? file;
@@ -106,6 +108,131 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     );
   }
 
+  Future<List<Media>> uploadMediaToSupabase() async {
+    final supabase = Supabase.instance.client;
+    final List<Media> uploaded = [];
+
+    for (final media in state.mediaList) {
+      final ext = media.file.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+      final bucket = media.type == MediaType.image ? 'image' : 'video';
+
+      await supabase.storage
+          .from(bucket)
+          .upload(fileName, File(media.file.path));
+
+      final url = supabase.storage.from(bucket).getPublicUrl(fileName);
+
+      uploaded.add(Media(url: url, type: media.type));
+    }
+
+    return uploaded;
+  }
+
+  // Ingredient
+
+  void toggleIngredient(Ingredient ingredient) {
+    final current = List<RecipeIngredient>.from(state.recipe.ingredients ?? []);
+
+    final index = current.indexWhere((e) => e.id == ingredient.id);
+
+    if (index >= 0) {
+      ingredientControllers[ingredient.id]?.dispose();
+      ingredientControllers.remove(ingredient.id);
+      current.removeAt(index);
+      current.removeAt(index);
+    } else {
+      ingredientControllers[ingredient.id] = TextEditingController();
+
+      current.add(
+        RecipeIngredient(
+          id: ingredient.id,
+          name: ingredient.name,
+          unit: ingredient.defaultUnit,
+          amount: 0,
+          caloriesPer100g: ingredient.caloriesPer100g, // ← bir kere kopyalanır
+          gramsPerPiece: ingredient.gramsPerPiece,
+        ),
+      );
+    }
+
+    emit(state.copyWith(recipe: state.recipe.copyWith(ingredients: current)));
+  }
+
+  void updateIngredientAmount({
+    required String ingredientId,
+    required double amount,
+  }) {
+    final ingredients = List<RecipeIngredient>.from(
+      state.recipe.ingredients ?? [],
+    );
+    final index = ingredients.indexWhere((e) => e.id == ingredientId);
+    if (index == -1) return;
+
+    ingredients[index] = ingredients[index].copyWith(amount: amount);
+    emit(
+      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
+    );
+  }
+
+  void updateIngredientUnit({
+    required String ingredientId,
+    required String unit,
+  }) {
+    final ingredients = List<RecipeIngredient>.from(
+      state.recipe.ingredients ?? [],
+    );
+    final index = ingredients.indexWhere((e) => e.id == ingredientId);
+    if (index == -1) return;
+
+    ingredients[index] = ingredients[index].copyWith(unit: unit);
+    emit(
+      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
+    );
+  }
+
+  // void updateIngredientAmount({
+  //   required String ingredientId,
+  //   required double amount,
+  // }) {
+  //   final ingredients = List<RecipeIngredient>.from(
+  //     state.recipe.ingredients ?? [],
+  //   );
+
+  //   final index = ingredients.indexWhere((e) => e.id == ingredientId);
+
+  //   if (index == -1) return;
+
+  //   final old = ingredients[index];
+
+  //   ingredients[index] = old.copyWith(amount: amount);
+
+  //   emit(
+  //     state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
+  //   );
+  // }
+  @override
+  Future<void> close() {
+    for (final controller in ingredientControllers.values) {
+      controller.dispose();
+    }
+    return super.close();
+  }
+
+  void removeIngredient(String ingredientId) {
+    ingredientControllers[ingredientId]?.dispose();
+    ingredientControllers.remove(ingredientId);
+    final ingredients = List<RecipeIngredient>.from(
+      state.recipe.ingredients ?? [],
+    )..removeWhere((e) => e.id == ingredientId);
+
+    emit(
+      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
+    );
+  }
+
+  // others
   void toggleCategory(String id) {
     final categories = List<String>.from(state.recipe.categories ?? []);
     if (categories.contains(id)) {
@@ -114,60 +241,6 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       categories.add(id);
     }
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
-  }
-
-  void toggleIngredient(IngredientModel ingredient) {
-    final current = List<RecipeIngredient>.from(state.recipe.ingredients ?? []);
-
-    final index = current.indexWhere((e) => e.ingredientId == ingredient.id);
-
-    if (index >= 0) {
-      // çıkar
-      current.removeAt(index);
-    } else {
-      // ekle (quantity boş başlar)
-      current.add(
-        RecipeIngredient(
-          ingredientId: ingredient.id,
-          name: ingredient.name,
-          quantity: '',
-          unit: ingredient.defaultUnit,
-        ),
-      );
-    }
-
-    emit(state.copyWith(recipe: state.recipe.copyWith(ingredients: current)));
-  }
-
-  void updateIngredientQuantity({
-    required String ingredientId,
-    required String quantity,
-  }) {
-    final ingredients = List<RecipeIngredient>.from(
-      state.recipe.ingredients ?? [],
-    );
-
-    final index = ingredients.indexWhere((e) => e.ingredientId == ingredientId);
-
-    if (index == -1) return;
-
-    final old = ingredients[index];
-
-    ingredients[index] = old.copyWith(quantity: quantity);
-
-    emit(
-      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
-    );
-  }
-
-  void removeIngredient(String ingredientId) {
-    final ingredients = List<RecipeIngredient>.from(
-      state.recipe.ingredients ?? [],
-    )..removeWhere((e) => e.ingredientId == ingredientId);
-
-    emit(
-      state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
-    );
   }
 
   changeLoading({required bool isLoading}) =>
@@ -201,43 +274,49 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
   }
 
-  Future<List<Media>> uploadMediaToSupabase() async {
-    final supabase = Supabase.instance.client;
-    final List<Media> uploaded = [];
-
-    for (final media in state.mediaList) {
-      final ext = media.file.path.split('.').last;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
-
-      final bucket = media.type == MediaType.image ? 'image' : 'video';
-
-      await supabase.storage
-          .from(bucket)
-          .upload(fileName, File(media.file.path));
-
-      final url = supabase.storage.from(bucket).getPublicUrl(fileName);
-
-      uploaded.add(Media(url: url, type: media.type));
-    }
-
-    return uploaded;
+  int calculateCalorie({required RecipeModel model}) {
+    return NutritionService.calculateCaloriePerServing(model: model);
   }
 
+  // Future<void> createRecipe() async {
+  //   try {
+  //     emit(state.copyWith(isLoading: true));
+
+  //     // 1. Ağır işlemleri (medya yükleme, kalori hesabı) burada tutabiliriz
+  //     final uploadedMedia = await uploadMediaToSupabase();
+  //     final calorie = calculateCalorie(model: state.recipe);
+
+  //     // 2. Modeli hazırla (Sadece elimizdeki verilerle)
+  //     final recipeDraft = state.recipe.copyWith(
+  //       media: uploadedMedia,
+  //       calorie: calorie,
+  //     );
+
+  //     // 3. Servisi çağır (Tüm Firebase/Auth işini o hallediyor)
+  //     await recipeService.createRecipe(model: recipeDraft);
+
+  //     emit(state.copyWith(isLoading: false));
+  //   } catch (e) {
+  //     emit(state.copyWith(isLoading: false));
+  //   }
+  // }
   Future<void> createRecipe() async {
     try {
       emit(state.copyWith(isLoading: true));
 
-      final uploadedMedia = await uploadMediaToSupabase();
+      // final uploadedMedia = await uploadMediaToSupabase();
+      final calorie = calculateCalorie(model: state.recipe);
 
       final recipe = state.recipe.copyWith(
-        media: uploadedMedia,
+        // media: uploadedMedia,
+        calorie: calorie,
         createdAt: DateTime.now(),
         viewCount: 0,
         favoriteCount: 0,
         ratingAverage: 0,
         ratingCount: 0,
       );
-
+      print(recipe.toJson());
       await recipeService.createRecipe(model: recipe);
 
       emit(state.copyWith(isLoading: false));
@@ -245,9 +324,5 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       emit(state.copyWith(isLoading: false));
       debugPrint('sendRecipe error: $e');
     }
-  }
-
-  int calculateCalorie({required RecipeModel model}) {
-    return 0;
   }
 }

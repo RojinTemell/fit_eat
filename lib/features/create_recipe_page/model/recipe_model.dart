@@ -1,9 +1,12 @@
 import 'package:equatable/equatable.dart';
-import '../../ingredient/entities/recipe_ingredient.dart';
-import '../../ingredient/model/recipe_ingredient_model.dart';
+import '../../new_ingredient/models/recipe_ingredient.dart';
 import 'recipe_media_model.dart';
 
 class RecipeModel extends Equatable {
+  final String? id; // Firestore Document ID
+  final String? userId; // Yazarın UID'si
+  final String? authorName; // Hızlı erişim için yazar adı
+  final String? authorAvatar;
   final String? title; //
   final String? about; //
   final List<Media>? media; //
@@ -18,10 +21,14 @@ class RecipeModel extends Equatable {
   final int? favoriteCount; //başlangıça 0 olucak oluşturulunca
   final double? ratingAverage; //başlangıça 0 olucak oluşturulunca
   final int? ratingCount; //başlangıça 0 olucak oluşturulunca
-  final String? userId;
+
   final DateTime? createdAt;
 
   const RecipeModel({
+    this.id,
+    this.userId,
+    this.authorName,
+    this.authorAvatar,
     this.title,
     this.about,
     this.media,
@@ -36,12 +43,15 @@ class RecipeModel extends Equatable {
     this.favoriteCount,
     this.ratingAverage,
     this.ratingCount,
-    this.userId,
+
     this.createdAt,
   });
 
   /// 🔁 copyWith
   RecipeModel copyWith({
+    String? id,
+    String? authorName,
+    String? authorAvatar,
     String? title,
     String? about,
     List<Media>? media,
@@ -60,6 +70,8 @@ class RecipeModel extends Equatable {
     DateTime? createdAt,
   }) {
     return RecipeModel(
+      id: id ?? this.id,
+
       title: title ?? this.title,
       about: about ?? this.about,
       media: media ?? this.media,
@@ -76,12 +88,18 @@ class RecipeModel extends Equatable {
       ratingCount: ratingCount ?? this.ratingCount,
       userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
+      authorName: authorName ?? this.authorName,
+      authorAvatar: authorAvatar ?? this.authorAvatar,
     );
   }
 
   /// 🔥 Firestore / JSON
-  factory RecipeModel.fromJson(Map<String, dynamic> json) {
+  factory RecipeModel.fromJson(Map<String, dynamic> json, {String? docId}) {
     return RecipeModel(
+      id: docId ?? json['id'],
+      userId: json['userId'],
+      authorName: json['authorName'],
+      authorAvatar: json['authorAvatar'],
       title: json['title'],
       about: json['about'],
       media: json['media'] != null
@@ -89,7 +107,7 @@ class RecipeModel extends Equatable {
           : null,
       ingredients: json['ingredients'] != null
           ? (json['ingredients'] as List)
-                .map((e) => RecipeIngredientModel.fromJson(e))
+                .map((e) => RecipeIngredient.fromJson(e))
                 .toList()
           : null,
       steps: json['steps'] != null ? List<String>.from(json['steps']) : null,
@@ -104,23 +122,26 @@ class RecipeModel extends Equatable {
       favoriteCount: json['favoriteCount'],
       ratingAverage: (json['ratingAverage'] as num?)?.toDouble(),
       ratingCount: json['ratingCount'],
-      userId: json['userId'],
+
       createdAt: json['createdAt'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
+      'userId': userId,
+      'authorName': authorName,
+      'authorAvatar': authorAvatar,
       'title': title,
       'about': about,
       'media': media?.map((v) => v.toJson()).toList(),
       'ingredients': ingredients
           ?.map(
-            (e) => RecipeIngredientModel(
-              ingredientId: e.ingredientId,
+            (e) => RecipeIngredient(
               name: e.name,
-              quantity: e.quantity,
               unit: e.unit,
+              amount: e.amount,
             ).toJson(),
           )
           .toList(),
@@ -134,13 +155,16 @@ class RecipeModel extends Equatable {
       'favoriteCount': favoriteCount,
       'ratingAverage': ratingAverage,
       'ratingCount': ratingCount,
-      'userId': userId,
+
       'createdAt': createdAt,
     };
   }
 
   @override
   List<Object?> get props => [
+    id,
+    authorName,
+    authorAvatar,
     title,
     about,
     media,

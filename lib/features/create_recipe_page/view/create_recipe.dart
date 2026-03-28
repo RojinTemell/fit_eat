@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:fit_eat/core/components/appbar.dart';
 import 'package:fit_eat/core/components/base_button.dart';
@@ -21,7 +20,8 @@ import '../../../core/constants/text_constants.dart';
 import '../../../core/cubits/bottom_sheet.dart';
 import '../../home_page/state/category_state.dart';
 import '../../home_page/viewmodel/category_view_model.dart';
-import '../../ingredient/entities/recipe_ingredient.dart';
+import '../../new_ingredient/models/recipe_ingredient.dart';
+import '../../new_ingredient/services/nutrition_service.dart';
 import '../intites/difficulty_list.dart';
 import '../mixin/create_recipe_mixin.dart';
 import '../model/recipe_media_model.dart';
@@ -65,8 +65,8 @@ class _CreateRecipeState extends State<CreateRecipe>
                   );
                   return;
                 }
-                print('hey oldu');
-                // viewModel.createRecipe();
+
+                viewModel.createRecipe();
               }
 
               // context.pushNamed('addListingsSettingsPage');
@@ -284,6 +284,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                       title: 'Title',
                       controller: titleController,
                       keyboardType: TextInputType.text,
+                      onChanged: (value) => viewModel.updateTitle(value),
                       validator: (value) => value.validateRequired('Title'),
                     ),
                     Padding(
@@ -292,15 +293,22 @@ class _CreateRecipeState extends State<CreateRecipe>
                         title: 'Detail',
                         controller: detailController,
                         keyboardType: TextInputType.text,
+                        onChanged: (value) => viewModel.updateAbout(value),
                       ),
                     ),
                     TextInputWidget(
                       isRequired: true,
                       title: 'Directions',
                       hintText: '1- first step \n2-second step',
-                      height: context.dynamicHeight(0.18),
                       validator: (value) =>
                           value.validateRequired('Directions'),
+                      height: context.dynamicHeight(0.18),
+                      onChanged: (value) => viewModel.updateSteps(
+                        value
+                            .split('\n')
+                            .where((e) => e.trim().isNotEmpty)
+                            .toList(),
+                      ),
                       minLines: 6,
                       maxLines: 8,
                       controller: directionsController,
@@ -318,6 +326,10 @@ class _CreateRecipeState extends State<CreateRecipe>
                               hintText: 'How many people',
                               controller: servingController,
                               keyboardType: TextInputType.number,
+                              onChanged: (value) => viewModel.updateServing(
+                                int.tryParse(value) ?? 1,
+                              ),
+
                               validator: (value) =>
                                   value.validateRequired('Servings'),
                             ),
@@ -329,6 +341,9 @@ class _CreateRecipeState extends State<CreateRecipe>
                               hintText: 'How much times',
                               controller: minuteController,
                               keyboardType: TextInputType.number,
+                              onChanged: (value) => viewModel.updateDuration(
+                                int.tryParse(value) ?? 0,
+                              ),
                               validator: (value) =>
                                   value.validateRequired('Minute'),
                             ),
@@ -378,71 +393,103 @@ class _CreateRecipeState extends State<CreateRecipe>
                       ),
                     ),
                     if (state.recipe.ingredients != [])
-                      Column(
-                        children: List.generate(ingredients.length, (index) {
-                          RecipeIngredient model = ingredients[index];
-                          return Padding(
-                            padding: context.symmetricPadding(8, 0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: context.dynamicWidth(0.5),
-                                  child: TextInputWidget(
-                                    isEnabled: false,
+                      if (ingredients.isNotEmpty)
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ingredients.length,
+                          itemBuilder: (context, index) {
+                            final model = ingredients[index];
 
-                                    controller: TextEditingController(
-                                      text: model.name,
-                                    ),
-                                    keyboardType: TextInputType.text,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: context.dynamicWidth(0.25),
-                                  child: TextInputWidget(
-                                    hintText: '1/2 Adet',
-                                    controller: TextEditingController(),
-                                    onChanged: (value) {
-                                      viewModel.updateIngredientQuantity(
-                                        ingredientId: model.ingredientId,
-                                        quantity: value,
-                                      );
-                                    },
-                                    // validator: (value) =>
-                                    //     value.validateRequired('Ingredients'),
-                                    keyboardType: TextInputType.text,
-                                  ),
-                                ),
+                            // Controller map'ten geliyor — rebuild olunca sıfırlanmaz
+                            final controller =
+                                viewModel.ingredientControllers[model.id];
 
-                                GestureDetector(
-                                  onTap: () {
-                                    viewModel.removeIngredient(
-                                      model.ingredientId,
-                                    );
-                                  },
-                                  child: Container(
-                                    height: context.dynamicHeight(0.056),
-                                    width: context.dynamicWidth(0.1),
-
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Constant.borderLight(context),
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Constant.fillWhite(context),
-                                    ),
-                                    child: PhosphorIcon(
-                                      PhosphorIcons.trash(),
-                                      size: 20,
-                                      color: Constant.iconBase(context),
-                                    ),
+                            return _IngredientRow(
+                              model: model,
+                              controller: controller,
+                              onAmountChanged: (value) =>
+                                  viewModel.updateIngredientAmount(
+                                    ingredientId: model.id,
+                                    amount: double.tryParse(value) ?? 0,
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
+                              onUnitChanged: (unit) =>
+                                  viewModel.updateIngredientUnit(
+                                    ingredientId: model.id,
+                                    unit: unit,
+                                  ),
+                              onDelete: () =>
+                                  viewModel.removeIngredient(model.id),
+                            );
+                          },
+                        ),
+
+                    // Column(
+                    //   children: List.generate(ingredients.length, (index) {
+                    //     RecipeIngredient model = ingredients[index];
+                    //     final controller =
+                    //         viewModel.ingredientControllers[model.id];
+                    //     return Padding(
+                    //       padding: context.symmetricPadding(8, 0),
+                    //       child: Row(
+                    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //         children: [
+                    //           SizedBox(
+                    //             width: context.dynamicWidth(0.5),
+                    //             child: TextInputWidget(
+                    //               isEnabled: false,
+
+                    //               controller: TextEditingController(
+                    //                 text: model.name,
+                    //               ),
+                    //               keyboardType: TextInputType.text,
+                    //             ),
+                    //           ),
+                    //           SizedBox(
+                    //             width: context.dynamicWidth(0.25),
+                    //             child: TextInputWidget(
+                    //               hintText: '${model.amount} ${model.unit}',
+                    //               controller:
+                    //                   controller ?? TextEditingController(),
+                    //               onChanged: (value) {
+                    //                 viewModel.updateIngredientAmount(
+                    //                   ingredientId: model.id,
+                    //                   amount: double.tryParse(value) ?? 0,
+                    //                 );
+                    //               },
+                    //               // validator: (value) =>
+                    //               //     value.validateRequired('Ingredients'),
+                    //               keyboardType: TextInputType.text,
+                    //             ),
+                    //           ),
+
+                    //           GestureDetector(
+                    //             onTap: () {
+                    //               viewModel.removeIngredient(model.id);
+                    //             },
+                    //             child: Container(
+                    //               height: context.dynamicHeight(0.056),
+                    //               width: context.dynamicWidth(0.1),
+
+                    //               decoration: BoxDecoration(
+                    //                 border: Border.all(
+                    //                   color: Constant.borderLight(context),
+                    //                 ),
+                    //                 borderRadius: BorderRadius.circular(8),
+                    //                 color: Constant.fillWhite(context),
+                    //               ),
+                    //               child: PhosphorIcon(
+                    //                 PhosphorIcons.trash(),
+                    //                 size: 20,
+                    //                 color: Constant.iconBase(context),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     );
+                    //   }),
+                    // ),
                   ],
                 ),
               ),
@@ -450,6 +497,130 @@ class _CreateRecipeState extends State<CreateRecipe>
           ),
         );
       },
+    );
+  }
+}
+
+class _IngredientRow extends StatelessWidget {
+  final RecipeIngredient model;
+  final TextEditingController? controller;
+  final ValueChanged<String> onAmountChanged;
+  final ValueChanged<String> onUnitChanged;
+  final VoidCallback onDelete;
+
+  const _IngredientRow({
+    required this.model,
+    required this.controller,
+    required this.onAmountChanged,
+    required this.onUnitChanged,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: context.symmetricPadding(4, 0),
+      child: Row(
+        children: [
+          // Malzeme adı (disabled)
+          Expanded(
+            flex: 3,
+            child: TextInputWidget(
+              isEnabled: false,
+              controller: TextEditingController(text: model.name),
+              keyboardType: TextInputType.text,
+            ),
+          ),
+
+          SizedBox(width: 6),
+
+          // Miktar
+          Expanded(
+            flex: 2,
+            child: TextInputWidget(
+              hintText: '0',
+              controller: controller ?? TextEditingController(),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              onChanged: onAmountChanged,
+            ),
+          ),
+
+          SizedBox(width: 6),
+
+          // Birim
+          Expanded(
+            flex: 4,
+            child: DropdownButtonFormField<String>(
+              value: NutritionService.units.contains(model.unit)
+                  ? model.unit
+                  : NutritionService.units.first,
+              isExpanded: true,
+              decoration: InputDecoration(
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 14,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: Constant.borderLight(
+                      context,
+                    ), // Buraya istediğin sabit rengi verebilirsin
+                    width: 1.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: Constant.borderLight(context),
+                    width: 1.5,
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: (Constant.borderLight(context)),
+                  ),
+                ),
+                filled: true,
+                fillColor: Constant.fillWhite(context),
+              ),
+              items: NutritionService.units
+                  .map(
+                    (u) => DropdownMenuItem(
+                      value: u,
+                      child: Text(u, style: const TextStyle(fontSize: 12)),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (u) => onUnitChanged(u!),
+            ),
+          ),
+          SizedBox(width: 6),
+
+          // Sil
+          GestureDetector(
+            onTap: onDelete,
+            child: Container(
+              height: context.dynamicHeight(0.056),
+              width: context.dynamicWidth(0.1),
+              decoration: BoxDecoration(
+                border: Border.all(color: Constant.borderLight(context)),
+                borderRadius: BorderRadius.circular(8),
+                color: Constant.fillWhite(context),
+              ),
+              child: PhosphorIcon(
+                PhosphorIcons.trash(),
+                size: 20,
+                color: Constant.iconBase(context),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

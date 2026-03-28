@@ -52,31 +52,31 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
     minuteFocusNode = FocusNode();
   }
 
-  bool _validateForm() {
-    // Add your validation logic
-    if (titleController.text.isEmpty) {
-      _showError('Title is required');
-      return false;
-    }
+  // bool _validateForm() {
+  //   // Add your validation logic
+  //   if (titleController.text.isEmpty) {
+  //     _showError('Title is required');
+  //     return false;
+  //   }
 
-    if (directionsController.text.isEmpty) {
-      _showError('Directions are required');
-      return false;
-    }
+  //   if (directionsController.text.isEmpty) {
+  //     _showError('Directions are required');
+  //     return false;
+  //   }
 
-    if (viewModel.state.mediaList.isEmpty) {
-      _showError('Please add at least one image or video');
-      return false;
-    }
+  //   if (viewModel.state.mediaList.isEmpty) {
+  //     _showError('Please add at least one image or video');
+  //     return false;
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
-  void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
+  // void _showError(String message) {
+  //   ScaffoldMessenger.of(
+  //     context,
+  //   ).showSnackBar(SnackBar(content: Text(message)));
+  // }
 
   // Helper method to clear all inputs
   void clearAllInputs() {
@@ -101,6 +101,7 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
   void dispose() {
     _disposeControllers();
     _disposeFocusNodes();
+    viewModel.close();
     super.dispose();
   }
 

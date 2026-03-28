@@ -1,26 +1,46 @@
 //Firestore servisi
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
 
 import 'abstract_recipe_service.dart';
 
 class CreateRecipeService implements IRecipeService {
-  CreateRecipeService({required this.firestore});
-  final FirebaseFirestore firestore;
+  CreateRecipeService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
+  final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
 
   @override
   Future<String> createRecipe({required RecipeModel model}) async {
-    final docRef = firestore.collection('recipes').doc();
-
-    final data = model.copyWith(createdAt: DateTime.now()).toJson();
+    final user = _auth.currentUser;
+    if (user == null) throw Exception("Kullanıcı girişi yapılmamış!");
+    final docRef = _firestore.collection('recipes').doc();
+    final enrichedData = model
+        .copyWith(
+          id: docRef.id,
+          userId: user.uid,
+          authorName: user.displayName ?? "Anonim Şef",
+          authorAvatar: user.photoURL,
+        )
+        .toJson();
 
     await docRef.set({
-      ...data,
-      'id': docRef.id,
-      'createdAt': FieldValue.serverTimestamp(),
+      ...enrichedData,
+      'createdAt': FieldValue.serverTimestamp(), // Sunucu saati kullanımı
     });
 
+    // OPSİYONEL: Kullanıcının toplam tarif sayısını atomik olarak artır
+    await _updateUserStats(user.uid);
+
     return docRef.id;
+  }
+
+  Future<void> _updateUserStats(String uid) async {
+    await _firestore.collection('users').doc(uid).set({
+      'recipeCount': FieldValue.increment(1),
+    }, SetOptions(merge: true));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:fit_eat/features/ingredient/model/ingredient_model.dart';
+import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
+
 
 class IngredientState extends Equatable {
   const IngredientState({
@@ -9,8 +10,8 @@ class IngredientState extends Equatable {
     required this.defaultIngredients,
   });
   final bool isLoading;
-  final List<IngredientModel> ingredients;
-  final List<IngredientModel> defaultIngredients;
+  final List<Ingredient> ingredients;
+  final List<Ingredient> defaultIngredients;
   final List<String> selectedIngredientIds;
   factory IngredientState.initial() {
     return const IngredientState(
@@ -29,9 +30,9 @@ class IngredientState extends Equatable {
   ];
   IngredientState copyWith({
     bool? isLoading,
-    List<IngredientModel>? ingredients,
+    List<Ingredient>? ingredients,
     List<String>? selectedIngredientIds,
-    List<IngredientModel>? defaultIngredients,
+    List<Ingredient>? defaultIngredients,
   }) => IngredientState(
     isLoading: isLoading ?? this.isLoading,
     ingredients: ingredients ?? this.ingredients,

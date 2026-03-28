@@ -11,11 +11,13 @@ class BaseFitreItem extends StatefulWidget {
     required this.onChanged,
     required this.title,
     this.image,
+    this.isIcon = false,
   });
   bool isChecked;
   final VoidCallback onChanged;
   final String title;
   final String? image;
+  final bool isIcon;
 
   @override
   State<BaseFitreItem> createState() => _BaseFitreItemState();
@@ -51,25 +53,28 @@ class _BaseFitreItemState extends State<BaseFitreItem> {
             ),
             if ((widget.image ?? '').isNotEmpty)
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Padding(
-                  padding: context.symmetricPadding(0, 18),
+                  padding: context.symmetricPadding(0, 12),
                   child: widget.image?.isNotEmpty ?? false
-                      ? Image.network(
-                          widget.image ?? '',
-                          width: 48,
-                          height: 48,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              width: 48,
-                              height: 48,
-                              'assets/images/bynocan.png',
-                            );
-                          },
-                        )
+                      ? widget.isIcon
+                            ? Text(widget.image ?? "")
+                            : Image.network(
+                                widget.image ?? '',
+                                width: 48,
+                                height: 48,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    width: 48,
+                                    height: 48,
+                                    'assets/images/bynocan.png',
+                                  );
+                                },
+                              )
                       : SizedBox(height: 48),
                 ),
               ),
+
             if ((widget.image ?? '').isEmpty) SizedBox(height: 30),
             Expanded(
               flex: 6,
