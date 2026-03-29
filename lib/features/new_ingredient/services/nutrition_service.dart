@@ -3,13 +3,10 @@ import '../../create_recipe_page/model/recipe_model.dart';
 class NutritionService {
   NutritionService._(); // instantiate edilemesin
 
-  /// Porsiyon başına kaloriyi hesaplar.
-  /// Firestore sorgusu yoktur — tüm veriler RecipeIngredient içinde hazırdır.
   static int calculateCaloriePerServing({required RecipeModel model}) {
     double total = 0;
     print(model.ingredients?.length);
     for (final ing in model.ingredients ?? []) {
-      // amount zaten double, parse etmeye gerek yok
       if (ing.amount <= 0 || ing.caloriesPer100g == 0) continue;
 
       final grams = _toGrams(

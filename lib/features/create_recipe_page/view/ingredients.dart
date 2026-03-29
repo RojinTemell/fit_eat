@@ -3,15 +3,18 @@ import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/components/base_button.dart';
 import '../../../core/components/text_input.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
+import '../../../core/cubits/bottom_sheet.dart';
 import '../../new_ingredient/state/ingredient_state.dart';
 import '../../new_ingredient/viewmodel/ingredient_viewmodel.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 import '../widget/base_filtre_item.dart';
+import '../widget/create_new_ingredient.dart';
 
 class IngredientsPage extends StatefulWidget {
   const IngredientsPage({super.key});
@@ -54,7 +57,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                       padding: EdgeInsets.all(9),
                       child: GestureDetector(
                         onTap: () {
-                          // viewmodel.clearSearch();
+                          viewmodel.clearSearch();
                           searchController.clear();
                         },
                         child: Container(
@@ -87,7 +90,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                   child: BlocBuilder<CreateRecipeViewModel, CreateRecipeState>(
                     builder: (context, createRecipeState) {
                       if (state.isLoading) {
-                        return Text("loading");
+                        return const IngredientShimmer();
                       } else if (state.ingredients.isNotEmpty &&
                           !state.isLoading) {
                         return Padding(
@@ -139,6 +142,14 @@ class _IngredientsPageState extends State<IngredientsPage> {
                               SizedBox(height: 24),
                               BaseButton(
                                 title: "Create",
+                                callback: () {
+                                  context
+                                      .read<BottomSheetBloc>()
+                                      .showBottomSheet(
+                                        context: context,
+                                        widget: CreateNewIngredient(),
+                                      );
+                                },
                                 width: context.dynamicWidth(1),
                                 baseButtonType: BaseButtonType.filledGreen,
                                 baseButtonSize: BaseButtonSize.medium,
@@ -175,6 +186,49 @@ class _IngredientsPageState extends State<IngredientsPage> {
           );
         },
       ),
+    );
+  }
+}
+
+class IngredientShimmer extends StatelessWidget {
+  const IngredientShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 8,
+      itemBuilder: (_, __) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.rectangle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: Container(height: 14, color: Colors.white)),
+                const SizedBox(width: 12),
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

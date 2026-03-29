@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
+import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
 
 import 'abstract_recipe_service.dart';
 
@@ -42,5 +43,18 @@ class CreateRecipeService implements IRecipeService {
     await _firestore.collection('users').doc(uid).set({
       'recipeCount': FieldValue.increment(1),
     }, SetOptions(merge: true));
+  }
+
+  Future<void> suggestIngredient({required Ingredient model}) async {
+    try {
+      await _firestore
+          .collection('ingredient_suggestions')
+          .add(model.toFirestore());
+      print("Öneri başarıyla gönderildi!");
+    } catch (e) {
+      // Bir hata oluşursa (internet kesintisi vb.) burada yakalıyoruz
+      print("Öneri gönderilirken hata oluştu: $e");
+      rethrow; // Hatayı UI tarafına fırlat ki kullanıcıya 'Hata oluştu' diyebilelim
+    }
   }
 }

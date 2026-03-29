@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Ingredient {
-  final String id;
+  final String? id;
   final String name;
   final String emoji;
   final bool approved;
   final String defaultUnit;
-
   // Besin değerleri — HEPSİ 100 gram başına
   final double caloriesPer100g;
   final double proteinPer100g;
@@ -18,7 +17,7 @@ class Ingredient {
   final double? gramsPerPiece;
 
   const Ingredient({
-    required this.id,
+    this.id,
     required this.name,
     required this.emoji,
     this.approved = true,

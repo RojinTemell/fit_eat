@@ -66,16 +66,11 @@ class _CreateRecipeState extends State<CreateRecipe>
                   return;
                 }
 
-                viewModel.createRecipe();
+                // viewModel.createRecipe();
               }
 
               // context.pushNamed('addListingsSettingsPage');
             },
-            // suffixIcon: PhosphorIcon(
-            //   PhosphorIcons.arrowCircleRight(PhosphorIconsStyle.bold),
-            //   size: 18,
-            //   color: Constant.iconWhite(context),
-            // ),
           ),
 
           body: Form(
@@ -376,20 +371,23 @@ class _CreateRecipeState extends State<CreateRecipe>
                     ),
                     SizedBox(
                       width: context.dynamicWidth(1),
-                      child: TextInputWidget(
-                        hintText: 'Choose or write item',
-                        controller: ingredientSearchController,
-                        keyboardType: TextInputType.text,
-                        suffixIcon: GestureDetector(
+                      child: ListItemSelection(
+                        title: 'Choose or write item',
+                        isTrailingIcon: SizedBox(),
+                        trailingText: GestureDetector(
                           onTap: () {
                             context.pushNamed('ingredientsPage');
                           },
                           child: PhosphorIcon(
-                            PhosphorIcons.caretCircleDown(),
+                            PhosphorIcons.caretCircleRight(),
                             color: Constant.iconFix(context),
                             size: 24,
                           ),
                         ),
+                        callback: () {
+                          context.pushNamed('ingredientsPage');
+                        },
+                        listItemSelectionType: ListItemSelectionType.idleCard,
                       ),
                     ),
                     if (state.recipe.ingredients != [])
@@ -423,73 +421,6 @@ class _CreateRecipeState extends State<CreateRecipe>
                             );
                           },
                         ),
-
-                    // Column(
-                    //   children: List.generate(ingredients.length, (index) {
-                    //     RecipeIngredient model = ingredients[index];
-                    //     final controller =
-                    //         viewModel.ingredientControllers[model.id];
-                    //     return Padding(
-                    //       padding: context.symmetricPadding(8, 0),
-                    //       child: Row(
-                    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //         children: [
-                    //           SizedBox(
-                    //             width: context.dynamicWidth(0.5),
-                    //             child: TextInputWidget(
-                    //               isEnabled: false,
-
-                    //               controller: TextEditingController(
-                    //                 text: model.name,
-                    //               ),
-                    //               keyboardType: TextInputType.text,
-                    //             ),
-                    //           ),
-                    //           SizedBox(
-                    //             width: context.dynamicWidth(0.25),
-                    //             child: TextInputWidget(
-                    //               hintText: '${model.amount} ${model.unit}',
-                    //               controller:
-                    //                   controller ?? TextEditingController(),
-                    //               onChanged: (value) {
-                    //                 viewModel.updateIngredientAmount(
-                    //                   ingredientId: model.id,
-                    //                   amount: double.tryParse(value) ?? 0,
-                    //                 );
-                    //               },
-                    //               // validator: (value) =>
-                    //               //     value.validateRequired('Ingredients'),
-                    //               keyboardType: TextInputType.text,
-                    //             ),
-                    //           ),
-
-                    //           GestureDetector(
-                    //             onTap: () {
-                    //               viewModel.removeIngredient(model.id);
-                    //             },
-                    //             child: Container(
-                    //               height: context.dynamicHeight(0.056),
-                    //               width: context.dynamicWidth(0.1),
-
-                    //               decoration: BoxDecoration(
-                    //                 border: Border.all(
-                    //                   color: Constant.borderLight(context),
-                    //                 ),
-                    //                 borderRadius: BorderRadius.circular(8),
-                    //                 color: Constant.fillWhite(context),
-                    //               ),
-                    //               child: PhosphorIcon(
-                    //                 PhosphorIcons.trash(),
-                    //                 size: 20,
-                    //                 color: Constant.iconBase(context),
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     );
-                    //   }),
-                    // ),
                   ],
                 ),
               ),
@@ -522,7 +453,7 @@ class _IngredientRow extends StatelessWidget {
       padding: context.symmetricPadding(4, 0),
       child: Row(
         children: [
-          // Malzeme adı (disabled)
+          // Malzeme adı
           Expanded(
             flex: 3,
             child: TextInputWidget(

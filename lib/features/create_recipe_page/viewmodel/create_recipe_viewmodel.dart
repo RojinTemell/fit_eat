@@ -20,6 +20,15 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
           isLoading: false,
           recipe: RecipeModel(),
           mediaList: [],
+          suggestIngredient: Ingredient(
+            id: '',
+            name: '',
+            emoji: '',
+            caloriesPer100g: 0,
+            proteinPer100g: 0,
+            fatPer100g: 0,
+            carbsPer100g: 0,
+          ),
         ),
       );
 
@@ -113,18 +122,26 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     final List<Media> uploaded = [];
 
     for (final media in state.mediaList) {
-      final ext = media.file.path.split('.').last;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+      try {
+        final ext = media.file.path.split('.').last;
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+        final bucket = media.type == MediaType.image ? 'image' : 'video';
 
-      final bucket = media.type == MediaType.image ? 'image' : 'video';
+        await supabase.storage
+            .from(bucket)
+            .upload(fileName, File(media.file.path));
 
-      await supabase.storage
-          .from(bucket)
-          .upload(fileName, File(media.file.path));
+        final String url = supabase.storage.from(bucket).getPublicUrl(fileName);
+        print("url :${url}");
+        uploaded.add(Media(url: url, type: media.type));
+      } on StorageException catch (error) {
+        print('Supabase Storage Hatası: ${error.message}');
 
-      final url = supabase.storage.from(bucket).getPublicUrl(fileName);
-
-      uploaded.add(Media(url: url, type: media.type));
+        continue;
+      } catch (e) {
+        print('Medya yüklenirken beklenmedik hata oluştu: $e');
+        continue;
+      }
     }
 
     return uploaded;
@@ -143,7 +160,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       current.removeAt(index);
       current.removeAt(index);
     } else {
-      ingredientControllers[ingredient.id] = TextEditingController();
+      ingredientControllers[ingredient.id ?? ""] = TextEditingController();
 
       current.add(
         RecipeIngredient(
@@ -192,26 +209,6 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     );
   }
 
-  // void updateIngredientAmount({
-  //   required String ingredientId,
-  //   required double amount,
-  // }) {
-  //   final ingredients = List<RecipeIngredient>.from(
-  //     state.recipe.ingredients ?? [],
-  //   );
-
-  //   final index = ingredients.indexWhere((e) => e.id == ingredientId);
-
-  //   if (index == -1) return;
-
-  //   final old = ingredients[index];
-
-  //   ingredients[index] = old.copyWith(amount: amount);
-
-  //   emit(
-  //     state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
-  //   );
-  // }
   @override
   Future<void> close() {
     for (final controller in ingredientControllers.values) {
@@ -230,6 +227,29 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     emit(
       state.copyWith(recipe: state.recipe.copyWith(ingredients: ingredients)),
     );
+  }
+
+  Future<void> suggestIngredient({
+    required String title,
+    String? caloriesPer100g,
+    String? proteinPer100g,
+    String? fatPer100g,
+    String? carbsPer100g,
+    required String defaultUnit,
+  }) async {
+    final data = Ingredient(
+      id: null,
+      name: title,
+      emoji: "",
+      defaultUnit: defaultUnit ?? "gram",
+      caloriesPer100g: double.tryParse(caloriesPer100g ?? "") ?? 0,
+      proteinPer100g: double.tryParse(proteinPer100g ?? "") ?? 0,
+      fatPer100g: double.tryParse(fatPer100g ?? "") ?? 0,
+      carbsPer100g: double.tryParse(carbsPer100g ?? "") ?? 0,
+      approved: false,
+    );
+    print(data.toFirestore());
+    await recipeService.suggestIngredient(model: data);
   }
 
   // others
@@ -278,37 +298,15 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     return NutritionService.calculateCaloriePerServing(model: model);
   }
 
-  // Future<void> createRecipe() async {
-  //   try {
-  //     emit(state.copyWith(isLoading: true));
-
-  //     // 1. Ağır işlemleri (medya yükleme, kalori hesabı) burada tutabiliriz
-  //     final uploadedMedia = await uploadMediaToSupabase();
-  //     final calorie = calculateCalorie(model: state.recipe);
-
-  //     // 2. Modeli hazırla (Sadece elimizdeki verilerle)
-  //     final recipeDraft = state.recipe.copyWith(
-  //       media: uploadedMedia,
-  //       calorie: calorie,
-  //     );
-
-  //     // 3. Servisi çağır (Tüm Firebase/Auth işini o hallediyor)
-  //     await recipeService.createRecipe(model: recipeDraft);
-
-  //     emit(state.copyWith(isLoading: false));
-  //   } catch (e) {
-  //     emit(state.copyWith(isLoading: false));
-  //   }
-  // }
   Future<void> createRecipe() async {
     try {
       emit(state.copyWith(isLoading: true));
 
-      // final uploadedMedia = await uploadMediaToSupabase();
+      final uploadedMedia = await uploadMediaToSupabase();
       final calorie = calculateCalorie(model: state.recipe);
 
       final recipe = state.recipe.copyWith(
-        // media: uploadedMedia,
+        media: uploadedMedia,
         calorie: calorie,
         createdAt: DateTime.now(),
         viewCount: 0,
