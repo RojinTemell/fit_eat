@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../features/create_recipe_page/viewmodel/create_recipe_viewmodel.dart';
 import '../constants/text_constants.dart';
 
 final ValueNotifier<bool> showBottomBar = ValueNotifier(true);
@@ -52,16 +54,74 @@ class _BottomNavBarState extends State<BottomNavBar>
                     fontWeight: FontWeight.w400,
                   ),
                   type: BottomNavigationBarType.fixed,
-                  onTap: (value) {
+                  onTap: (value) async {
+                    final previousIndex = widget.shell.currentIndex;
                     final now = DateTime.now();
+
+                    // 1. CREATE RECIPE'DAN AYRILMA KONTROLÜ
+                    if (previousIndex == 2 && value != 2) {
+                      final viewModel = context.read<CreateRecipeViewModel>();
+
+                      // Formda veri var mı kontrolü (ViewModel'deki hasData mantığına benzer)
+                      final bool hasData =
+                          viewModel.state.recipe.title?.isNotEmpty == true ||
+                          (viewModel.state.recipe.ingredients?.isNotEmpty ??
+                              false);
+
+                      if (hasData) {
+                        // Kullanıcıya soralım
+                        final bool? shouldSave = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Taslak Kaydedilsin mi?'),
+                            content: const Text(
+                              'Sekme değiştirmeden önce tarifinizi taslak olarak kaydetmek ister misiniz?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, false), // Sil ve Git
+                                child: const Text('Sil'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(
+                                  context,
+                                  true,
+                                ), // Kaydet ve Git
+                                child: const Text('Kaydet'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (shouldSave == true) {
+                          await viewModel.saveAsDraft();
+                        } else if (shouldSave == false) {
+                          viewModel.clearForm();
+                          await viewModel.discardDraft();
+                        }
+                      }
+                    }
+
+                    // 2. NAVİGASYON (GİTME İŞLEMİ)
                     if (lastTappedIndex == value &&
                         lastTappedTime != null &&
                         now.difference(lastTappedTime!) <
                             const Duration(milliseconds: 300)) {
                       widget.shell.goBranch(value, initialLocation: true);
                     } else {
-                      //widget.shell.goBranch(value, initialLocation: true);
                       widget.shell.goBranch(value);
+                    }
+
+                    // 3. CREATE RECIPE'A GERİ DÖNÜNCE KONTROL ET
+                    if (value == 2 && previousIndex != 2) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          context
+                              .read<CreateRecipeViewModel>()
+                              .checkAndLoadDraft();
+                        }
+                      });
                     }
 
                     lastTappedIndex = value;

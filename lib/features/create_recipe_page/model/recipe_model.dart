@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../new_ingredient/models/recipe_ingredient.dart';
+import '../../ingredient/model/recipe_ingredient.dart';
 import 'recipe_media_model.dart';
 
 class RecipeModel extends Equatable {

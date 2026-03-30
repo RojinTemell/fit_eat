@@ -1,5 +1,5 @@
 import 'package:fit_eat/core/components/appbar.dart';
-import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
+import 'package:fit_eat/features/ingredient/model/ingredient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -9,8 +9,8 @@ import '../../../core/components/text_input.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
 import '../../../core/cubits/bottom_sheet.dart';
-import '../../new_ingredient/state/ingredient_state.dart';
-import '../../new_ingredient/viewmodel/ingredient_viewmodel.dart';
+import '../../ingredient/state/ingredient_state.dart';
+import '../../ingredient/viewmodel/ingredient_viewmodel.dart';
 import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 import '../widget/base_filtre_item.dart';
@@ -147,7 +147,12 @@ class _IngredientsPageState extends State<IngredientsPage> {
                                       .read<BottomSheetBloc>()
                                       .showBottomSheet(
                                         context: context,
-                                        widget: CreateNewIngredient(),
+                                        widget: CreateNewIngredient(
+                                          clearSearchCallback: () {
+                                            viewmodel.clearSearch();
+                                            searchController.clear();
+                                          },
+                                        ),
                                       );
                                 },
                                 width: context.dynamicWidth(1),

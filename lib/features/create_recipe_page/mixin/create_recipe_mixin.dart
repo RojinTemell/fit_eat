@@ -9,11 +9,11 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
   late CreateRecipeViewModel mediaViewModel;
   final createRecipeFormKey = GlobalKey<FormState>();
   // Text Controllers
-  late TextEditingController titleController;
-  late TextEditingController detailController;
-  late TextEditingController directionsController;
-  late TextEditingController servingController;
-  late TextEditingController minuteController;
+  // late TextEditingController titleController;
+  // late TextEditingController detailController;
+  // late TextEditingController directionsController;
+  // late TextEditingController servingController;
+  // late TextEditingController minuteController;
   late TextEditingController ingredientSearchController;
 
   // Focus Nodes (if you need them for focus management)
@@ -36,11 +36,6 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
   }
 
   void _initializeControllers() {
-    titleController = TextEditingController();
-    detailController = TextEditingController();
-    directionsController = TextEditingController();
-    servingController = TextEditingController();
-    minuteController = TextEditingController();
     ingredientSearchController = TextEditingController();
   }
 
@@ -52,39 +47,13 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
     minuteFocusNode = FocusNode();
   }
 
-  // bool _validateForm() {
-  //   // Add your validation logic
-  //   if (titleController.text.isEmpty) {
-  //     _showError('Title is required');
-  //     return false;
-  //   }
-
-  //   if (directionsController.text.isEmpty) {
-  //     _showError('Directions are required');
-  //     return false;
-  //   }
-
-  //   if (viewModel.state.mediaList.isEmpty) {
-  //     _showError('Please add at least one image or video');
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
-
-  // void _showError(String message) {
-  //   ScaffoldMessenger.of(
-  //     context,
-  //   ).showSnackBar(SnackBar(content: Text(message)));
-  // }
-
   // Helper method to clear all inputs
   void clearAllInputs() {
-    titleController.clear();
-    detailController.clear();
-    directionsController.clear();
-    servingController.clear();
-    minuteController.clear();
+    // titleController.clear();
+    // detailController.clear();
+    // directionsController.clear();
+    // servingController.clear();
+    // minuteController.clear();
     ingredientSearchController.clear();
   }
 
@@ -99,19 +68,9 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
 
   @override
   void dispose() {
-    _disposeControllers();
     _disposeFocusNodes();
-    viewModel.close();
-    super.dispose();
-  }
-
-  void _disposeControllers() {
-    titleController.dispose();
-    detailController.dispose();
-    directionsController.dispose();
-    servingController.dispose();
-    minuteController.dispose();
     ingredientSearchController.dispose();
+    super.dispose();
   }
 
   void _disposeFocusNodes() {

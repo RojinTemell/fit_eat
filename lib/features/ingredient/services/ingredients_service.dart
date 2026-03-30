@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
+import 'package:fit_eat/features/ingredient/model/ingredient.dart';
 
-import '../seed/ingredient_seeder.dart';
+import '../entities/ingredient_entity.dart';
 
 class IngredientsService {
   Future<List<Ingredient>> fetchIngredients() async {

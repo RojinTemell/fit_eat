@@ -3,8 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
-import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
-
+import '../../ingredient/model/ingredient_request.dart';
 import 'abstract_recipe_service.dart';
 
 class CreateRecipeService implements IRecipeService {
@@ -30,10 +29,9 @@ class CreateRecipeService implements IRecipeService {
 
     await docRef.set({
       ...enrichedData,
-      'createdAt': FieldValue.serverTimestamp(), // Sunucu saati kullanımı
+      'createdAt': FieldValue.serverTimestamp(),
     });
 
-    // OPSİYONEL: Kullanıcının toplam tarif sayısını atomik olarak artır
     await _updateUserStats(user.uid);
 
     return docRef.id;
@@ -45,16 +43,15 @@ class CreateRecipeService implements IRecipeService {
     }, SetOptions(merge: true));
   }
 
-  Future<void> suggestIngredient({required Ingredient model}) async {
+  Future<void> suggestIngredient({required IngredientRequest model}) async {
     try {
       await _firestore
           .collection('ingredient_suggestions')
           .add(model.toFirestore());
       print("Öneri başarıyla gönderildi!");
     } catch (e) {
-      // Bir hata oluşursa (internet kesintisi vb.) burada yakalıyoruz
       print("Öneri gönderilirken hata oluştu: $e");
-      rethrow; // Hatayı UI tarafına fırlat ki kullanıcıya 'Hata oluştu' diyebilelim
+      rethrow;
     }
   }
 }

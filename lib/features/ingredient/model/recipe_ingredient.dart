@@ -5,7 +5,6 @@ class RecipeIngredient {
   final String name;
   final double amount;
   final String unit;
-  
 
   // toggleIngredient sırasında Ingredient'tan bir kere kopyalanır.
   // Kayıt anında tekrar Firestore sorgusu atmaya gerek kalmaz.

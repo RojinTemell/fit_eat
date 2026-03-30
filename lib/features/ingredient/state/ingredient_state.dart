@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
+import 'package:fit_eat/features/ingredient/model/ingredient.dart';
 
 
 class IngredientState extends Equatable {

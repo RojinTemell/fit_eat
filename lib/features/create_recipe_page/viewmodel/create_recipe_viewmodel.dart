@@ -1,41 +1,125 @@
 import 'dart:io';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
-import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
+import 'package:fit_eat/features/ingredient/model/ingredient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
-import '../../new_ingredient/models/recipe_ingredient.dart';
-import '../../new_ingredient/services/nutrition_service.dart';
+import '../../ingredient/model/ingredient_request.dart';
+import '../../ingredient/model/recipe_ingredient.dart';
+import '../../ingredient/services/nutrition_service.dart';
 import '../intites/media_rules.dart';
 import '../model/recipe_media_model.dart';
 import '../service/abstract_recipe_service.dart';
 import '../state/create_recipe_state.dart';
 
 class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
-  CreateRecipeViewModel(this.recipeService)
-    : super(
+  CreateRecipeViewModel(
+    this.recipeService,
+    this.recipeDraftService,
+    this.userId,
+  ) : super(
         CreateRecipeState(
           isLoading: false,
           recipe: RecipeModel(),
           mediaList: [],
-          suggestIngredient: Ingredient(
-            id: '',
-            name: '',
-            emoji: '',
-            caloriesPer100g: 0,
-            proteinPer100g: 0,
-            fatPer100g: 0,
-            carbsPer100g: 0,
-          ),
+          isDraftChecked: false,
+          hasDraftToShow: false,
         ),
       );
 
   final IRecipeService recipeService;
+  final String userId;
+  final IRecipeDraftService recipeDraftService;
 
   final ImagePicker _picker = ImagePicker();
   final Map<String, TextEditingController> ingredientControllers = {};
+
+  //Controllers
+
+  final titleController = TextEditingController();
+  final aboutController = TextEditingController();
+  final servingController = TextEditingController();
+  final durationController = TextEditingController();
+  final directionsController = TextEditingController();
+  void _initControllerListeners() {
+    titleController.addListener(
+      () => emit(
+        state.copyWith(
+          recipe: state.recipe.copyWith(title: titleController.text),
+        ),
+      ),
+    );
+    aboutController.addListener(
+      () => emit(
+        state.copyWith(
+          recipe: state.recipe.copyWith(about: aboutController.text),
+        ),
+      ),
+    );
+    servingController.addListener(() {
+      final v = int.tryParse(servingController.text);
+      if (v != null)
+        emit(state.copyWith(recipe: state.recipe.copyWith(serving: v)));
+    });
+    directionsController.addListener(() {
+      final v = directionsController.text;
+      emit(
+        state.copyWith(
+          recipe: state.recipe.copyWith(
+            steps: v.split('\n').where((e) => e.trim().isNotEmpty).toList(),
+          ),
+        ),
+      );
+    });
+    durationController.addListener(() {
+      final v = int.tryParse(durationController.text);
+      if (v != null)
+        emit(state.copyWith(recipe: state.recipe.copyWith(duration: v)));
+    });
+  }
+
+  void clearForm() {
+    // Controller'ları önce temizle → listener tetiklenir ama
+    // ardından gelen emit zaten boş RecipeModel koyar, sorun olmaz.
+    titleController.clear();
+    aboutController.clear();
+    servingController.clear();
+    durationController.clear();
+    directionsController.clear();
+
+    for (final c in ingredientControllers.values) {
+      c.dispose();
+    }
+    ingredientControllers.clear();
+
+    emit(
+      state.copyWith(
+        recipe: RecipeModel(),
+        mediaList: [],
+        isDraftChecked: false,
+        isLoading: false,
+        hasDraftToShow: false,
+      ),
+    );
+  }
+
+  void _fillFormFromRecipe(RecipeModel recipe) {
+    titleController.text = recipe.title ?? '';
+    aboutController.text = recipe.about ?? '';
+    servingController.text = (recipe.serving ?? '').toString();
+    durationController.text = (recipe.duration ?? '').toString();
+    directionsController.text = state.recipe.steps!.join("\n");
+    for (final ingredient in recipe.ingredients ?? []) {
+      if (ingredient.id == null) continue;
+      ingredientControllers[ingredient.id!]?.dispose();
+      ingredientControllers[ingredient.id!] = TextEditingController(
+        text: (ingredient.amount ?? 0) == 0 ? '' : ingredient.amount.toString(),
+      );
+    }
+  }
+
   // Upload image or video
   Future<void> pickMedia(MediaType type, ImageSource source) async {
     try {
@@ -158,7 +242,6 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       ingredientControllers[ingredient.id]?.dispose();
       ingredientControllers.remove(ingredient.id);
       current.removeAt(index);
-      current.removeAt(index);
     } else {
       ingredientControllers[ingredient.id ?? ""] = TextEditingController();
 
@@ -209,14 +292,6 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     );
   }
 
-  @override
-  Future<void> close() {
-    for (final controller in ingredientControllers.values) {
-      controller.dispose();
-    }
-    return super.close();
-  }
-
   void removeIngredient(String ingredientId) {
     ingredientControllers[ingredientId]?.dispose();
     ingredientControllers.remove(ingredientId);
@@ -232,24 +307,20 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
   Future<void> suggestIngredient({
     required String title,
     String? caloriesPer100g,
-    String? proteinPer100g,
-    String? fatPer100g,
-    String? carbsPer100g,
+
     required String defaultUnit,
   }) async {
-    final data = Ingredient(
+    final data = IngredientRequest(
       id: null,
       name: title,
+      status: IngredientStatus.pending,
       emoji: "",
-      defaultUnit: defaultUnit ?? "gram",
+      defaultUnit: defaultUnit,
       caloriesPer100g: double.tryParse(caloriesPer100g ?? "") ?? 0,
-      proteinPer100g: double.tryParse(proteinPer100g ?? "") ?? 0,
-      fatPer100g: double.tryParse(fatPer100g ?? "") ?? 0,
-      carbsPer100g: double.tryParse(carbsPer100g ?? "") ?? 0,
-      approved: false,
     );
     print(data.toFirestore());
-    await recipeService.suggestIngredient(model: data);
+
+    // await recipeService.suggestIngredient(model: data);
   }
 
   // others
@@ -306,6 +377,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       final calorie = calculateCalorie(model: state.recipe);
 
       final recipe = state.recipe.copyWith(
+        userId: userId,
         media: uploadedMedia,
         calorie: calorie,
         createdAt: DateTime.now(),
@@ -316,11 +388,93 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
       );
       print(recipe.toJson());
       await recipeService.createRecipe(model: recipe);
-
-      emit(state.copyWith(isLoading: false));
+      clearForm();
     } catch (e) {
       emit(state.copyWith(isLoading: false));
       debugPrint('sendRecipe error: $e');
     }
+  }
+
+  // draft features
+  Future<void> checkAndLoadDraft() async {
+    try {
+      changeLoading(isLoading: true);
+      final draft = await recipeDraftService.getRecipeDraft(userId);
+
+      if (draft != null) {
+        _fillFormFromRecipe(draft);
+        emit(
+          state.copyWith(
+            recipe: draft,
+            isDraftChecked: true,
+            isLoading: false,
+            hasDraftToShow: true,
+          ),
+        );
+        // NOT: UI tarafında "Taslaktan devam edilsin mi?" sorusunu bu state değişikliğiyle tetikleyeceğiz.
+      } else {
+        emit(state.copyWith(isDraftChecked: true, isLoading: false));
+      }
+    } catch (e) {
+      emit(state.copyWith(isDraftChecked: true, isLoading: false));
+      debugPrint('Draft load error: $e');
+    }
+  }
+
+  Future<void> discardDraft() async {
+    try {
+      // 1. Firestore'daki taslağı silmek için servisi çağırır
+      await recipeDraftService.deleteRecipeDraft(userId);
+
+      // 2. State'i ve Controller'ları sıfırla (Temiz bir sayfa için)
+      clearForm();
+      // emit(
+      //   state.copyWith(
+      //     recipe: RecipeModel(), // Boş model
+      //     mediaList: [],
+      //     isLoading: false,
+      //   ),
+      // );
+
+      // // 3. Malzeme controller'larını temizle
+      // for (var controller in ingredientControllers.values) {
+      //   controller.dispose();
+      // }
+      // ingredientControllers.clear();
+
+      debugPrint('Taslak başarıyla silindi ve form sıfırlandı.');
+    } catch (e) {
+      debugPrint('Discard draft error: $e');
+    }
+  }
+
+  void draftDialogShown() {
+    emit(state.copyWith(hasDraftToShow: false));
+  }
+
+  Future<void> saveAsDraft() async {
+    //  title boşsa VE ingredients boşsa kaydetme
+    final hasTitle = state.recipe.title?.trim().isNotEmpty == true;
+    final hasIngredients = state.recipe.ingredients?.isNotEmpty == true;
+    if (!hasTitle && !hasIngredients) return;
+    try {
+      await recipeDraftService.saveRecipeDraft(userId, state.recipe);
+      debugPrint("Taslak kaydedildi.");
+    } catch (e) {
+      debugPrint("Hata: $e");
+    }
+  }
+
+  @override
+  Future<void> close() {
+    titleController.dispose();
+    aboutController.dispose();
+    servingController.dispose();
+    durationController.dispose();
+    directionsController.dispose();
+    for (final c in ingredientControllers.values) {
+      c.dispose();
+    }
+    return super.close();
   }
 }

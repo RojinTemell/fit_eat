@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
-import 'package:fit_eat/features/new_ingredient/models/ingredient.dart';
-
 import '../model/recipe_media_model.dart';
 
 class CreateRecipeState extends Equatable {
@@ -9,14 +7,17 @@ class CreateRecipeState extends Equatable {
     required this.isLoading,
     required this.recipe,
     required this.mediaList,
-    required this.suggestIngredient,
+    required this.isDraftChecked,
+    required this.hasDraftToShow,
     this.errorMessage,
   });
+
   final bool isLoading;
   final RecipeModel recipe;
-  final Ingredient suggestIngredient;
   final List<RecipeMedia> mediaList;
   final String? errorMessage;
+  final bool isDraftChecked;
+  final bool hasDraftToShow;
 
   @override
   List<Object?> get props => [
@@ -24,19 +25,26 @@ class CreateRecipeState extends Equatable {
     recipe,
     mediaList,
     errorMessage,
-    suggestIngredient,
+    isDraftChecked,
+    hasDraftToShow,
   ];
+  bool get hasFormData =>
+      recipe.title?.trim().isNotEmpty == true ||
+      recipe.ingredients?.isNotEmpty == true;
+
   CreateRecipeState copyWith({
     bool? isLoading,
     RecipeModel? recipe,
     List<RecipeMedia>? mediaList,
-    Ingredient? suggestIngredient,
     String? errorMessage,
+    bool? isDraftChecked,
+    bool? hasDraftToShow,
   }) => CreateRecipeState(
     isLoading: isLoading ?? this.isLoading,
     recipe: recipe ?? this.recipe,
     mediaList: mediaList ?? this.mediaList,
     errorMessage: errorMessage ?? this.errorMessage,
-    suggestIngredient: suggestIngredient ?? this.suggestIngredient,
+    isDraftChecked: isDraftChecked ?? this.isDraftChecked,
+    hasDraftToShow: hasDraftToShow ?? this.hasDraftToShow,
   );
 }
