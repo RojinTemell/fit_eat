@@ -122,11 +122,15 @@ enum BaseButtonType {
   filledGreen,
   filledGrey,
   filledRed,
+  filledBlue,
   filledGreyDisabled,
+  filledTertiary,
   outlinedDark,
   outlinedGreen,
+  outlinedBlue,
   outlinedGrey,
   outlinedRed,
+  outlinedTertiary,
   ghost,
   text,
   auto,
@@ -197,6 +201,8 @@ extension ButtonColor on BaseButtonType {
       case BaseButtonType.outlinedDark:
       case BaseButtonType.outlinedGreen:
       case BaseButtonType.outlinedGrey:
+      case BaseButtonType.outlinedBlue:
+      case BaseButtonType.outlinedTertiary:
         return Constant.fillWhite(context);
       case BaseButtonType.filledGreyDisabled:
         return Constant.fillLight(context);
@@ -207,6 +213,10 @@ extension ButtonColor on BaseButtonType {
         return Constant.fillPrimaryBase(context);
       case BaseButtonType.auto:
         return Colors.transparent;
+      case BaseButtonType.filledBlue:
+        return Constant.fillBlue(context);
+      case BaseButtonType.filledTertiary:
+        return Constant.fillTertiaryBase(context);
     }
   }
 
@@ -220,7 +230,6 @@ extension ButtonColor on BaseButtonType {
       case BaseButtonType.filledDarkWithGreen:
       case BaseButtonType.auto:
         return Constant.textFixDark(context);
-
       case BaseButtonType.outlinedRed:
         return Constant.errorText(context);
       case BaseButtonType.outlinedDark:
@@ -233,7 +242,13 @@ extension ButtonColor on BaseButtonType {
       case BaseButtonType.filledGreyDisabled:
         return Constant.textLight(context);
       case BaseButtonType.filledRed:
+      case BaseButtonType.filledBlue:
+      case BaseButtonType.filledTertiary:
         return Constant.textWhite(context);
+      case BaseButtonType.outlinedBlue:
+        return Constant.infoText(context);
+      case BaseButtonType.outlinedTertiary:
+        return Constant.textTertiary(context);
     }
   }
 
@@ -266,6 +281,12 @@ extension ButtonColor on BaseButtonType {
         return Constant.borderPrimary(context);
       case BaseButtonType.auto:
         return Colors.transparent;
+      case BaseButtonType.filledBlue:
+      case BaseButtonType.outlinedBlue:
+        return Constant.infoBorder(context);
+      case BaseButtonType.filledTertiary:
+      case BaseButtonType.outlinedTertiary:
+        return Constant.borderTertiary(context);
     }
   }
 }

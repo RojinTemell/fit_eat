@@ -134,7 +134,11 @@ class Constant {
         ? Color(0xFFE9BE26)
         : Color(0xFFE9BE26);
   }
-
+ static Color fillBlue(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? Color.fromARGB(255, 16, 118, 214)
+        : Color.fromARGB(255, 16, 118, 214);
+  }
   static Color fillTertiaryBase(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light
         ? Color(0xFFEFD455)

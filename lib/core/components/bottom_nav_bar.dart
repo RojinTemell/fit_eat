@@ -1,10 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:fit_eat/core/components/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../features/create_recipe_page/viewmodel/create_recipe_viewmodel.dart';
+import '../constants/dynamic_constants.dart';
 import '../constants/text_constants.dart';
+import 'base_button.dart';
 
 final ValueNotifier<bool> showBottomBar = ValueNotifier(true);
 
@@ -69,37 +72,48 @@ class _BottomNavBarState extends State<BottomNavBar>
                               false);
 
                       if (hasData) {
-                        // Kullanıcıya soralım
-                        final bool? shouldSave = await showDialog<bool>(
+                        final bool? shouldSave = await AppPopup.show(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Taslak Kaydedilsin mi?'),
-                            content: const Text(
-                              'Sekme değiştirmeden önce tarifinizi taslak olarak kaydetmek ister misiniz?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context, false), // Sil ve Git
-                                child: const Text('Sil'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () => Navigator.pop(
-                                  context,
-                                  true,
-                                ), // Kaydet ve Git
-                                child: const Text('Kaydet'),
-                              ),
-                            ],
-                          ),
+                          type: AlertType.question,
+
+                          title: 'Live Flight Tracking',
+                          message:
+                              'it is help us translate  your voice to search within FitEat',
                         );
 
-                        if (shouldSave == true) {
-                          await viewModel.saveAsDraft();
-                        } else if (shouldSave == false) {
-                          viewModel.clearForm();
-                          await viewModel.discardDraft();
-                        }
+                        // if (shouldSave == true) {
+                        //   print("Kullanıcı onayladı");
+                        // }
+                        // await showDialog<bool>(
+                        //   context: context,
+                        //   builder: (context) => AlertDialog(
+                        //     title: const Text('Taslak Kaydedilsin mi?'),
+                        //     content: const Text(
+                        //       'Sekme değiştirmeden önce tarifinizi taslak olarak kaydetmek ister misiniz?',
+                        //     ),
+                        //     actions: [
+                        //       TextButton(
+                        //         onPressed: () =>
+                        //             Navigator.pop(context, false), // Sil ve Git
+                        //         child: const Text('Sil'),
+                        //       ),
+                        //       ElevatedButton(
+                        //         onPressed: () => Navigator.pop(
+                        //           context,
+                        //           true,
+                        //         ), // Kaydet ve Git
+                        //         child: const Text('Kaydet'),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // );
+
+                        // if (shouldSave == true) {
+                        //   await viewModel.saveAsDraft();
+                        // } else if (shouldSave == false) {
+                        //   viewModel.clearForm();
+                        //   await viewModel.discardDraft();
+                        // }
                       }
                     }
 
