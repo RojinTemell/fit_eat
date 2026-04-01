@@ -61,11 +61,11 @@ class _BottomNavBarState extends State<BottomNavBar>
                     final previousIndex = widget.shell.currentIndex;
                     final now = DateTime.now();
 
-                    // 1. CREATE RECIPE'DAN AYRILMA KONTROLÜ
+                    // CREATE RECIPE'DAN AYRILMA KONTROLÜ
                     if (previousIndex == 2 && value != 2) {
                       final viewModel = context.read<CreateRecipeViewModel>();
 
-                      // Formda veri var mı kontrolü (ViewModel'deki hasData mantığına benzer)
+                      // Formda veri var mı kontrolü (State'deki hasData mantığına benzer)
                       final bool hasData =
                           viewModel.state.recipe.title?.isNotEmpty == true ||
                           (viewModel.state.recipe.ingredients?.isNotEmpty ??
@@ -74,50 +74,24 @@ class _BottomNavBarState extends State<BottomNavBar>
                       if (hasData) {
                         final bool? shouldSave = await AppPopup.show(
                           context: context,
-                          type: AlertType.question,
+                          type: AlertType.info,
 
-                          title: 'Live Flight Tracking',
+                          title:
+                              'Sekme değiştirmeden önce tarifinizi taslak olarak kaydetmek ister misiniz?',
                           message:
                               'it is help us translate  your voice to search within FitEat',
                         );
 
-                        // if (shouldSave == true) {
-                        //   print("Kullanıcı onayladı");
-                        // }
-                        // await showDialog<bool>(
-                        //   context: context,
-                        //   builder: (context) => AlertDialog(
-                        //     title: const Text('Taslak Kaydedilsin mi?'),
-                        //     content: const Text(
-                        //       'Sekme değiştirmeden önce tarifinizi taslak olarak kaydetmek ister misiniz?',
-                        //     ),
-                        //     actions: [
-                        //       TextButton(
-                        //         onPressed: () =>
-                        //             Navigator.pop(context, false), // Sil ve Git
-                        //         child: const Text('Sil'),
-                        //       ),
-                        //       ElevatedButton(
-                        //         onPressed: () => Navigator.pop(
-                        //           context,
-                        //           true,
-                        //         ), // Kaydet ve Git
-                        //         child: const Text('Kaydet'),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // );
-
-                        // if (shouldSave == true) {
-                        //   await viewModel.saveAsDraft();
-                        // } else if (shouldSave == false) {
-                        //   viewModel.clearForm();
-                        //   await viewModel.discardDraft();
-                        // }
+                        if (shouldSave == true) {
+                          await viewModel.saveAsDraft();
+                        } else if (shouldSave == false) {
+                          viewModel.clearForm();
+                          await viewModel.discardDraft();
+                        }
                       }
                     }
 
-                    // 2. NAVİGASYON (GİTME İŞLEMİ)
+                    // NAVİGASYON (GİTME İŞLEMİ)
                     if (lastTappedIndex == value &&
                         lastTappedTime != null &&
                         now.difference(lastTappedTime!) <
@@ -127,7 +101,7 @@ class _BottomNavBarState extends State<BottomNavBar>
                       widget.shell.goBranch(value);
                     }
 
-                    // 3. CREATE RECIPE'A GERİ DÖNÜNCE KONTROL ET
+                    // CREATE RECIPE'A GERİ DÖNÜNCE KONTROL ET
                     if (value == 2 && previousIndex != 2) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (mounted) {

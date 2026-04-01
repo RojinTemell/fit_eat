@@ -208,7 +208,8 @@ void showAlertToast(
   overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
       top: context.dynamicHeight(0.1),
-      left: MediaQuery.of(context).size.width * 0.04,
+      left: context.dynamicWidth(0.04),
+      right: context.dynamicWidth(0.04),
       child: AlertToast(
         titleWidget: titleWidget,
         icon: icon,

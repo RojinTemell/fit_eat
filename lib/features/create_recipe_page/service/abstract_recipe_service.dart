@@ -1,13 +1,14 @@
 import 'package:fit_eat/features/ingredient/model/ingredient_request.dart';
+import '../../../core/error/result.dart';
 import '../model/recipe_model.dart';
 
 abstract class IRecipeService {
-  Future<void> createRecipe({required RecipeModel model});
-  Future<void> suggestIngredient({required IngredientRequest model});
+  Future<Result<String>> createRecipe({required RecipeModel model});
+  Future<Result<void>> suggestIngredient({required IngredientRequest model});
 }
 
 abstract class IRecipeDraftService {
-  Future<void> saveRecipeDraft(String userId, RecipeModel draft);
-  Future<void> deleteRecipeDraft(String userId);
-  Future<RecipeModel?> getRecipeDraft(String userId);
+  Future<Result<void>> saveRecipeDraft(String userId, RecipeModel draft);
+  Future<Result<void>> deleteRecipeDraft(String userId);
+  Future<Result<RecipeModel?>> getRecipeDraft(String userId);
 }

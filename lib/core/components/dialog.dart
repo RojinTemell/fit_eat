@@ -72,6 +72,10 @@ class AppPopup {
     required AlertType type,
     required String title,
     required String message,
+    String? primaryTitle,
+    String? secondaryTitle,
+    VoidCallback? primaryButtonCallback,
+    VoidCallback? secondaryButtonCallback,
   }) {
     return showGeneralDialog<T>(
       context: context,
@@ -116,11 +120,13 @@ class AppPopup {
                         size: 12,
                         color: Constant.textFixWhite(context),
                       ),
-                      callback: () {},
+                      callback: () {
+                        Navigator.pop(context, false);
+                      },
                     ),
                   ),
                   Column(
-                    mainAxisSize: MainAxisSize.min, // İçerik kadar yer kapla
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Lottie.asset(
                         'assets/json/${type.icon}.json',
@@ -147,9 +153,10 @@ class AppPopup {
                         children: [
                           Expanded(
                             child: BaseButton(
-                              title: "Cancel",
+                              title: secondaryTitle ?? "Cancel",
                               callback: () {
-                                Navigator.pop(context, true as T);
+                                Navigator.pop(context, false);
+                                secondaryButtonCallback;
                               },
                               // width: context.dynamicWidth(0.35),
                               baseButtonType: type.secondaryButton,
@@ -159,9 +166,10 @@ class AppPopup {
                           SizedBox(width: 16),
                           Expanded(
                             child: BaseButton(
-                              title: "Allow",
+                              title: primaryTitle ?? "Save",
                               callback: () {
-                                Navigator.pop(context, true as T);
+                                Navigator.pop(context, true);
+                                primaryButtonCallback;
                               },
                               // width: context.dynamicWidth(0.35),
                               baseButtonType: type.primaryButton,
@@ -189,179 +197,179 @@ class AppPopup {
   }
 }
 
-// class BaseDialog extends StatelessWidget {
-//   const BaseDialog({
-//     Key? key,
-//     this.body,
-//     required this.messageTitle,
-//     this.messageBody,
-//     required this.dialogType,
-//     this.iconData,
-//     this.isActionsButton,
-//     this.closeIcon,
-//   }) : super(key: key);
-//   final Widget? body;
-//   final String messageTitle;
-//   final String? messageBody;
+class BaseDialog extends StatelessWidget {
+  const BaseDialog({
+    Key? key,
+    this.body,
+    required this.messageTitle,
+    this.messageBody,
+    required this.dialogType,
+    this.iconData,
+    this.isActionsButton,
+    this.closeIcon,
+  }) : super(key: key);
+  final Widget? body;
+  final String messageTitle;
+  final String? messageBody;
 
-//   final DialogType dialogType;
-//   final IconData? iconData;
-//   final bool? closeIcon;
-//   final Widget? isActionsButton;
+  final DialogType dialogType;
+  final IconData? iconData;
+  final bool? closeIcon;
+  final Widget? isActionsButton;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Align(
-//       alignment: Alignment.topCenter,
-//       child: Container(
-//         margin: context.symmetricPadding(0, 20),
-//         decoration: BoxDecoration(
-//           color: dialogType.bgColor(context),
-//           borderRadius: BorderRadius.circular(8),
-//           border: Border.all(width: 2, color: dialogType.borderColor(context)),
-//         ),
-//         padding: context.symmetricPadding(20, 16),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Expanded(
-//                   flex: 9,
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Row(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           // ignore: unrelated_type_equality_checks
-//                           // İkon ve boşluk kontrolü
-//                           if (iconData != null) ...[
-//                             PhosphorIcon(
-//                               iconData!,
-//                               size: 24,
-//                               color: dialogType.titleColor(context),
-//                             ),
-//                             const SizedBox(width: 8),
-//                           ],
-//                           // if (!iconData.isNull)
-//                           //   PhosphorIcon(
-//                           //     iconData!,
-//                           //     size: 24,
-//                           //     color: dialogType.titleColor(context),
-//                           //   ),
-//                           // // ignore: unrelated_type_equality_checks
-//                           // if (!iconData.isNull) const SizedBox(width: 8),
-//                           Expanded(
-//                             child: Column(
-//                               children: [
-//                                 Text(
-//                                   messageTitle,
-//                                   style: TextStyle(
-//                                     fontWeight: FontWeight.w700,
-//                                     fontSize: 14,
-//                                     color: dialogType.titleColor(context),
-//                                   ),
-//                                 ),
-//                                 body ?? SizedBox(),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       if (messageBody != null)
-//                         Text(
-//                           messageBody ?? '',
-//                           style: TextStyle(
-//                             fontWeight: FontWeight.w400,
-//                             fontSize: 14,
-//                             color: Constant.textDarker(context),
-//                           ),
-//                         ),
-//                     ],
-//                   ),
-//                 ),
-//                 if (closeIcon ?? false)
-//                   Expanded(
-//                     child: GestureDetector(
-//                       onTap: () => Navigator.pop(context),
-//                       child: PhosphorIcon(
-//                         PhosphorIcons.x(PhosphorIconsStyle.bold),
-//                         size: 14,
-//                         color: dialogType.titleColor(context),
-//                       ),
-//                     ),
-//                   ),
-//               ],
-//             ),
-//             // ignore: unrelated_type_equality_checks
-//             if (isActionsButton != true)
-//               Column(
-//                 children: [
-//                   const SizedBox(height: 20),
-//                   isActionsButton ?? SizedBox(),
-//                 ],
-//               ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        margin: context.symmetricPadding(0, 20),
+        decoration: BoxDecoration(
+          color: dialogType.bgColor(context),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(width: 2, color: dialogType.borderColor(context)),
+        ),
+        padding: context.symmetricPadding(20, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 9,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ignore: unrelated_type_equality_checks
+                          // İkon ve boşluk kontrolü
+                          if (iconData != null) ...[
+                            PhosphorIcon(
+                              iconData!,
+                              size: 24,
+                              color: dialogType.titleColor(context),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          // if (!iconData.isNull)
+                          //   PhosphorIcon(
+                          //     iconData!,
+                          //     size: 24,
+                          //     color: dialogType.titleColor(context),
+                          //   ),
+                          // // ignore: unrelated_type_equality_checks
+                          // if (!iconData.isNull) const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  messageTitle,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: dialogType.titleColor(context),
+                                  ),
+                                ),
+                                body ?? SizedBox(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (messageBody != null)
+                        Text(
+                          messageBody ?? '',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: Constant.textDarker(context),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (closeIcon ?? false)
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: PhosphorIcon(
+                        PhosphorIcons.x(PhosphorIconsStyle.bold),
+                        size: 14,
+                        color: dialogType.titleColor(context),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            // ignore: unrelated_type_equality_checks
+            if (isActionsButton != true)
+              Column(
+                children: [
+                  const SizedBox(height: 20),
+                  isActionsButton ?? SizedBox(),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-// enum DialogType { white, grey, info, success, error, warning }
+enum DialogType { white, grey, info, success, error, warning }
 
-// extension DialogColor on DialogType {
-//   Color bgColor(BuildContext context) {
-//     switch (this) {
-//       case DialogType.white:
-//         return Constant.fillWhite(context);
-//       case DialogType.grey:
-//         return Constant.textLighter(context);
-//       case DialogType.info:
-//         return Constant.infoBgPrimary(context);
-//       case DialogType.success:
-//         return Constant.successBgPrimary(context);
-//       case DialogType.error:
-//         return Constant.errorBgPrimary(context);
-//       case DialogType.warning:
-//         return Constant.warningBgPrimary(context);
-//     }
-//   }
+extension DialogColor on DialogType {
+  Color bgColor(BuildContext context) {
+    switch (this) {
+      case DialogType.white:
+        return Constant.fillWhite(context);
+      case DialogType.grey:
+        return Constant.textLighter(context);
+      case DialogType.info:
+        return Constant.infoBgPrimary(context);
+      case DialogType.success:
+        return Constant.successBgPrimary(context);
+      case DialogType.error:
+        return Constant.errorBgPrimary(context);
+      case DialogType.warning:
+        return Constant.warningBgPrimary(context);
+    }
+  }
 
-//   Color borderColor(BuildContext context) {
-//     switch (this) {
-//       case DialogType.white:
-//         return Constant.borderLight(context);
-//       case DialogType.grey:
-//         return Constant.borderLight(context);
-//       case DialogType.info:
-//         return Constant.infoBorderDark(context);
-//       case DialogType.success:
-//         return Constant.successBorder(context);
-//       case DialogType.error:
-//         return Constant.errorBorder(context);
-//       case DialogType.warning:
-//         return Constant.warningBgPrimary(context);
-//     }
-//   }
+  Color borderColor(BuildContext context) {
+    switch (this) {
+      case DialogType.white:
+        return Constant.borderLight(context);
+      case DialogType.grey:
+        return Constant.borderLight(context);
+      case DialogType.info:
+        return Constant.infoBorderDark(context);
+      case DialogType.success:
+        return Constant.successBorder(context);
+      case DialogType.error:
+        return Constant.errorBorder(context);
+      case DialogType.warning:
+        return Constant.warningBgPrimary(context);
+    }
+  }
 
-//   Color titleColor(BuildContext context) {
-//     switch (this) {
-//       case DialogType.white:
-//         return Constant.textDarker(context);
-//       case DialogType.grey:
-//         return Constant.textDarker(context);
-//       case DialogType.info:
-//         return Constant.infoIcon(context);
-//       case DialogType.success:
-//         return Constant.successIcon(context);
-//       case DialogType.error:
-//         return Constant.errorBgPrimary(context);
-//       case DialogType.warning:
-//         return Constant.warningIcon(context);
-//     }
-//   }
-// }
+  Color titleColor(BuildContext context) {
+    switch (this) {
+      case DialogType.white:
+        return Constant.textDarker(context);
+      case DialogType.grey:
+        return Constant.textDarker(context);
+      case DialogType.info:
+        return Constant.infoIcon(context);
+      case DialogType.success:
+        return Constant.successIcon(context);
+      case DialogType.error:
+        return Constant.errorBgPrimary(context);
+      case DialogType.warning:
+        return Constant.warningIcon(context);
+    }
+  }
+}

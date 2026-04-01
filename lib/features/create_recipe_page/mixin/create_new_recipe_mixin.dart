@@ -39,8 +39,6 @@ mixin CreateNewRecipeMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     _disposeControllers();
-
-    viewModel.close();
     super.dispose();
   }
 

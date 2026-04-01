@@ -14,8 +14,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../../core/components/alert_toast.dart';
 import '../../../core/components/bottom_bar_container.dart';
 import '../../../core/components/chip.dart';
+import '../../../core/components/dialog.dart';
 import '../../../core/constants/text_constants.dart';
 import '../../../core/cubits/bottom_sheet.dart';
 import '../../home_page/state/category_state.dart';
@@ -46,28 +48,18 @@ class _CreateRecipeState extends State<CreateRecipe>
           !previous.hasDraftToShow && current.hasDraftToShow,
       listener: (context, state) async {
         viewModel.draftDialogShown();
-        await showDialog(
+        final bool? shouldSave = await AppPopup.show(
           context: context,
-          barrierDismissible: false,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Yarım Kalan Tarif'),
-            content: const Text(
+          type: AlertType.question,
+          primaryTitle: "Continue",
+          secondaryTitle: "New Recipe",
+          secondaryButtonCallback: () {
+            viewModel.discardDraft();
+          },
+
+          title: 'Yarım Kalan Tarif',
+          message:
               'Daha önceden başladığınız bir tarif taslağı bulundu. Devam etmek ister misiniz?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  viewModel.discardDraft();
-                  Navigator.pop(ctx);
-                },
-                child: const Text('Yeni Tarif'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Devam Et'),
-              ),
-            ],
-          ),
         );
       },
       child: BlocBuilder<CreateRecipeViewModel, CreateRecipeState>(
@@ -120,21 +112,31 @@ class _CreateRecipeState extends State<CreateRecipe>
                 color: Constant.fillBase(context),
                 baseButtonType: BaseButtonType.filledGreen,
                 title: 'Create Your Recipe',
-                callback: () {
+                callback: () async {
                   if (createRecipeFormKey.currentState!.validate()) {
                     // If the Form says it's valid, but you have logic-based requirements (like media)
                     if (state.mediaList.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Please upload at least one image/video",
-                          ),
+                      showAlertToast(
+                        context,
+                        type: AlertToastType.error,
+                        titleWidget: Text(
+                          'Please upload at least one image/video',
                         ),
                       );
-                      return;
+                    } else {
+                      final bool? isConfirm = await AppPopup.show(
+                        context: context,
+                        type: AlertType.info,
+                        primaryTitle: "Publish",
+                        secondaryTitle: "Cancel",
+                        title: 'Confirm Recipe',
+                        message:
+                            'Are you sure you want to create and publish this recipe?',
+                      );
+                      if (isConfirm == true) {
+                        viewModel.createRecipe();
+                      }
                     }
-
-                    // viewModel.createRecipe();
                   }
                 },
               ),
@@ -507,8 +509,20 @@ class _CreateRecipeState extends State<CreateRecipe>
                                         ingredientId: model.id,
                                         unit: unit,
                                       ),
-                                  onDelete: () =>
-                                      viewModel.removeIngredient(model.id),
+                                  onDelete: () async {
+                                    final bool? isShow = await AppPopup.show(
+                                      context: context,
+                                      type: AlertType.warning,
+                                      primaryTitle: "Delete",
+                                      secondaryTitle: "Cancel",
+                                      title: 'Silme',
+                                      message:
+                                          'Bu içeriği tarifinizden kaldırmak istediğinize emin misiniz',
+                                    );
+                                    if (isShow == true) {
+                                      viewModel.removeIngredient(model.id);
+                                    }
+                                  },
                                 );
                               },
                             ),
@@ -625,7 +639,6 @@ class _IngredientRow extends StatelessWidget {
           ),
           SizedBox(width: 6),
 
-          // Sil
           GestureDetector(
             onTap: onDelete,
             child: Container(

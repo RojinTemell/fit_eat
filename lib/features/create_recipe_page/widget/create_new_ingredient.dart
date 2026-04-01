@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/components/alert_toast.dart';
 import '../../../core/components/base_button.dart';
 import '../../../core/components/text_input.dart';
 import '../../../core/constants/dynamic_constants.dart';
@@ -137,24 +138,28 @@ class _CreateNewIngredientState extends State<CreateNewIngredient>
         BaseButton(
           title: "Send",
           callback: () async {
-            context.pop();
+            // Önce işlemi yap
             await viewModel.suggestIngredient(
               title: titleController.text,
               defaultUnit: unitController.text,
               caloriesPer100g: calController.text,
-              // carbsPer100g: carbsController.text,
-              // proteinPer100g: protienController.text,
-              // fatPer100g: fatController.text,
             );
+
             widget.clearSearchCallback();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Your suggestion has been sent. We’ll review it shortly 🚀",
-                ),
-                duration: Duration(seconds: 3),
+
+            // Widget hâlâ mounted mu kontrol et
+            if (!mounted) return;
+
+            showAlertToast(
+              context,
+              type: AlertToastType.success,
+              titleWidget: Text(
+                "Your suggestion has been sent. We'll review it shortly 🚀",
               ),
             );
+
+            // En son pop et
+            if (mounted) context.pop();
           },
           width: context.dynamicWidth(1),
           baseButtonType: BaseButtonType.filledGreen,

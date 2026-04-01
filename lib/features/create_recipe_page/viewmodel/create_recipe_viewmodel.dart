@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
+import '../../../core/error/result.dart';
 import '../../ingredient/model/ingredient_request.dart';
 import '../../ingredient/model/recipe_ingredient.dart';
 import '../../ingredient/services/nutrition_service.dart';
@@ -90,7 +91,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     directionsController.clear();
 
     for (final c in ingredientControllers.values) {
-      c.dispose();
+      c.clear();
     }
     ingredientControllers.clear();
 
@@ -110,13 +111,22 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     aboutController.text = recipe.about ?? '';
     servingController.text = (recipe.serving ?? '').toString();
     durationController.text = (recipe.duration ?? '').toString();
-    directionsController.text = state.recipe.steps!.join("\n");
+    directionsController.text = (recipe.steps ?? []).join("\n");
+
     for (final ingredient in recipe.ingredients ?? []) {
       if (ingredient.id == null) continue;
-      ingredientControllers[ingredient.id!]?.dispose();
-      ingredientControllers[ingredient.id!] = TextEditingController(
-        text: (ingredient.amount ?? 0) == 0 ? '' : ingredient.amount.toString(),
-      );
+
+      // Eski controller'ı dispose etmek yerine, varsa güncelle yoksa oluştur
+      if (ingredientControllers.containsKey(ingredient.id)) {
+        ingredientControllers[ingredient.id!]?.text =
+            (ingredient.amount ?? 0) == 0 ? '' : ingredient.amount.toString();
+      } else {
+        ingredientControllers[ingredient.id!] = TextEditingController(
+          text: (ingredient.amount ?? 0) == 0
+              ? ''
+              : ingredient.amount.toString(),
+        );
+      }
     }
   }
 
@@ -320,7 +330,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
     );
     print(data.toFirestore());
 
-    // await recipeService.suggestIngredient(model: data);
+    await recipeService.suggestIngredient(model: data);
   }
 
   // others
@@ -386,7 +396,7 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
         ratingAverage: 0,
         ratingCount: 0,
       );
-      print(recipe.toJson());
+
       await recipeService.createRecipe(model: recipe);
       clearForm();
     } catch (e) {
@@ -396,52 +406,35 @@ class CreateRecipeViewModel extends Cubit<CreateRecipeState> {
   }
 
   // draft features
-  Future<void> checkAndLoadDraft() async {
-    try {
-      changeLoading(isLoading: true);
-      final draft = await recipeDraftService.getRecipeDraft(userId);
+  // Future<void> checkAndLoadDraft() async {
+  //   try {
+  //     changeLoading(isLoading: true);
+  //     final Result<RecipeModel?> draft = await recipeDraftService.getRecipeDraft(userId);
 
-      if (draft != null) {
-        _fillFormFromRecipe(draft);
-        emit(
-          state.copyWith(
-            recipe: draft,
-            isDraftChecked: true,
-            isLoading: false,
-            hasDraftToShow: true,
-          ),
-        );
-        // NOT: UI tarafında "Taslaktan devam edilsin mi?" sorusunu bu state değişikliğiyle tetikleyeceğiz.
-      } else {
-        emit(state.copyWith(isDraftChecked: true, isLoading: false));
-      }
-    } catch (e) {
-      emit(state.copyWith(isDraftChecked: true, isLoading: false));
-      debugPrint('Draft load error: $e');
-    }
-  }
+  //     if (draft != null) {
+  //       _fillFormFromRecipe(draft);
+  //       emit(
+  //         state.copyWith(
+  //           recipe: draft,
+  //           isDraftChecked: true,
+  //           isLoading: false,
+  //           hasDraftToShow: true,
+  //         ),
+  //       );
+  //       // NOT: UI tarafında "Taslaktan devam edilsin mi?" sorusunu bu state değişikliğiyle tetikleyeceğiz.
+  //     } else {
+  //       emit(state.copyWith(isDraftChecked: true, isLoading: false));
+  //     }
+  //   } catch (e) {
+  //     emit(state.copyWith(isDraftChecked: true, isLoading: false));
+  //     debugPrint('Draft load error: $e');
+  //   }
+  // }
 
   Future<void> discardDraft() async {
     try {
-      // 1. Firestore'daki taslağı silmek için servisi çağırır
       await recipeDraftService.deleteRecipeDraft(userId);
-
-      // 2. State'i ve Controller'ları sıfırla (Temiz bir sayfa için)
       clearForm();
-      // emit(
-      //   state.copyWith(
-      //     recipe: RecipeModel(), // Boş model
-      //     mediaList: [],
-      //     isLoading: false,
-      //   ),
-      // );
-
-      // // 3. Malzeme controller'larını temizle
-      // for (var controller in ingredientControllers.values) {
-      //   controller.dispose();
-      // }
-      // ingredientControllers.clear();
-
       debugPrint('Taslak başarıyla silindi ve form sıfırlandı.');
     } catch (e) {
       debugPrint('Discard draft error: $e');

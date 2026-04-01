@@ -37,6 +37,12 @@ class _IngredientsPageState extends State<IngredientsPage> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(actions: [], title: "Ingredients"),
@@ -149,8 +155,14 @@ class _IngredientsPageState extends State<IngredientsPage> {
                                         context: context,
                                         widget: CreateNewIngredient(
                                           clearSearchCallback: () {
+                                            
                                             viewmodel.clearSearch();
-                                            searchController.clear();
+                                            if (searchController.hasListeners ||
+                                                searchController
+                                                    .text
+                                                    .isNotEmpty) {
+                                              searchController.clear();
+                                            }
                                           },
                                         ),
                                       );
@@ -159,26 +171,6 @@ class _IngredientsPageState extends State<IngredientsPage> {
                                 baseButtonType: BaseButtonType.filledGreen,
                                 baseButtonSize: BaseButtonSize.medium,
                               ),
-                              // Row(
-                              //   mainAxisAlignment:
-                              //       MainAxisAlignment.spaceBetween,
-                              //   children: [
-                              //     SizedBox(
-                              //       width: context.dynamicWidth(0.5),
-                              //       child: TextInputWidget(
-                              //         isRequired: true,
-                              //         hintText: 'write your ing..',
-                              //         controller: TextEditingController(),
-                              //         keyboardType: TextInputType.text,
-                              //       ),
-                              //     ),
-                              //     BaseButton(
-                              //       title: "Save",
-                              //       baseButtonType: BaseButtonType.filledGreen,
-                              //       baseButtonSize: BaseButtonSize.medium,
-                              //     ),
-                              //   ],
-                              // ),
                             ],
                           ),
                         );
