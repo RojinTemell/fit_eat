@@ -47,17 +47,10 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
     minuteFocusNode = FocusNode();
   }
 
-  // Helper method to clear all inputs
   void clearAllInputs() {
-    // titleController.clear();
-    // detailController.clear();
-    // directionsController.clear();
-    // servingController.clear();
-    // minuteController.clear();
     ingredientSearchController.clear();
   }
 
-  // Helper method to unfocus all fields
   void unfocusAll() {
     titleFocusNode.unfocus();
     detailFocusNode.unfocus();

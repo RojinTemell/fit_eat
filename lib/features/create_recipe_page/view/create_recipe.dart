@@ -20,6 +20,7 @@ import '../../../core/components/chip.dart';
 import '../../../core/components/dialog.dart';
 import '../../../core/constants/text_constants.dart';
 import '../../../core/cubits/bottom_sheet.dart';
+import '../../../core/feedback/feedback_listener.dart'; // ← yeni
 import '../../home_page/state/category_state.dart';
 import '../../home_page/viewmodel/category_view_model.dart';
 import '../../ingredient/model/recipe_ingredient.dart';
@@ -31,7 +32,6 @@ import '../state/create_recipe_state.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 import '../widget/show_pick_media_bottomsheet.dart';
 
-// ignore: must_be_immutable
 class CreateRecipe extends StatefulWidget {
   const CreateRecipe({super.key});
 
@@ -43,30 +43,41 @@ class _CreateRecipeState extends State<CreateRecipe>
     with CreateRecipePageMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CreateRecipeViewModel, CreateRecipeState>(
-      listenWhen: (previous, current) =>
-          !previous.hasDraftToShow && current.hasDraftToShow,
-      listener: (context, state) async {
-        viewModel.draftDialogShown();
-        final bool? shouldSave = await AppPopup.show(
-          context: context,
-          type: AlertType.question,
-          primaryTitle: "Continue",
-          secondaryTitle: "New Recipe",
-          secondaryButtonCallback: () {
-            viewModel.discardDraft();
+    return MultiBlocListener(
+      listeners: [
+        // 1) Draft bulundu → dialog göster
+        BlocListener<CreateRecipeViewModel, CreateRecipeState>(
+          listenWhen: (previous, current) =>
+              !previous.hasDraftToShow && current.hasDraftToShow,
+          listener: (context, state) async {
+            viewModel.draftDialogShown();
+            await AppPopup.show(
+              context: context,
+              type: AlertType.question,
+              primaryTitle: 'Continue',
+              secondaryTitle: 'New Recipe',
+              secondaryButtonCallback: () => viewModel.discardDraft(),
+              title: 'Yarım Kalan Tarif',
+              message:
+                  'Daha önceden başladığınız bir tarif taslağı bulundu. Devam etmek ister misiniz?',
+            );
           },
+        ),
 
-          title: 'Yarım Kalan Tarif',
-          message:
-              'Daha önceden başladığınız bir tarif taslağı bulundu. Devam etmek ister misiniz?',
-        );
-      },
+        // 2) Servis sonucu → Snackbar (tek satır, hepsi otomatik)
+        BlocListener<CreateRecipeViewModel, CreateRecipeState>(
+          listenWhen: (_, current) => current.feedback != null,
+          listener: (context, state) {
+            FeedbackHandler.handle(context, state.feedback!);
+            context.read<CreateRecipeViewModel>().clearFeedback();
+          },
+        ),
+      ],
       child: BlocBuilder<CreateRecipeViewModel, CreateRecipeState>(
         builder: (context, state) {
           final ingredients = state.recipe.ingredients ?? [];
           return PopScope(
-            canPop: false, // Direkt çıkmasın
+            canPop: false,
             onPopInvokedWithResult: (didPop, result) async {
               if (didPop) return;
 
@@ -114,33 +125,61 @@ class _CreateRecipeState extends State<CreateRecipe>
                 title: 'Create Your Recipe',
                 callback: () async {
                   if (createRecipeFormKey.currentState!.validate()) {
-                    // If the Form says it's valid, but you have logic-based requirements (like media)
+                    // Media Kontrolü
                     if (state.mediaList.isEmpty) {
                       showAlertToast(
                         context,
                         type: AlertToastType.error,
-                        titleWidget: Text(
-                          'Please upload at least one image/video',
+                        titleWidget: const Text('Lütfen görsel ekleyin'),
+                      );
+                      return;
+                    }
+
+                    // Kategori Kontrolü
+                    if ((state.recipe.categories ?? []).isEmpty) {
+                      showAlertToast(
+                        context,
+                        type: AlertToastType.error,
+                        titleWidget: const Text('Lütfen kategori seçin'),
+                      );
+                      return;
+                    }
+
+                    // Malzeme Kontrolü
+                    if (ingredients.isEmpty) {
+                      showAlertToast(
+                        context,
+                        type: AlertToastType.error,
+                        titleWidget: const Text('Malzeme listesi boş olamaz'),
+                      );
+                      return;
+                    }
+                    // Zorluluk Kontrolü
+                    if (state.recipe.difficulty == "") {
+                      showAlertToast(
+                        context,
+                        type: AlertToastType.error,
+                        titleWidget: const Text(
+                          'Zorluluk derecesini seçmeniz lazım',
                         ),
                       );
-                    } else {
-                      final bool? isConfirm = await AppPopup.show(
-                        context: context,
-                        type: AlertType.info,
-                        primaryTitle: "Publish",
-                        secondaryTitle: "Cancel",
-                        title: 'Confirm Recipe',
-                        message:
-                            'Are you sure you want to create and publish this recipe?',
-                      );
-                      if (isConfirm == true) {
-                        viewModel.createRecipe();
-                      }
+                      return;
+                    }
+                    final bool? isConfirm = await AppPopup.show(
+                      context: context,
+                      type: AlertType.info,
+                      primaryTitle: 'Publish',
+                      secondaryTitle: 'Cancel',
+                      title: 'Confirm Recipe',
+                      message:
+                          'Are you sure you want to create and publish this recipe?',
+                    );
+                    if (isConfirm == true) {
+                      viewModel.createRecipe();
                     }
                   }
                 },
               ),
-
               body: Form(
                 key: createRecipeFormKey,
                 child: SingleChildScrollView(
@@ -148,6 +187,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                     padding: context.allPadding(20),
                     child: Column(
                       children: [
+                        // ── Media upload alanı ──────────────────────────
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -159,7 +199,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                                     context,
                                   ).textTheme.labelBaseStrong,
                                 ),
-                                SizedBox(width: 2),
+                                const SizedBox(width: 2),
                                 Text(
                                   '*',
                                   style: Theme.of(context)
@@ -171,7 +211,6 @@ class _CreateRecipeState extends State<CreateRecipe>
                                 ),
                               ],
                             ),
-
                             Padding(
                               padding: context.symmetricPadding(8, 0),
                               child: GestureDetector(
@@ -186,8 +225,8 @@ class _CreateRecipeState extends State<CreateRecipe>
                                 child: DottedBorder(
                                   options: RoundedRectDottedBorderOptions(
                                     color: Constant.borderLight(context),
-                                    radius: Radius.circular(8),
-                                    dashPattern: [5, 5],
+                                    radius: const Radius.circular(8),
+                                    dashPattern: const [5, 5],
                                     strokeWidth: 1.2,
                                   ),
                                   child: Container(
@@ -197,7 +236,6 @@ class _CreateRecipeState extends State<CreateRecipe>
                                       color: Constant.fillMidDark(context),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -213,7 +251,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                                                 ),
                                               ),
                                         ),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         PhosphorIcon(
                                           PhosphorIconsBold.plusCircle,
                                           color: Constant.iconBase(context),
@@ -269,25 +307,19 @@ class _CreateRecipeState extends State<CreateRecipe>
                                                   ),
                                           ),
                                         ),
-
                                         Positioned(
                                           top: 0,
                                           right: 0,
                                           child: GestureDetector(
-                                            onTap: () {
-                                              viewModel.removeMedia(
-                                                state.mediaList[index],
-                                              );
-                                            },
-                                            child: GestureDetector(
-                                              child: PhosphorIcon(
-                                                PhosphorIconsFill.xCircle,
-                                                color:
-                                                    Constant.iconTertiaryLight(
-                                                      context,
-                                                    ),
-                                                size: 28,
+                                            onTap: () => viewModel.removeMedia(
+                                              state.mediaList[index],
+                                            ),
+                                            child: PhosphorIcon(
+                                              PhosphorIconsFill.xCircle,
+                                              color: Constant.iconTertiaryLight(
+                                                context,
                                               ),
+                                              size: 28,
                                             ),
                                           ),
                                         ),
@@ -299,7 +331,9 @@ class _CreateRecipeState extends State<CreateRecipe>
                           ],
                         ),
 
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
+
+                        // ── Difficulty ──────────────────────────────────
                         Padding(
                           padding: context.symmetricPadding(16, 0),
                           child: Column(
@@ -317,7 +351,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                                           context,
                                         ).textTheme.labelBaseStrong,
                                       ),
-                                      SizedBox(width: 2),
+                                      const SizedBox(width: 2),
                                       Text(
                                         '*',
                                         style: Theme.of(context)
@@ -335,7 +369,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                                     children: List.generate(
                                       RecipeDifficulty.values.length,
                                       (index) {
-                                        var difficulty =
+                                        final difficulty =
                                             RecipeDifficulty.values[index];
                                         return GestureDetector(
                                           onTap: () =>
@@ -365,12 +399,14 @@ class _CreateRecipeState extends State<CreateRecipe>
                             ],
                           ),
                         ),
+
+                        // ── Form alanları ───────────────────────────────
                         TextInputWidget(
                           isRequired: true,
                           title: 'Title',
                           controller: viewModel.titleController,
                           keyboardType: TextInputType.text,
-                          onChanged: (value) => viewModel.updateTitle(value),
+                          // onChanged: viewModel.updateTitle,
                           validator: (value) => value.validateRequired('Title'),
                         ),
                         Padding(
@@ -379,7 +415,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                             title: 'Detail',
                             controller: viewModel.aboutController,
                             keyboardType: TextInputType.text,
-                            onChanged: (value) => viewModel.updateAbout(value),
+                            // onChanged: viewModel.updateAbout,
                           ),
                         ),
                         TextInputWidget(
@@ -389,19 +425,18 @@ class _CreateRecipeState extends State<CreateRecipe>
                           validator: (value) =>
                               value.validateRequired('Directions'),
                           height: context.dynamicHeight(0.18),
-                          onChanged: (value) => viewModel.updateSteps(
-                            value
-                                .split('\n')
-                                .where((e) => e.trim().isNotEmpty)
-                                .toList(),
-                          ),
+                          // onChanged: (value) => viewModel.updateSteps(
+                          //   value
+                          //       .split('\n')
+                          //       .where((e) => e.trim().isNotEmpty)
+                          //       .toList(),
+                          // ),
                           minLines: 6,
                           maxLines: 8,
                           controller: viewModel.directionsController,
                           keyboardType: TextInputType.multiline,
                           textInputAction: TextInputAction.newline,
                         ),
-
                         Padding(
                           padding: context.symmetricPadding(16, 0),
                           child: Row(
@@ -412,23 +447,23 @@ class _CreateRecipeState extends State<CreateRecipe>
                                   hintText: 'How many people',
                                   controller: viewModel.servingController,
                                   keyboardType: TextInputType.number,
-                                  onChanged: (value) => viewModel.updateServing(
-                                    int.tryParse(value) ?? 1,
-                                  ),
-
+                                  // onChanged: (value) =>
+                                  //     viewModel.updateServing(
+                                  //         int.tryParse(value) ?? 1),
                                   validator: (value) =>
                                       value.validateRequired('Servings'),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: TextInputWidget(
                                   title: 'Minute',
                                   hintText: 'How much times',
                                   controller: viewModel.durationController,
                                   keyboardType: TextInputType.number,
-                                  onChanged: (value) => viewModel
-                                      .updateDuration(int.tryParse(value) ?? 0),
+                                  // onChanged: (value) =>
+                                  //     viewModel.updateDuration(
+                                  //         int.tryParse(value) ?? 0),
                                   validator: (value) =>
                                       value.validateRequired('Minute'),
                                 ),
@@ -436,96 +471,116 @@ class _CreateRecipeState extends State<CreateRecipe>
                             ],
                           ),
                         ),
+
+                        // ── Categories ──────────────────────────────────
                         Padding(
                           padding: context.symmetricPadding(16, 0),
                           child: BlocBuilder<CategoryViewModel, CategoryState>(
                             builder: (context, catState) {
-                              return ListItemSelection(
-                                title: 'Categories',
-                                callback: () {
-                                  context
-                                      .read<BottomSheetBloc>()
-                                      .showBottomSheet(
-                                        context: context,
-                                        widget: CategoriesBottomsheet(),
-                                      );
-                                  // context.pushNamed('categories');
-                                },
-                                listItemSelectionType:
-                                    ListItemSelectionType.idleCard,
-                                subtitle: selectedCategoriesString(
-                                  state.recipe.categories ?? [],
-                                  catState.categoryList,
-                                ),
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ListItemSelection(
+                                    title: 'Categories',
+                                    callback: () {
+                                      context
+                                          .read<BottomSheetBloc>()
+                                          .showBottomSheet(
+                                            context: context,
+                                            widget: CategoriesBottomsheet(),
+                                          );
+                                    },
+                                    listItemSelectionType:
+                                        ListItemSelectionType.idleCard,
+                                    subtitle: selectedCategoriesString(
+                                      state.recipe.categories ?? [],
+                                      catState.categoryList,
+                                    ),
+                                  ),
+                                  if ((state.recipe.categories ?? []).isEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        top: 4,
+                                      ),
+                                      child: Text(
+                                        'En az bir kategori seçmelisiniz *',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(
+                                              color: Constant.errorText(
+                                                context,
+                                              ),
+                                            ),
+                                      ),
+                                    ),
+                                ],
                               );
                             },
                           ),
                         ),
+
+                        // ── Ingredients ─────────────────────────────────
                         SizedBox(
                           width: context.dynamicWidth(1),
                           child: ListItemSelection(
-                            title: 'Choose or write item',
+                            title: 'Choose or write item ',
+                            subtitle: "You have to add minimum 1 item ",
                             isTrailingIcon: SizedBox(),
                             trailingText: GestureDetector(
-                              onTap: () {
-                                context.pushNamed('ingredientsPage');
-                              },
+                              onTap: () => context.pushNamed('ingredientsPage'),
                               child: PhosphorIcon(
                                 PhosphorIcons.caretCircleRight(),
                                 color: Constant.iconFix(context),
                                 size: 24,
                               ),
                             ),
-                            callback: () {
-                              context.pushNamed('ingredientsPage');
-                            },
+                            callback: () =>
+                                context.pushNamed('ingredientsPage'),
                             listItemSelectionType:
                                 ListItemSelectionType.idleCard,
                           ),
                         ),
-                        if (state.recipe.ingredients != [])
-                          if (ingredients.isNotEmpty)
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: ingredients.length,
-                              itemBuilder: (context, index) {
-                                final model = ingredients[index];
-
-                                // Controller map'ten geliyor — rebuild olunca sıfırlanmaz
-                                final controller =
-                                    viewModel.ingredientControllers[model.id];
-
-                                return _IngredientRow(
-                                  model: model,
-                                  controller: controller,
-                                  onAmountChanged: (value) =>
-                                      viewModel.updateIngredientAmount(
-                                        ingredientId: model.id,
-                                        amount: double.tryParse(value) ?? 0,
-                                      ),
-                                  onUnitChanged: (unit) =>
-                                      viewModel.updateIngredientUnit(
-                                        ingredientId: model.id,
-                                        unit: unit,
-                                      ),
-                                  onDelete: () async {
-                                    final bool? isShow = await AppPopup.show(
-                                      context: context,
-                                      type: AlertType.warning,
-                                      primaryTitle: "Delete",
-                                      secondaryTitle: "Cancel",
-                                      title: 'Silme',
-                                      message:
-                                          'Bu içeriği tarifinizden kaldırmak istediğinize emin misiniz',
-                                    );
-                                    if (isShow == true) {
-                                      viewModel.removeIngredient(model.id);
-                                    }
-                                  },
-                                );
-                              },
-                            ),
+                        if (ingredients.isNotEmpty)
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: ingredients.length,
+                            itemBuilder: (context, index) {
+                              final model = ingredients[index];
+                              final controller =
+                                  viewModel.ingredientControllers[model.id];
+                              return _IngredientRow(
+                                model: model,
+                                controller: controller,
+                                onAmountChanged: (value) =>
+                                    viewModel.updateIngredientAmount(
+                                      ingredientId: model.id,
+                                      amount: double.tryParse(value) ?? 0,
+                                    ),
+                                onUnitChanged: (unit) =>
+                                    viewModel.updateIngredientUnit(
+                                      ingredientId: model.id,
+                                      unit: unit,
+                                    ),
+                                onDelete: () async {
+                                  final bool? isShow = await AppPopup.show(
+                                    context: context,
+                                    type: AlertType.warning,
+                                    primaryTitle: 'Delete',
+                                    secondaryTitle: 'Cancel',
+                                    title: 'Silme',
+                                    message:
+                                        'Bu içeriği tarifinizden kaldırmak istediğinize emin misiniz?',
+                                  );
+                                  if (isShow == true) {
+                                    viewModel.removeIngredient(model.id);
+                                  }
+                                },
+                              );
+                            },
+                          ),
                       ],
                     ),
                   ),
@@ -538,6 +593,8 @@ class _CreateRecipeState extends State<CreateRecipe>
     );
   }
 }
+
+// ─── _IngredientRow ─────────────────────────────────────────────────────────
 
 class _IngredientRow extends StatelessWidget {
   final RecipeIngredient model;
@@ -560,7 +617,6 @@ class _IngredientRow extends StatelessWidget {
       padding: context.symmetricPadding(4, 0),
       child: Row(
         children: [
-          // Malzeme adı
           Expanded(
             flex: 3,
             child: TextInputWidget(
@@ -569,10 +625,7 @@ class _IngredientRow extends StatelessWidget {
               keyboardType: TextInputType.text,
             ),
           ),
-
-          SizedBox(width: 6),
-
-          // Miktar
+          const SizedBox(width: 6),
           Expanded(
             flex: 2,
             child: TextInputWidget(
@@ -584,10 +637,7 @@ class _IngredientRow extends StatelessWidget {
               onChanged: onAmountChanged,
             ),
           ),
-
-          SizedBox(width: 6),
-
-          // Birim
+          const SizedBox(width: 6),
           Expanded(
             flex: 4,
             child: DropdownButtonFormField<String>(
@@ -604,9 +654,7 @@ class _IngredientRow extends StatelessWidget {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
-                    color: Constant.borderLight(
-                      context,
-                    ), // Buraya istediğin sabit rengi verebilirsin
+                    color: Constant.borderLight(context),
                     width: 1.0,
                   ),
                 ),
@@ -619,9 +667,7 @@ class _IngredientRow extends StatelessWidget {
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: (Constant.borderLight(context)),
-                  ),
+                  borderSide: BorderSide(color: Constant.borderLight(context)),
                 ),
                 filled: true,
                 fillColor: Constant.fillWhite(context),
@@ -637,8 +683,7 @@ class _IngredientRow extends StatelessWidget {
               onChanged: (u) => onUnitChanged(u!),
             ),
           ),
-          SizedBox(width: 6),
-
+          const SizedBox(width: 6),
           GestureDetector(
             onTap: onDelete,
             child: Container(

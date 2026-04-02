@@ -147,16 +147,16 @@ class _CreateNewIngredientState extends State<CreateNewIngredient>
 
             widget.clearSearchCallback();
 
-            // Widget hâlâ mounted mu kontrol et
-            if (!mounted) return;
+            // // Widget hâlâ mounted mu kontrol et
+            // if (!mounted) return;
 
-            showAlertToast(
-              context,
-              type: AlertToastType.success,
-              titleWidget: Text(
-                "Your suggestion has been sent. We'll review it shortly 🚀",
-              ),
-            );
+            // showAlertToast(
+            //   context,
+            //   type: AlertToastType.success,
+            //   titleWidget: Text(
+            //     "Your suggestion has been sent. We'll review it shortly 🚀",
+            //   ),
+            // );
 
             // En son pop et
             if (mounted) context.pop();

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class IngredientRequest {
   final String? id;
   final String name;
-  final String emoji;
+  final String? emoji;
   // final bool approved;
   final String defaultUnit;
   final IngredientStatus status;
@@ -16,7 +16,7 @@ class IngredientRequest {
   const IngredientRequest({
     this.id,
     required this.name,
-    required this.emoji,
+    this.emoji,
     this.status = IngredientStatus.pending,
     // this.approved = true,
     this.defaultUnit = 'gram',
@@ -33,7 +33,10 @@ class IngredientRequest {
       id: doc.id,
       name: data['name'] ?? '',
       emoji: data['emoji'] ?? '🍽️',
-      status: data["status"] ?? IngredientStatus.pending,
+      status: IngredientStatus.values.firstWhere(
+        (e) => e.name == (data['status'] ?? 'pending'),
+        orElse: () => IngredientStatus.pending,
+      ),
       // approved: data['approved'] ?? true,
       defaultUnit: data['defaultUnit'] ?? 'gram',
       caloriesPer100g: (data['caloriesPer100g'] as num?)?.toDouble() ?? 0,
@@ -50,7 +53,7 @@ class IngredientRequest {
     // 'approved': approved,
     'defaultUnit': defaultUnit,
     'caloriesPer100g': caloriesPer100g,
-    "status": status,
+    "status": status.name,
     // 'proteinPer100g': proteinPer100g,
     // 'fatPer100g': fatPer100g,
     // 'carbsPer100g': carbsPer100g,

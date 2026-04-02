@@ -14,11 +14,13 @@ class DraftRecipeService implements IRecipeDraftService {
   final FirebaseAuth _auth;
   static const _draftsCollection = 'drafts';
   static const _currentDraftDoc = 'current_recipe';
+
   DocumentReference<Map<String, dynamic>> _draftRef(String userId) => _firestore
       .collection('users')
       .doc(userId)
       .collection(_draftsCollection)
       .doc(_currentDraftDoc);
+
   // Taslağı Kaydet
   @override
   Future<Result<void>> saveRecipeDraft(String userId, RecipeModel draft) async {

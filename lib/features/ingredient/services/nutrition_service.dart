@@ -5,21 +5,24 @@ class NutritionService {
 
   static int calculateCaloriePerServing({required RecipeModel model}) {
     double total = 0;
-    print(model.ingredients?.length);
+
     for (final ing in model.ingredients ?? []) {
-      if (ing.amount <= 0 || ing.caloriesPer100g == 0) continue;
+      final amount = ing.amount ?? 0;
+      final calories = ing.caloriesPer100g ?? 0;
+
+      if (amount <= 0 || calories == 0) continue;
 
       final grams = _toGrams(
-        amount: ing.amount,
-        unit: ing.unit,
+        amount: amount,
+        unit: ing.unit ?? 'gram',
         gramsPerPiece: ing.gramsPerPiece,
       );
 
-      total += ing.caloriesPer100g * (grams / 100);
+      total += calories * (grams / 100);
     }
 
     final serving = (model.serving ?? 1) > 0 ? model.serving! : 1;
-    return total.round();
+    return (total / serving).round();
   }
 
   static const List<String> units = [
