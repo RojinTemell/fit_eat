@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/account_page/view/setting.dart';
 import '../../features/ai_asistan_page/view/ai_assist.dart';
+import '../../features/auth_page/view/forgot_password.dart';
+import '../../features/auth_page/view/login.dart';
+import '../../features/auth_page/view/sign_up.dart';
 import '../../features/create_recipe_page/view/categories.dart';
 import '../../features/create_recipe_page/view/ingredients.dart';
 import '../../features/create_recipe_page/view/create_recipe.dart';
@@ -23,7 +26,7 @@ class AppRouter {
   static GoRouter createRouter() {
     return GoRouter(
       navigatorKey: navigatorKey,
-      initialLocation: "/splash",
+      initialLocation: "/signUp",
       observers: [KeyboardDismissObserver()],
       routes: [
         StatefulShellRoute.indexedStack(
@@ -99,6 +102,7 @@ class AppRouter {
             ),
           ],
         ),
+
         GoRoute(
           path: "/productDetail",
           name: "productDetail",
@@ -141,21 +145,21 @@ class AppRouter {
           routes: [],
         ),
 
-        // GoRoute(
-        //   path: "/login",
-        //   name: "login",
-        //   builder: (context, state) => Login(),
-        // ),
-        // GoRoute(
-        //   path: "/signUp",
-        //   name: "signUp",
-        //   builder: (context, state) => SignUp(),
-        // ),
-        // GoRoute(
-        //   path: "/forgotPassword",
-        //   name: "forgotPassword",
-        //   builder: (context, state) => ForgotPassword(),
-        // ),
+        GoRoute(
+          path: "/login",
+          name: "login",
+          builder: (context, state) => Login(),
+        ),
+        GoRoute(
+          path: "/signUp",
+          name: "signUp",
+          builder: (context, state) => SignUp(),
+        ),
+        GoRoute(
+          path: "/forgotPassword",
+          name: "forgotPassword",
+          builder: (context, state) => ForgotPassword(),
+        ),
       ],
     );
   }

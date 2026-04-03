@@ -38,9 +38,10 @@ class AuthService {
   }
 
   // Her ikisini birden sağla
-  Future<void> ensureBothSignedIn() async {
-    await ensureFirebaseSignedIn();
+  Future<firebase_auth.User> ensureBothSignedIn() async {
+    final user = await ensureFirebaseSignedIn();
     await ensureSupabaseSignedIn();
+    return user;
   }
 
   // Çıkış yap
