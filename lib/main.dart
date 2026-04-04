@@ -10,14 +10,15 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/custom_themes/scroll_behavior.dart';
 import 'core/theme/theme_mode.dart';
+import 'product/product_container.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // IngredientsService ing = IngredientsService();
-  // await ing.seed();
   await Supabase.initialize(url: supbaseUrl, anonKey: anonKey);
+
+  ProductContainer.instance.setup();
 
   runApp(
     ChangeNotifierProvider(
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: AppProviders.getProviders(),
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         scrollBehavior: constScrollBehavior,
         routerConfig: AppRouter.appRouter,

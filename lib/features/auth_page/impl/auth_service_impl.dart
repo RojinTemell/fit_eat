@@ -1,11 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:fit_eat/features/auth_page/impl/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
-class AuthService {
-  final firebase_auth.FirebaseAuth _firebaseAuth =
-      firebase_auth.FirebaseAuth.instance;
-  final supabase.SupabaseClient _supabase = supabase.Supabase.instance.client;
-  // Firebase Authentication
+final class AuthServiceImpl implements IAuthService {
+  AuthServiceImpl({
+    required firebase_auth.FirebaseAuth firebaseAuth,
+    required supabase.SupabaseClient supabaseClient,
+  }) : _firebaseAuth = firebaseAuth,
+       _supabase = supabaseClient;
+
+  final firebase_auth.FirebaseAuth _firebaseAuth;
+  final supabase.SupabaseClient _supabase;
+
+  @override
+  firebase_auth.User? get currentFirebaseUser => _firebaseAuth.currentUser;
+
+  @override
   Future<firebase_auth.User> ensureFirebaseSignedIn() async {
     final user = _firebaseAuth.currentUser;
     if (user != null) {
@@ -15,12 +25,11 @@ class AuthService {
     return credential.user!;
   }
 
-  firebase_auth.User? get currentFirebaseUser => _firebaseAuth.currentUser;
-
   bool get isFirebaseAnonymous =>
       _firebaseAuth.currentUser?.isAnonymous ?? false;
 
   // Supabase Authentication
+  @override
   Future<supabase.User> ensureSupabaseSignedIn() async {
     final user = _supabase.auth.currentUser;
     if (user != null) {
@@ -38,18 +47,30 @@ class AuthService {
   }
 
   // Her ikisini birden sağla
+  @override
   Future<firebase_auth.User> ensureBothSignedIn() async {
-    final user = await ensureFirebaseSignedIn();
-    await ensureSupabaseSignedIn();
-    return user;
+    try {
+      // Performans için paralel çalıştırıyoruz
+      final results = await Future.wait([
+        ensureFirebaseSignedIn(),
+        ensureSupabaseSignedIn(),
+      ]);
+      return results[0] as firebase_auth.User;
+    } catch (e) {
+      // Herhangi biri hata verirse ikisini de kapat (Tutarlılık için)
+      await signOut();
+      rethrow;
+    }
   }
 
   // Çıkış yap
+  @override
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
     await _supabase.auth.signOut();
   }
 
+  @override
   Future<void> upgradeAnonymousUser({
     required String email,
     required String password,
