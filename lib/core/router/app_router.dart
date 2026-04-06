@@ -26,7 +26,7 @@ class AppRouter {
   static GoRouter createRouter() {
     return GoRouter(
       navigatorKey: navigatorKey,
-      initialLocation: "/signUp",
+      initialLocation: "/splash",
       observers: [KeyboardDismissObserver()],
       routes: [
         StatefulShellRoute.indexedStack(

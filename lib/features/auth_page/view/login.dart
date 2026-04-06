@@ -4,10 +4,29 @@ import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/constants/text_constants.dart';
 import 'package:fit_eat/core/theme/custom_themes/text_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class Login extends StatelessWidget {
+import '../viewmodel/auth_viewmodel.dart';
+
+class Login extends StatefulWidget {
   const Login({super.key});
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  late AuthViewmodel viewmodel;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  @override
+  void initState() {
+    viewmodel = context.read<AuthViewmodel>();
+    emailController = TextEditingController(text: "rojintemel02@gmail.com");
+    passwordController = TextEditingController(text: "Roj123");
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +43,31 @@ class Login extends StatelessWidget {
             SizedBox(height: 20),
             TextInputWidget(
               hintText: 'Email',
-              controller: TextEditingController(),
+              controller: emailController,
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 20),
             TextInputWidget(
               hintText: 'Password',
-              controller: TextEditingController(),
+              controller: passwordController,
               keyboardType: TextInputType.text,
             ),
             SizedBox(height: 20),
 
             BaseButton(
-              callback: () => context.pushNamed('home'),
+              callback: () {
+                if (emailController.text.trim().isNotEmpty &&
+                    passwordController.text.trim().isNotEmpty) {
+                  print(
+                    "bastın ${emailController.text} ${passwordController.text} ",
+                  );
+                  viewmodel.signIn(
+                    email: emailController.text,
+                    password: passwordController.text,
+                  );
+                  // context.pushNamed('home');
+                }
+              },
               title: 'Login',
               baseButtonType: BaseButtonType.filledDark,
               baseButtonSize: BaseButtonSize.medium,
@@ -71,6 +102,9 @@ class Login extends StatelessWidget {
               baseButtonType: BaseButtonType.filledGrey,
               baseButtonSize: BaseButtonSize.medium,
               width: context.dynamicWidth(1),
+              callback: () {
+                viewmodel.signInWithGoogle();
+              },
             ),
             SizedBox(height: 20),
             BaseButton(

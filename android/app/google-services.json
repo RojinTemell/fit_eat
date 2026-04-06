@@ -12,7 +12,20 @@
           "package_name": "com.example.fit_eat"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "838996762286-qbhleebugjcpc0s5m5fah1stebe2m06f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fit_eat",
+            "certificate_hash": "755ba9d9f471fc387a1deaa842820f2661d39d30"
+          }
+        },
+        {
+          "client_id": "838996762286-u2ciq1s3bu3r7n4cja1ooikjrmb263e2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAcCw8MN2KNLsTiXc620zr71lXtl37_Cx4"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "838996762286-u2ciq1s3bu3r7n4cja1ooikjrmb263e2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "838996762286-ui900gb4qr7g14f46n88oa6km89dh4aa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fitEat"
+              }
+            }
+          ]
         }
       }
     }

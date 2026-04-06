@@ -25,4 +25,35 @@ class AuthRepositoryImpl implements IAuthRepository {
   Future<void> signOut() async {
     await _authService.signOut();
   }
+
+  @override
+  Future<firebase_auth.User> signIn({
+    required String email,
+    required String password,
+  }) async {
+    print("şuan repo impl desin ");
+    final User user = await _authService.signIn(
+      email: email,
+      password: password,
+    );
+    return user;
+  }
+
+  @override
+  Future<firebase_auth.User> signUp({
+    required String email,
+    required String password,
+  }) async {
+    final User user = await _authService.signUp(
+      email: email,
+      password: password,
+    );
+    return user;
+  }
+
+  @override
+  Future<firebase_auth.User?> signInWithGoogle() async {
+    final firebase_auth.User? user = await _authService.signInWithGoogle();
+    return user;
+  }
 }

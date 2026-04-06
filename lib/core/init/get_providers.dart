@@ -21,16 +21,15 @@ class AppProviders {
       BlocProvider<SplashViewmodel>(
         lazy: false,
         create: (_) {
-          print("Bloc create çalıştı");
           return SplashViewmodel(
             ProductContainer.instance.get<IAuthRepository>(),
-          )..init();
+          );
         },
       ),
       BlocProvider<AuthViewmodel>(
         create: (_) =>
             AuthViewmodel(ProductContainer.instance.get<IAuthRepository>())
-              ..init(), // Cubit oluşturulduğunda init çalışır
+              ..init(),
       ),
       BlocProvider<BottomSheetBloc>(create: (_) => BottomSheetBloc()),
       BlocProvider<IngredientViewmodel>(create: (_) => IngredientViewmodel()),
