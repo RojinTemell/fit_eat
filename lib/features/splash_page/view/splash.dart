@@ -1,23 +1,28 @@
+// splash.dart
+import 'package:fit_eat/features/auth_page/model/app_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../auth_page/model/app_user.dart';
-import '../viewmodel/splash_viewmodel.dart';
+
+import '../../auth_page/state/auth_state.dart';
+import '../../auth_page/viewmodel/auth_viewmodel.dart';
 
 class Splash extends StatelessWidget {
   const Splash({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SplashViewmodel, AuthStatus>(
+    return BlocListener<AuthViewmodel, AuthState>(
       listenWhen: (previous, current) =>
-          previous != current, // Sadece durum değişirse tetiklenicek
-      listener: (context, status) {
-        print("heyy view $status");
-        if (status == AuthStatus.anonymous ||
-            status == AuthStatus.authenticated) {
+          previous.user != current.user ||
+          previous.isLoading != current.isLoading,
+      listener: (context, state) {
+        print("status ne  ${state.status}");
+        if (state.isLoading) return;
+        if (state.status == AuthStatus.unauthenticated ||
+            state.status == AuthStatus.initial) {
           context.go('/signUp');
-        } else if (status == AuthStatus.unauthenticated) {
+        } else {
           context.go('/home');
         }
       },

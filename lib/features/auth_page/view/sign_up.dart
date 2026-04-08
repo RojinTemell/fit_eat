@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/feedback/feedback_listener.dart';
+import '../model/app_user.dart';
+import '../state/auth_state.dart';
+
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
 
@@ -36,102 +40,118 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsetsGeometry.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 80),
-            Text('FITEAT', style: Theme.of(context).textTheme.displayMedium),
-            Text(
-              'SIGN UP FREE',
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            SizedBox(height: 20),
-            TextInputWidget(
-              hintText: 'Email',
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 20),
-            TextInputWidget(
-              hintText: 'Password',
-              controller: passwordController,
-              keyboardType: TextInputType.text,
-            ),
-            SizedBox(height: 20),
+    return BlocListener<AuthViewmodel, AuthState>(
+      // listenWhen: (_, current) => current.feedback != null,
+      listener: (context, state) {
+        if (state.feedback != null) {
+          FeedbackHandler.handle(context, state.feedback!);
+          context.read<AuthViewmodel>().clearFeedback();
+        }
 
-            BaseButton(
-              callback: () {
-                if (emailController.text.trim().isNotEmpty &&
-                    passwordController.text.trim().isNotEmpty) {
-                  viewmodel.signUp(
-                    email: emailController.text,
-                    password: passwordController.text,
-                  );
-                }
-              },
-              title: 'Register',
-              baseButtonType: BaseButtonType.filledDark,
-              baseButtonSize: BaseButtonSize.medium,
-              width: context.dynamicWidth(1),
-            ),
-            SizedBox(height: 80),
+        if (state.status == AuthStatus.authenticated) {
+          // 'go' kullanarak login/signup stack'ini temizleyip ana sayfaya geçmek daha sağlıklıdır
+          context.goNamed('home');
+        }
+      },
+      child: BlocBuilder<AuthViewmodel, AuthState>(
+        builder: (context, state) {
+          return Scaffold(
+            body: Padding(
+              padding: EdgeInsetsGeometry.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 80),
+                  Text(
+                    'FITEAT',
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
+                  Text(
+                    'SIGN UP FREE',
+                    style: Theme.of(context).textTheme.displaySmall,
+                  ),
+                  SizedBox(height: 20),
+                  TextInputWidget(
+                    hintText: 'Email',
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  SizedBox(height: 20),
+                  TextInputWidget(
+                    hintText: 'Password',
+                    controller: passwordController,
+                    keyboardType: TextInputType.text,
+                  ),
+                  SizedBox(height: 20),
 
-            // BaseButton(
-            //   title: 'Continue with Apple',
-            //   baseButtonType: BaseButtonType.filledGrey,
-            //   baseButtonSize: BaseButtonSize.medium,
-            //   width: context.dynamicWidth(1),
-            // ),
-            // SizedBox(height: 20),
+                  BaseButton(
+                    callback: () {
+                      if (emailController.text.trim().isNotEmpty &&
+                          passwordController.text.trim().isNotEmpty) {
+                        viewmodel.signUp(
+                          email: emailController.text,
+                          password: passwordController.text,
+                        );
+                      }
+                    },
+                    title: 'Register',
+                    baseButtonType: BaseButtonType.filledDark,
+                    baseButtonSize: BaseButtonSize.medium,
+                    width: context.dynamicWidth(1),
+                  ),
+                  SizedBox(height: 80),
+                  BaseButton(
+                    title: 'Continue with Google',
+                    callback: () {
+                      viewmodel.signInWithGoogle();
+                    },
+                    baseButtonType: BaseButtonType.filledGrey,
+                    baseButtonSize: BaseButtonSize.medium,
+                    width: context.dynamicWidth(1),
+                  ),
+                  SizedBox(height: 20),
 
-            // BaseButton(
-            //   title: 'Continue with Google',
-            //   baseButtonType: BaseButtonType.filledGrey,
-            //   baseButtonSize: BaseButtonSize.medium,
-            //   width: context.dynamicWidth(1),
-            // ),
-            // SizedBox(height: 20),
-            // BaseButton(
-            //   title: 'Continue with Facebook',
-            //   baseButtonType: BaseButtonType.filledGrey,
-            //   baseButtonSize: BaseButtonSize.medium,
-            //   width: context.dynamicWidth(1),
-            // ),
-            // SizedBox(height: 20),
-            BaseButton(
-              callback: () {
-                viewmodel.checkAuth();
-              },
-              title: 'Continue with Anonim',
-              baseButtonType: BaseButtonType.filledGrey,
-              baseButtonSize: BaseButtonSize.medium,
-              width: context.dynamicWidth(1),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Already have an account ',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                GestureDetector(
-                  onTap: () => context.pushNamed('login'),
-                  child: Text(
-                    'Login ',
-                    style: Theme.of(context).textTheme.labelStrong.copyWith(
-                      color: Constant.errorText(context),
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: state.status != AuthStatus.anonymous ? 1.0 : 0.0,
+                    child: IgnorePointer(
+                      ignoring: state.status == AuthStatus.anonymous,
+                      child: BaseButton(
+                        callback: () async {
+                          await viewmodel.checkAuth();
+                          context.goNamed('home');
+                        },
+                        title: 'Continue with Anonymous',
+                        baseButtonType: BaseButtonType.filledGrey,
+                        baseButtonSize: BaseButtonSize.medium,
+                        width: context.dynamicWidth(1),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account ',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      GestureDetector(
+                        onTap: () => context.pushNamed('login'),
+                        child: Text(
+                          'Login ',
+                          style: Theme.of(context).textTheme.labelStrong
+                              .copyWith(color: Constant.errorText(context)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                ],
+              ),
             ),
-            Spacer(),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

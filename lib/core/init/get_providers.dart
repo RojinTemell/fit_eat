@@ -18,15 +18,16 @@ class AppProviders {
 
   static List<BlocProvider> getProviders() {
     return [
-      BlocProvider<SplashViewmodel>(
-        lazy: false,
-        create: (_) {
-          return SplashViewmodel(
-            ProductContainer.instance.get<IAuthRepository>(),
-          );
-        },
-      ),
+      // BlocProvider<SplashViewmodel>(
+      //   lazy: false,
+      //   create: (_) {
+      //     return SplashViewmodel(
+      //       ProductContainer.instance.get<IAuthRepository>(),
+      //     );
+      //   },
+      // ),
       BlocProvider<AuthViewmodel>(
+        lazy: false,
         create: (_) =>
             AuthViewmodel(ProductContainer.instance.get<IAuthRepository>())
               ..init(),

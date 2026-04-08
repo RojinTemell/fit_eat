@@ -48,7 +48,7 @@ class _AlertToastState extends State<AlertToast> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    final duration = widget.duration ?? const Duration(seconds: 3);
+    final duration = widget.duration ?? const Duration(seconds: 2);
     _controller = AnimationController(vsync: this, duration: duration);
     _animation = Tween<double>(
       begin: 5.0,

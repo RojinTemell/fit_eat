@@ -6,6 +6,8 @@ import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../features/auth_page/impl/auth_service.dart';
+import '../features/create_recipe_page/service/create_recipe_service.dart';
+import '../features/create_recipe_page/service/draft_service.dart';
 
 class ProductContainer {
   ProductContainer._();
@@ -21,7 +23,13 @@ class ProductContainer {
       () => Supabase.instance.client,
     );
 
-    // 2. Services
+    _getIt.registerLazySingleton<CreateRecipeService>(
+      () => CreateRecipeService(),
+    );
+    _getIt.registerLazySingleton<DraftRecipeService>(
+      () => DraftRecipeService(),
+    );
+
     _getIt.registerLazySingleton<IAuthService>(
       () => AuthServiceImpl(
         firebaseAuth: get<FirebaseAuth>(),

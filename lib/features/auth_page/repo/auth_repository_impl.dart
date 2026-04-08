@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import '../../../core/error/result.dart';
 import '../impl/auth_service.dart';
 import 'auth_service_repository.dart';
 
@@ -12,48 +13,38 @@ class AuthRepositoryImpl implements IAuthRepository {
   firebase_auth.User? get currentUser => _authService.currentFirebaseUser;
 
   @override
-  Future<void> linkAccount(String email, String password) async {
-    await _authService.upgradeAnonymousUser(email: email, password: password);
-  }
+  Future<Result<User>> linkAccount(String email, String password) async =>
+      await _authService.upgradeAnonymousUser(email: email, password: password);
 
   @override
-  Future<User> signInAnonymously() async {
+  Future<Result<User>> signInAnonymously() async {
     return await _authService.ensureBothSignedIn();
   }
 
   @override
-  Future<void> signOut() async {
-    await _authService.signOut();
+  Future<Result<void>> signOut() async {
+    return await _authService.signOut();
   }
 
   @override
-  Future<firebase_auth.User> signIn({
+  Future<Result<User>> signIn({
     required String email,
     required String password,
   }) async {
     print("şuan repo impl desin ");
-    final User user = await _authService.signIn(
-      email: email,
-      password: password,
-    );
-    return user;
+    return await _authService.signIn(email: email, password: password);
   }
 
   @override
-  Future<firebase_auth.User> signUp({
+  Future<Result<User>> signUp({
     required String email,
     required String password,
   }) async {
-    final User user = await _authService.signUp(
-      email: email,
-      password: password,
-    );
-    return user;
+    return await _authService.signUp(email: email, password: password);
   }
 
   @override
-  Future<firebase_auth.User?> signInWithGoogle() async {
-    final firebase_auth.User? user = await _authService.signInWithGoogle();
-    return user;
+  Future<Result<User>> signInWithGoogle() async {
+    return await _authService.signInWithGoogle();
   }
 }

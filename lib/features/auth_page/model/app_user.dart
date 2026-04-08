@@ -1,4 +1,9 @@
-enum AuthStatus { anonymous, authenticated, unauthenticated }
+enum AuthStatus {
+  initial, // Henüz kontrol edilmedi (Splash aşaması)
+  authenticated, // Giriş yapmış kullanıcı
+  anonymous, // Misafir kullanıcı
+  unauthenticated, // Giriş yapmamış/Çıkış yapmış
+}
 
 class AppUser {
   final String uid;
