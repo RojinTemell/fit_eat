@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
 import 'package:fit_eat/features/ingredient/model/ingredient.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import '../../../core/feedback/app_feedback.dart';
 import '../../../core/feedback/feedback_listener.dart';
@@ -12,6 +12,8 @@ import '../../ingredient/model/recipe_ingredient.dart';
 import '../../ingredient/services/nutrition_service.dart';
 import '../intites/media_rules.dart';
 import '../model/recipe_media_model.dart';
+import '../../../core/error/result.dart';
+import '../service/abstract_media_service.dart';
 import '../service/abstract_recipe_service.dart';
 import '../state/create_recipe_state.dart';
 
@@ -19,6 +21,7 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
   CreateRecipeViewModel(
     this.recipeService,
     this.recipeDraftService,
+    this.mediaService,
     this.userId,
   ) : super(
         CreateRecipeState(
@@ -29,11 +32,12 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
           hasDraftToShow: false,
         ),
       ) {
-    initControllerListeners();
+    _initControllerListeners();
   }
 
   final IRecipeService recipeService;
   final IRecipeDraftService recipeDraftService;
+  final IMediaService mediaService;
   final String userId;
 
   final ImagePicker _picker = ImagePicker();
@@ -46,43 +50,40 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
   final durationController = TextEditingController();
   final directionsController = TextEditingController();
 
-  void initControllerListeners() {
-    titleController.addListener(() {
-      final text = titleController.text;
-
-      if (state.recipe.title == text) return;
-
-      emit(state.copyWith(recipe: state.recipe.copyWith(title: text)));
-    });
-    aboutController.addListener(() {
-      final about = aboutController.text;
-
-      if (state.recipe.about == about) return;
-
-      emit(state.copyWith(recipe: state.recipe.copyWith(about: about)));
-    });
-    servingController.addListener(() {
-      final serving = int.tryParse(servingController.text);
-
-      if (state.recipe.serving == serving) return;
-
-      emit(state.copyWith(recipe: state.recipe.copyWith(serving: serving)));
-    });
-    durationController.addListener(() {
-      final duration = int.tryParse(durationController.text);
-
-      if (state.recipe.duration == duration) return;
-
-      emit(state.copyWith(recipe: state.recipe.copyWith(duration: duration)));
-    });
+  void _initControllerListeners() {
+    _bindText(titleController, (r, v) => r.copyWith(title: v));
+    _bindText(aboutController, (r, v) => r.copyWith(about: v));
+    _bindParsedInt(servingController, (r, v) => r.copyWith(serving: v));
+    _bindParsedInt(durationController, (r, v) => r.copyWith(duration: v));
     directionsController.addListener(() {
       final steps = directionsController.text
           .split('\n')
           .where((e) => e.trim().isNotEmpty)
           .toList();
-      if (state.recipe.steps == steps) return;
       emit(state.copyWith(recipe: state.recipe.copyWith(steps: steps)));
     });
+  }
+
+  void _bindText(
+    TextEditingController ctrl,
+    RecipeModel Function(RecipeModel recipe, String text) update,
+  ) {
+    ctrl.addListener(
+      () => emit(state.copyWith(recipe: update(state.recipe, ctrl.text))),
+    );
+  }
+
+  void _bindParsedInt(
+    TextEditingController ctrl,
+    RecipeModel Function(RecipeModel recipe, int? value) update,
+  ) {
+    ctrl.addListener(
+      () => emit(
+        state.copyWith(
+          recipe: update(state.recipe, int.tryParse(ctrl.text)),
+        ),
+      ),
+    );
   }
 
   // ─── RECIPE ───────────────────────────────────────────────────────────────
@@ -111,7 +112,13 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final uploadedMedia = await uploadMediaToSupabase();
+      final mediaResult = await mediaService.uploadMedia(state.mediaList);
+      if (mediaResult.isError) {
+        emitFeedback(ErrorFeedback(mediaResult.failureOrNull!.message));
+        emit(state.copyWith(isLoading: false));
+        return;
+      }
+      final uploadedMedia = mediaResult.dataOrNull!;
       final calorie = NutritionService.calculateCaloriePerServing(
         model: state.recipe,
       );
@@ -351,29 +358,6 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
         mediaList: state.mediaList.where((e) => e != media).toList(),
       ),
     );
-  }
-
-  Future<List<Media>> uploadMediaToSupabase() async {
-    final supabase = Supabase.instance.client;
-    final List<Media> uploaded = [];
-
-    for (final media in state.mediaList) {
-      try {
-        final ext = media.file.path.split('.').last;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
-        final bucket = media.type == MediaType.image ? 'image' : 'video';
-        await supabase.storage
-            .from(bucket)
-            .upload(fileName, File(media.file.path));
-        final url = supabase.storage.from(bucket).getPublicUrl(fileName);
-        uploaded.add(Media(url: url, type: media.type));
-      } on StorageException catch (e) {
-        debugPrint('Supabase Storage error: ${e.message}');
-      } catch (e) {
-        debugPrint('Media upload unexpected error: $e');
-      }
-    }
-    return uploaded;
   }
 
   // ─── OTHERS ─────────────────────────────────────────────────────────────────

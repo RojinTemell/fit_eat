@@ -1,24 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fit_eat/core/error/result.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../model/app_user.dart';
 
 abstract interface class IAuthService {
-  firebase_auth.User? get currentFirebaseUser;
-  Future<Result<supabase.User>> ensureSupabaseSignedIn();
-  Future<Result<User>> ensureFirebaseSignedIn();
-  Future<Result<User>> ensureBothSignedIn();
-  Future<Result<User>> signIn({
+  AppUser? get currentUser;
+  Future<Result<AppUser>> signInAnonymously();
+  Future<Result<AppUser>> signIn({
     required String email,
     required String password,
   });
-  Future<Result<User>> signUp({
+  Future<Result<AppUser>> signUp({
     required String email,
     required String password,
   });
-  Future<Result<User>> signInWithGoogle();
+  Future<Result<AppUser>> signInWithGoogle();
   Future<Result<void>> signOut();
-  Future<Result<User>> upgradeAnonymousUser({
+  Future<Result<AppUser>> upgradeAnonymousUser({
     required String email,
     required String password,
   });

@@ -14,7 +14,6 @@ class RecipeFeedViewmodel extends FeedbackCubit<RecipeFeedState> {
     final result = await recipeService.getAllRecipes();
     await handleResult(
       result,
-      successMessage: 'Tarif başarıyla yayınlandı!',
       onSuccess: (data) => emit(state.copyWith(recipes: data)),
     );
     print("recipes count ${state.recipes.length}");

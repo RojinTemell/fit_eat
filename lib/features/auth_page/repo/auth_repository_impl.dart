@@ -1,50 +1,42 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../../../core/error/result.dart';
 import '../impl/auth_service.dart';
+import '../model/app_user.dart';
 import 'auth_service_repository.dart';
 
 class AuthRepositoryImpl implements IAuthRepository {
   final IAuthService _authService;
+
   AuthRepositoryImpl({required IAuthService authService})
-    : _authService = authService;
+      : _authService = authService;
 
   @override
-  firebase_auth.User? get currentUser => _authService.currentFirebaseUser;
+  AppUser? get currentUser => _authService.currentUser;
 
   @override
-  Future<Result<User>> linkAccount(String email, String password) async =>
-      await _authService.upgradeAnonymousUser(email: email, password: password);
+  Future<Result<AppUser>> signInAnonymously() =>
+      _authService.signInAnonymously();
 
   @override
-  Future<Result<User>> signInAnonymously() async {
-    return await _authService.ensureBothSignedIn();
-  }
+  Future<Result<AppUser>> linkAccount(String email, String password) =>
+      _authService.upgradeAnonymousUser(email: email, password: password);
 
   @override
-  Future<Result<void>> signOut() async {
-    return await _authService.signOut();
-  }
-
-  @override
-  Future<Result<User>> signIn({
+  Future<Result<AppUser>> signIn({
     required String email,
     required String password,
-  }) async {
-    print("şuan repo impl desin ");
-    return await _authService.signIn(email: email, password: password);
-  }
+  }) =>
+      _authService.signIn(email: email, password: password);
 
   @override
-  Future<Result<User>> signUp({
+  Future<Result<AppUser>> signUp({
     required String email,
     required String password,
-  }) async {
-    return await _authService.signUp(email: email, password: password);
-  }
+  }) =>
+      _authService.signUp(email: email, password: password);
 
   @override
-  Future<Result<User>> signInWithGoogle() async {
-    return await _authService.signInWithGoogle();
-  }
+  Future<Result<void>> signOut() => _authService.signOut();
+
+  @override
+  Future<Result<AppUser>> signInWithGoogle() => _authService.signInWithGoogle();
 }
