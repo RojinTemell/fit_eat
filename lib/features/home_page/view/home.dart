@@ -2,18 +2,18 @@ import 'package:fit_eat/core/components/appbar.dart';
 import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/constants/text_constants.dart';
 import 'package:fit_eat/features/auth_page/model/app_user.dart';
+import 'package:fit_eat/features/recipe_feed/viewmodel/recipe_feed_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../../../core/components/base_button.dart';
 import '../../../core/components/text_input.dart';
 import '../../../core/entities/category/category_list.dart';
 import '../../auth_page/state/auth_state.dart';
 import '../../auth_page/viewmodel/auth_viewmodel.dart';
+import '../../recipe_feed/state/recipe_feed_state.dart';
 import '../widget/anonim_container_for_signup.dart';
 import '../widget/last_visited_widget.dart';
-import '../widget/product_widget.dart';
+import '../../recipe_feed/view/recipe_widget.dart';
 
 // ignore: must_be_immutable
 class Home extends StatefulWidget {
@@ -25,9 +25,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late AuthViewmodel viewmodel;
+  late RecipeFeedViewmodel recipeFeedViewmodel;
   @override
   void initState() {
     viewmodel = context.read<AuthViewmodel>();
+    recipeFeedViewmodel = context.read<RecipeFeedViewmodel>();
+    recipeFeedViewmodel.getAllRecipes();
     super.initState();
   }
 
@@ -205,21 +208,28 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 ),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(12),
-                  itemCount: 10,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.493,
-                  ),
-                  itemBuilder: (context, index) {
-                    return const ProductWidget();
+                BlocBuilder<RecipeFeedViewmodel, RecipeFeedState>(
+                  builder: (context, state) {
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(12),
+                      itemCount: state.recipes.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.493,
+                          ),
+                      itemBuilder: (context, index) {
+                        final model = state.recipes[index];
+                        return RecipeWidget(model: model);
+                      },
+                    );
                   },
                 ),
+                SizedBox(height: 100),
                 // Container(
                 //   margin: EdgeInsets.symmetric(horizontal: 20),
                 //   child: Column(

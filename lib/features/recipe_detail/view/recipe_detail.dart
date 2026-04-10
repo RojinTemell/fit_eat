@@ -1,4 +1,5 @@
 import 'package:fit_eat/core/theme/custom_themes/text_theme.dart';
+import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -6,14 +7,14 @@ import '../../../core/components/circle_button.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
 
-class ProductDetail extends StatefulWidget {
-  const ProductDetail({super.key});
-
+class RecipeDetail extends StatefulWidget {
+  const RecipeDetail({super.key, required this.model});
+  final RecipeModel model;
   @override
-  State<ProductDetail> createState() => _ProductDetailState();
+  State<RecipeDetail> createState() => _RecipeDetailState();
 }
 
-class _ProductDetailState extends State<ProductDetail> {
+class _RecipeDetailState extends State<RecipeDetail> {
   List imageList = ['salad', 'fastfood', 'breakfast', 'snacks'];
 
   int currentIndex = 0;
@@ -164,7 +165,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      'Green minestrone ',
+                      '${widget.model.title}',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
@@ -195,7 +196,7 @@ class _ProductDetailState extends State<ProductDetail> {
                         GestureDetector(
                           onTap: () => context.pushNamed("profile"),
                           child: Text(
-                            'Rojin Temel',
+                            '${widget.model.authorName}',
                             style: Theme.of(context).textTheme.labelMediumStrong
                                 .copyWith(decoration: TextDecoration.underline),
 
@@ -243,7 +244,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   SizedBox(height: 4),
 
                   Text(
-                    'Healthy Salad RecipesHealthy Salad RecipesH ealthy Sal ad RecipesHealthyRecipesHealthy Salad Recipesd RecipesHealth yRecipesHea lthy Salad Recipesd RecipesHeal thyRecipes Healthy Salad Recipesd RecipesHe althyReci pesHealthy Salad Recipes',
+                    '${widget.model.about}',
                     style: Theme.of(context).textTheme.labelLarge,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -280,7 +281,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Healthy Salad RecipesHealthy Salad RecipesH ealthy Sal ad RecipesHealthyRecipesHealthy Salad Recipesd RecipesHealth yRecipesHea lthy Salad Recipesd RecipesHeal thyRecipes Healthy Salad Recipesd RecipesHe althyReci pesHealthy Salad Recipes',
+                    '${widget.model.steps}',
                     style: Theme.of(context).textTheme.labelLarge,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

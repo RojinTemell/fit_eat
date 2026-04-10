@@ -64,4 +64,22 @@ class CreateRecipeService implements IRecipeService {
       return const Error(UnknownFailure());
     }
   }
+
+  @override
+  Future<Result<List<RecipeModel>>> getAllRecipes() async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('recipes')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final recipes = querySnapshot.docs
+          .map((doc) => RecipeModel.fromJson(doc.data()))
+          .toList();
+
+      return Success(recipes);
+    } catch (e) {
+      return const Error(UnknownFailure());
+    }
+  }
 }

@@ -9,11 +9,12 @@ import '../../features/ai_asistan_page/view/ai_assist.dart';
 import '../../features/auth_page/view/forgot_password.dart';
 import '../../features/auth_page/view/login.dart';
 import '../../features/auth_page/view/sign_up.dart';
+import '../../features/create_recipe_page/model/recipe_model.dart';
 import '../../features/create_recipe_page/view/categories.dart';
 import '../../features/create_recipe_page/view/ingredients.dart';
 import '../../features/create_recipe_page/view/create_recipe.dart';
 import '../../features/home_page/view/answer_questions.dart';
-import '../../features/home_page/view/product_detail.dart';
+import '../../features/recipe_detail/view/recipe_detail.dart';
 import '../../features/home_page/view/profile.dart';
 import '../../features/splash_page/view/splash.dart';
 
@@ -104,9 +105,12 @@ class AppRouter {
         ),
 
         GoRoute(
-          path: "/productDetail",
-          name: "productDetail",
-          builder: (context, state) => ProductDetail(),
+          path: "/recipeDetail",
+          name: "recipeDetail",
+          builder: (context, state) {
+            final model = state.extra as RecipeModel;
+            return RecipeDetail(model: model);
+          },
         ),
         GoRoute(
           path: "/categories",

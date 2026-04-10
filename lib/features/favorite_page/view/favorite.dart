@@ -1,10 +1,11 @@
+import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../core/components/text_input.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
-import '../../home_page/widget/product_widget.dart';
+import '../../recipe_feed/view/recipe_widget.dart';
 
 class Favorite extends StatelessWidget {
   const Favorite({super.key});
@@ -42,7 +43,7 @@ class Favorite extends StatelessWidget {
                   childAspectRatio: 0.493,
                 ),
                 itemBuilder: (context, index) {
-                  return const ProductWidget();
+                  return RecipeWidget(model: RecipeModel());
                 },
               ),
             ),

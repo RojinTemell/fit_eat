@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import '../../ingredient/model/recipe_ingredient.dart';
 import 'recipe_media_model.dart';
@@ -47,7 +48,6 @@ class RecipeModel extends Equatable {
     this.createdAt,
   });
 
-  /// 🔁 copyWith
   RecipeModel copyWith({
     String? id,
     String? authorName,
@@ -93,7 +93,6 @@ class RecipeModel extends Equatable {
     );
   }
 
-  /// 🔥 Firestore / JSON
   factory RecipeModel.fromJson(Map<String, dynamic> json, {String? docId}) {
     return RecipeModel(
       id: docId ?? json['id'],
@@ -123,7 +122,9 @@ class RecipeModel extends Equatable {
       ratingAverage: (json['ratingAverage'] as num?)?.toDouble(),
       ratingCount: json['ratingCount'],
 
-      createdAt: json['createdAt'],
+      createdAt: json['createdAt'] != null
+          ? (json['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 

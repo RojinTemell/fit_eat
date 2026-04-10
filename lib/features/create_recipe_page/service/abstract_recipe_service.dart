@@ -5,6 +5,7 @@ import '../model/recipe_model.dart';
 abstract class IRecipeService {
   Future<Result<String>> createRecipe({required RecipeModel model});
   Future<Result<void>> suggestIngredient({required IngredientRequest model});
+  Future<Result<List<RecipeModel>>> getAllRecipes();
 }
 
 abstract class IRecipeDraftService {

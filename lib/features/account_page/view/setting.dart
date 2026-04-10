@@ -1,4 +1,3 @@
-import 'package:fit_eat/features/auth_page/model/app_user.dart';
 import 'package:fit_eat/features/auth_page/state/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

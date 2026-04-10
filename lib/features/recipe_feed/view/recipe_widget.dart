@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fit_eat/core/components/base_button.dart';
+import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -7,13 +9,13 @@ import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
 import '../../../core/theme/custom_themes/text_theme.dart';
 
-class ProductWidget extends StatelessWidget {
-  const ProductWidget({super.key});
-
+class RecipeWidget extends StatelessWidget {
+  const RecipeWidget({super.key, required this.model});
+  final RecipeModel model;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.pushNamed('productDetail'),
+      onTap: () => context.pushNamed('recipeDetail', extra: model),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 0),
         child: Container(
@@ -30,11 +32,12 @@ class ProductWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(4),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/images/snacks.jpeg',
-                        height: context.dynamicHeight(0.2),
-                        width: context.dynamicWidth(1),
-                        fit: BoxFit.fill,
+                      child: CachedNetworkImage(
+                        imageUrl: model.media?[0].url ?? "",
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                     ),
                   ),
@@ -71,7 +74,7 @@ class ProductWidget extends StatelessWidget {
 
                           SizedBox(width: 4),
                           Text(
-                            '45 min',
+                            '${model.duration} min',
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                         ],
@@ -103,17 +106,17 @@ class ProductWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
-                        'Healthy Salad Recipes',
+                        "${model.title}",
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
                     Text(
-                      'Healthy Salad RecipesHealthy Salad RecipesH ealthy Sal ad RecipesHealthyRecipesHealthy Salad Recipes',
+                      "${model.about}",
                       style: Theme.of(context).textTheme.labelMedium,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -132,7 +135,7 @@ class ProductWidget extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            'Anonim Hesap',
+                            '${model.authorName}',
                             style: Theme.of(
                               context,
                             ).textTheme.labelMediumStrong,
@@ -160,7 +163,7 @@ class ProductWidget extends StatelessWidget {
                             size: 12,
                           ),
                           Text(
-                            'Easy',
+                            '${model.difficulty}',
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ],
@@ -176,7 +179,7 @@ class ProductWidget extends StatelessWidget {
                             color: Constant.iconDark(context),
                             size: 12,
                           ),
-                          title: '120 cal',
+                          title: '${model.calorie} cal',
                           baseButtonType: BaseButtonType.auto,
                           baseButtonSize: BaseButtonSize.xsmall,
                         ),

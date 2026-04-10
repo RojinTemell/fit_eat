@@ -153,23 +153,22 @@ class _IngredientsPageState extends State<IngredientsPage> {
                                 BaseButton(
                                   title: "Create",
                                   callback: () {
-                                    context
-                                        .read<BottomSheetBloc>()
-                                        .showBottomSheet(
-                                          context: context,
-                                          widget: CreateNewIngredient(
-                                            clearSearchCallback: () {
-                                              viewmodel.clearSearch();
-                                              if (searchController
-                                                      .hasListeners ||
-                                                  searchController
-                                                      .text
-                                                      .isNotEmpty) {
-                                                searchController.clear();
-                                              }
-                                            },
-                                          ),
-                                        );
+                                    context.read<BottomSheetBloc>().showBottomSheet(
+                                      context: context,
+                                      widget: CreateNewIngredient(
+                                        clearSearchCallback: () {
+                                          viewmodel.clearSearch();
+                                          if (searchController
+                                                  // ignore: invalid_use_of_protected_member
+                                                  .hasListeners ||
+                                              searchController
+                                                  .text
+                                                  .isNotEmpty) {
+                                            searchController.clear();
+                                          }
+                                        },
+                                      ),
+                                    );
                                   },
                                   width: context.dynamicWidth(1),
                                   baseButtonType: BaseButtonType.filledGreen,
