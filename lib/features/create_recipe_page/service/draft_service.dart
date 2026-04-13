@@ -1,65 +1,52 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../core/error/failure.dart';
 import '../../../core/error/result.dart';
 import '../model/recipe_model.dart';
 import 'abstract_recipe_service.dart';
 
+/// Stores the in-progress recipe draft locally using SharedPreferences.
+/// No cloud sync needed — drafts are personal and temporary.
 class DraftRecipeService implements IRecipeDraftService {
-  DraftRecipeService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-    : _firestore = firestore ?? FirebaseFirestore.instance,
-      _auth = auth ?? FirebaseAuth.instance;
-  final FirebaseFirestore _firestore;
-  final FirebaseAuth _auth;
-  static const _draftsCollection = 'drafts';
-  static const _currentDraftDoc = 'current_recipe';
+  static const _keyPrefix = 'recipe_draft_';
 
-  DocumentReference<Map<String, dynamic>> _draftRef(String userId) => _firestore
-      .collection('users')
-      .doc(userId)
-      .collection(_draftsCollection)
-      .doc(_currentDraftDoc);
-
-  // Taslağı Kaydet
   @override
   Future<Result<void>> saveRecipeDraft(String userId, RecipeModel draft) async {
     try {
-      await _draftRef(userId).set(draft.toJson());
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyPrefix + userId, jsonEncode(draft.toJson()));
       return const Success(null);
-    } on FirebaseException catch (e) {
-      debugPrint('[DraftService] save error: ${e.message}');
-      return Error(ServerFailure(e.message ?? 'Taslak kaydedilemedi'));
     } catch (e) {
+      debugPrint('[DraftService] save error: $e');
       return const Error(UnknownFailure());
     }
   }
 
-  // Taslağı Getir
   @override
   Future<Result<RecipeModel?>> getRecipeDraft(String userId) async {
     try {
-      final doc = await _draftRef(userId).get();
-      if (!doc.exists || doc.data() == null) return const Success(null);
-      return Success(RecipeModel.fromJson(doc.data()!));
-    } on FirebaseException catch (e) {
-      debugPrint('[DraftService] get error: ${e.message}');
-      return Error(ServerFailure(e.message ?? 'Taslak yüklenemedi'));
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_keyPrefix + userId);
+      if (raw == null) return const Success(null);
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return Success(RecipeModel.fromJson(map));
     } catch (e) {
+      debugPrint('[DraftService] get error: $e');
       return const Error(UnknownFailure());
     }
   }
 
-  // Taslağı sil
   @override
   Future<Result<void>> deleteRecipeDraft(String userId) async {
     try {
-      await _draftRef(userId).delete();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_keyPrefix + userId);
       return const Success(null);
-    } on FirebaseException catch (e) {
-      debugPrint('[DraftService] delete error: ${e.message}');
-      return Error(ServerFailure(e.message ?? 'Taslak silinemedi'));
     } catch (e) {
+      debugPrint('[DraftService] delete error: $e');
       return const Error(UnknownFailure());
     }
   }

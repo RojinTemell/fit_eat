@@ -79,9 +79,7 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
   ) {
     ctrl.addListener(
       () => emit(
-        state.copyWith(
-          recipe: update(state.recipe, int.tryParse(ctrl.text)),
-        ),
+        state.copyWith(recipe: update(state.recipe, int.tryParse(ctrl.text))),
       ),
     );
   }
@@ -368,8 +366,9 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
     emit(state.copyWith(recipe: state.recipe.copyWith(categories: categories)));
   }
 
-  void updateDifficulty(String v) =>
-      emit(state.copyWith(recipe: state.recipe.copyWith(difficulty: v)));
+  void updateDifficulty(String v) {
+    emit(state.copyWith(recipe: state.recipe.copyWith(difficulty: v)));
+  }
 
   void clearForm() {
     titleController.clear();

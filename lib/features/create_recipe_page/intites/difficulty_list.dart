@@ -6,11 +6,11 @@ extension RecipeDifficultyExtension on RecipeDifficulty {
   String get title {
     switch (this) {
       case RecipeDifficulty.easy:
-        return "Easy";
+        return "easy";
       case RecipeDifficulty.medium:
-        return "Medium";
+        return "medium";
       case RecipeDifficulty.hard:
-        return "Hard";
+        return "hard";
     }
   }
 

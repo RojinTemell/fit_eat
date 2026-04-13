@@ -1,8 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:fit_eat/core/keys/secret_key.dart';
-import 'package:fit_eat/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/init/get_providers.dart';
@@ -15,8 +14,16 @@ import 'product/product_container.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await Supabase.initialize(url: supbaseUrl, anonKey: anonKey);
+  await dotenv.load(fileName: '.env');
+
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
+
+  await GoogleSignIn.instance.initialize(
+    serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
+  );
 
   ProductContainer.instance.setup();
 
@@ -31,7 +38,6 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeProvider>().themeMode;
@@ -40,7 +46,7 @@ class MyApp extends StatelessWidget {
       providers: AppProviders.getProviders(),
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'FitEat',
         scrollBehavior: constScrollBehavior,
         routerConfig: AppRouter.appRouter,
         theme: AppTheme.lightTheme(context),

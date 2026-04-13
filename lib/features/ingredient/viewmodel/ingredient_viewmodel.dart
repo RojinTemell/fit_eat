@@ -32,6 +32,17 @@ class IngredientViewmodel extends Cubit<IngredientState> {
     }
   }
 
+  Future<void> seed() async {
+    emit(state.copyWith(isLoading: true));
+    await service.seed();
+
+    try {
+      emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
   void toggleIngredient(String id) {
     final tempList = List<String>.from(state.selectedIngredientIds);
 

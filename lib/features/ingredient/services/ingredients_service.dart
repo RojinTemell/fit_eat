@@ -1,59 +1,57 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fit_eat/features/ingredient/model/ingredient.dart';
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../entities/ingredient_entity.dart';
+import '../model/ingredient.dart';
 
 class IngredientsService {
-  Future<List<Ingredient>> fetchIngredients() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('ingredients')
-        .where('approved', isEqualTo: true)
-        .get();
+  final _supabase = Supabase.instance.client;
 
-    final ingredients = snapshot.docs
-        .map((doc) => Ingredient.fromFirestore(doc))
+  Future<List<Ingredient>> fetchIngredients() async {
+    final response = await _supabase
+        .from('ingredients')
+        .select()
+        .eq('approved', true);
+
+    return (response as List)
+        .map((row) => Ingredient.fromJson(row as Map<String, dynamic>))
         .toList();
-    return ingredients;
   }
 
-  final _data = ingredientDatas;
   Future<void> seed() async {
-    final collection = FirebaseFirestore.instance.collection('ingredients');
+    final existing = await _supabase
+        .from('ingredients')
+        .select('id')
+        .limit(1);
 
-    // Zaten veri varsa yükleme (çift kayıt önleme)
-    final existing = await collection.limit(1).get();
-    if (existing.docs.isNotEmpty) {
-      print('⚠️  ingredients koleksiyonu zaten dolu, seed atlandı.');
+    if ((existing as List).isNotEmpty) {
+      debugPrint('⚠️  ingredients tablosu zaten dolu, seed atlandı.');
       return;
     }
 
-    // 500'lük Firestore batch limiti nedeniyle parçalara böl
     const batchSize = 100;
-    for (var i = 0; i < _data.length; i += batchSize) {
-      final chunk = _data.sublist(
-        i,
-        i + batchSize > _data.length ? _data.length : i + batchSize,
-      );
+    final data = ingredientDatas;
 
-      final batch = FirebaseFirestore.instance.batch();
-      for (final row in chunk) {
-        final ref = collection.doc();
-        batch.set(ref, {
+    for (var i = 0; i < data.length; i += batchSize) {
+      final end = (i + batchSize).clamp(0, data.length);
+      final rows = data.sublist(i, end).map((row) {
+        return {
           'name': row[0],
           'emoji': row[1],
-          'defaultUnit': row[2],
-          'caloriesPer100g': row[3],
-          'proteinPer100g': row[4],
-          'fatPer100g': row[5],
-          'carbsPer100g': row[6],
-          if (row[7] != null) 'gramsPerPiece': row[7],
+          'default_unit': row[2],
+          'calories_per_100g': row[3],
+          'protein_per_100g': row[4],
+          'fat_per_100g': row[5],
+          'carbs_per_100g': row[6],
+          if (row.length > 7 && row[7] != null) 'grams_per_piece': row[7],
           'approved': true,
-        });
-      }
-      await batch.commit();
-      print('✅ ${i + chunk.length}/${_data.length} malzeme yüklendi...');
+        };
+      }).toList();
+
+      await _supabase.from('ingredients').insert(rows);
+      debugPrint('✅ $end/${data.length} malzeme yüklendi...');
     }
 
-    print('🎉 Tüm malzemeler başarıyla Firebase\'e yüklendi!');
+    debugPrint("🎉 Tüm malzemeler başarıyla Supabase'e yüklendi!");
   }
 }
