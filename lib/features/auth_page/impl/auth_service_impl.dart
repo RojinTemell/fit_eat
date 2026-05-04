@@ -2,7 +2,6 @@ import 'package:fit_eat/features/auth_page/impl/auth_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../../../core/error/failure.dart';
 import '../../../core/error/result.dart';
 import '../model/app_user.dart';

@@ -72,8 +72,6 @@ class CreateRecipeService implements IRecipeService {
   @override
   Future<Result<List<RecipeModel>>> getAllRecipes({DateTime? cursor}) async {
     try {
-      // Filters must come before order/limit in Supabase query builder.
-      // Join users table to get author display_name and avatar_url.
       var filterQuery = _supabase
           .from('recipes')
           .select('*, users!user_id(display_name, avatar_url)')
