@@ -7,9 +7,7 @@ import 'package:fit_eat/features/auth_page/state/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../core/feedback/feedback_listener.dart';
-import '../model/app_user.dart';
 import '../viewmodel/auth_viewmodel.dart';
 
 class Login extends StatefulWidget {
@@ -40,7 +38,7 @@ class _LoginState extends State<Login> {
           FeedbackHandler.handle(context, state.feedback!);
           context.read<AuthViewmodel>().clearFeedback();
         }
-        if (state.status == AuthStatus.authenticated) {
+        if (state is AuthAuthenticated) {
           context.goNamed('home');
         }
       },
@@ -110,12 +108,12 @@ class _LoginState extends State<Login> {
 
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
-                    opacity: state.status != AuthStatus.anonymous ? 1.0 : 0.0,
+                    opacity: state is! AuthAnonymous ? 1.0 : 0.0,
                     child: IgnorePointer(
-                      ignoring: state.status == AuthStatus.anonymous,
+                      ignoring: state is AuthAnonymous,
                       child: BaseButton(
                         callback: () async {
-                          await viewmodel.checkAuth();
+                          await viewmodel.bootstrap();
                           context.goNamed('home');
                         },
                         title: 'Continue with Anonymous',

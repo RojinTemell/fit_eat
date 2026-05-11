@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../entities/ingredient_entity.dart';
 import '../model/ingredient.dart';
 
@@ -8,10 +7,7 @@ class IngredientsService {
   final _supabase = Supabase.instance.client;
 
   Future<List<Ingredient>> fetchIngredients() async {
-    final response = await _supabase
-        .from('ingredients')
-        .select()
-        .eq('approved', true);
+    final response = await _supabase.from('ingredients').select();
 
     return (response as List)
         .map((row) => Ingredient.fromJson(row as Map<String, dynamic>))
@@ -39,12 +35,6 @@ class IngredientsService {
           'name': row[0],
           'emoji': row[1],
           'default_unit': row[2],
-          'calories_per_100g': row[3],
-          'protein_per_100g': row[4],
-          'fat_per_100g': row[5],
-          'carbs_per_100g': row[6],
-          if (row.length > 7 && row[7] != null) 'grams_per_piece': row[7],
-          'approved': true,
         };
       }).toList();
 

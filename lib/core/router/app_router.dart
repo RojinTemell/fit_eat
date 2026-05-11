@@ -11,7 +11,7 @@ import '../../features/auth_page/view/login.dart';
 import '../../features/auth_page/view/sign_up.dart';
 import '../../features/create_recipe_page/model/recipe_model.dart';
 import '../../features/create_recipe_page/view/categories.dart';
-import '../../features/create_recipe_page/view/ingredients.dart';
+import '../../features/recipe_feed/view/ingredients.dart';
 import '../../features/create_recipe_page/view/create_recipe.dart';
 import '../../features/home_page/view/answer_questions.dart';
 import '../../features/recipe_detail/view/recipe_detail.dart';

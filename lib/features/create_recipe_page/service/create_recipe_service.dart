@@ -17,7 +17,7 @@ class CreateRecipeService implements IRecipeService {
   Future<Result<String>> createRecipe({required RecipeModel model}) async {
     try {
       final user = _supabase.auth.currentUser;
-      if (user == null) return const Error(UnauthorizedFailure());
+      if (user == null) return Err(UnauthorizedFailure());
 
       final data = model
           .copyWith(
@@ -36,13 +36,13 @@ class CreateRecipeService implements IRecipeService {
           .select('id')
           .single();
 
-      return Success(response['id'] as String);
+      return Ok(response['id'] as String);
     } on PostgrestException catch (e) {
       debugPrint('[CreateRecipeService] Postgrest error: ${e.message}');
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
       debugPrint('[CreateRecipeService] Unexpected error: $e');
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -58,12 +58,12 @@ class CreateRecipeService implements IRecipeService {
         ...model.toJson(),
         if (user != null) 'user_id': user.id,
       });
-      return const Success(null);
+      return const Ok(null);
     } on PostgrestException catch (e) {
       debugPrint('[CreateRecipeService] suggestIngredient error: ${e.message}');
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -89,13 +89,15 @@ class CreateRecipeService implements IRecipeService {
           .map((row) => RecipeModel.fromSupabase(row as Map<String, dynamic>))
           .toList();
 
-      return Success(recipes);
+      return Ok(recipes);
     } on PostgrestException catch (e) {
       debugPrint('[CreateRecipeService] getAllRecipes error: ${e.message}');
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
       debugPrint('[CreateRecipeService] getAllRecipes unexpected: $e');
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
+
+  
 }

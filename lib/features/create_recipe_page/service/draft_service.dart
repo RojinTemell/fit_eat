@@ -18,10 +18,10 @@ class DraftRecipeService implements IRecipeDraftService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_keyPrefix + userId, jsonEncode(draft.toJson()));
-      return const Success(null);
+      return const Ok(null);
     } catch (e) {
       debugPrint('[DraftService] save error: $e');
-      return const Error(UnknownFailure());
+      return  Err(UnknownFailure());
     }
   }
 
@@ -30,12 +30,12 @@ class DraftRecipeService implements IRecipeDraftService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_keyPrefix + userId);
-      if (raw == null) return const Success(null);
+      if (raw == null) return const Ok(null);
       final map = jsonDecode(raw) as Map<String, dynamic>;
-      return Success(RecipeModel.fromJson(map));
+      return Ok(RecipeModel.fromJson(map));
     } catch (e) {
       debugPrint('[DraftService] get error: $e');
-      return const Error(UnknownFailure());
+      return  Err(UnknownFailure());
     }
   }
 
@@ -44,10 +44,10 @@ class DraftRecipeService implements IRecipeDraftService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_keyPrefix + userId);
-      return const Success(null);
+      return const Ok(null);
     } catch (e) {
       debugPrint('[DraftService] delete error: $e');
-      return const Error(UnknownFailure());
+      return  Err(UnknownFailure());
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:fit_eat/features/auth_page/model/app_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,23 +16,25 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthViewmodel>().init();
+      context.read<AuthViewmodel>().bootstrap();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthViewmodel, AuthState>(
-      listenWhen: (previous, current) =>
-          previous.user != current.user ||
-          previous.isLoading != current.isLoading,
+      listenWhen: (previous, current) => current is! AuthInitial,
       listener: (context, state) {
-        if (state.isLoading) return;
-        if (state.status == AuthStatus.unauthenticated ||
-            state.status == AuthStatus.initial) {
-          context.go('/signUp');
-        } else {
-          context.go('/home');
+        print("SplashListener: $state");
+        switch (state) {
+          case AuthAnonymous() || AuthAuthenticated():
+            context.go('/home');
+          case AuthUnauthenticated():
+            context.go('/login');
+          case AuthOtpPending():
+            context.go('/verificationCode');
+          case AuthInitial():
+            break; // bekle
         }
       },
       child: const Scaffold(body: Center(child: CircularProgressIndicator())),

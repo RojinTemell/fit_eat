@@ -29,13 +29,13 @@ class MediaService implements IMediaService {
         final url = supabase.storage.from(bucket).getPublicUrl(fileName);
         uploaded.add(Media(url: url, type: media.type));
       }
-      return Success(uploaded);
+      return Ok(uploaded);
     } on StorageException catch (e) {
       debugPrint('Supabase Storage error: ${e.message}');
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
       debugPrint('Media upload unexpected error: $e');
-      return const Error(UnknownFailure());
+      return  Err(UnknownFailure());
     }
   }
 }

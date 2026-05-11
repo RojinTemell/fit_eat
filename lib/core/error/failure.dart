@@ -1,20 +1,64 @@
-abstract class Failure {
-  final String message;
-  const Failure({required this.message});
+import 'package:equatable/equatable.dart';
+
+sealed class Failure extends Equatable {
+  final String? message;
+  const Failure({this.message});
+
+  @override
+  List<Object?> get props => [message];
 }
 
-class NetworkFailure extends Failure {
-  const NetworkFailure() : super(message: "İnternet bağlantısı yok");
+final class NetworkFailure extends Failure {
+  const NetworkFailure({super.message});
 }
 
-class ServerFailure extends Failure {
-  const ServerFailure(String message) : super(message: message);
+final class ServerFailure extends Failure {
+  final String? code;
+  const ServerFailure({super.message, this.code});
+
+  @override
+  List<Object?> get props => [message, code];
 }
 
-class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure() : super(message: "Oturum süresi doldu");
+final class UnauthorizedFailure extends Failure {
+  const UnauthorizedFailure({super.message});
 }
 
-class UnknownFailure extends Failure {
-  const UnknownFailure() : super(message: "Beklenmeyen bir hata oluştu");
+final class UnknownFailure extends Failure {
+  const UnknownFailure({super.message});
+}
+
+final class ValidationFailure extends Failure {
+  const ValidationFailure({super.message});
+}
+
+/// Sign-in denenince Supabase `email_not_confirmed` hatası fırlatırsa
+/// bu Failure dönülür. Cubit bunu özel olarak yakalar; otomatik
+/// resend OTP + AuthOtpPending'e yönlendirir.
+final class EmailNotConfirmedFailure extends Failure {
+  const EmailNotConfirmedFailure({super.message});
+}
+
+class FailureMessageMapper {
+  FailureMessageMapper._();
+
+  static String mapFailureToMessage(Failure failure) {
+    final raw = failure.message;
+    if (raw != null && raw.isNotEmpty) return raw;
+
+    return switch (failure) {
+      NetworkFailure() => "İnternet bağlantısı yok",
+      ServerFailure() => "Sunucu hatası oluştu",
+      UnauthorizedFailure() => "Yetki hatası",
+      ValidationFailure() => "Geçersiz veri girdiniz",
+      EmailNotConfirmedFailure() =>
+        "E-posta adresiniz henüz doğrulanmadı. Yeni kod gönderildi.",
+      UnknownFailure() => "Bir hata oluştu",
+    };
+  }
+}
+
+extension FailureExtension on Failure {
+  String get localizedMessage =>
+      FailureMessageMapper.mapFailureToMessage(this);
 }

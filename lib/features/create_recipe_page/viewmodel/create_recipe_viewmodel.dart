@@ -9,7 +9,6 @@ import '../../../core/feedback/app_feedback.dart';
 import '../../../core/feedback/feedback_listener.dart';
 import '../../ingredient/model/ingredient_request.dart';
 import '../../ingredient/model/recipe_ingredient.dart';
-import '../../ingredient/services/nutrition_service.dart';
 import '../intites/media_rules.dart';
 import '../model/recipe_media_model.dart';
 import '../../../core/error/result.dart';
@@ -100,7 +99,7 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
     }
 
     // 3. Malzeme Miktarı (Amount) Kontrolü
-    final hasEmptyAmount = ingredients.any((e) => (e.amount ?? 0) <= 0);
+    final hasEmptyAmount = ingredients.any((e) => e.amount <= 0);
     if (hasEmptyAmount) {
       emitFeedback(
         const ErrorFeedback('Lütfen tüm malzemelerin miktarını giriniz.'),
@@ -112,25 +111,22 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
     try {
       final mediaResult = await mediaService.uploadMedia(state.mediaList);
       if (mediaResult.isError) {
-        emitFeedback(ErrorFeedback(mediaResult.failureOrNull!.message));
+        //mediaResult.failureOrNull!.message
+        emitFeedback(ErrorFeedback('Medya yükleme başarısız oldu.'));
         emit(state.copyWith(isLoading: false));
         return;
       }
       final uploadedMedia = mediaResult.dataOrNull!;
-      final calorie = NutritionService.calculateCaloriePerServing(
-        model: state.recipe,
-      );
       final recipe = state.recipe.copyWith(
         userId: userId,
         media: uploadedMedia,
-        calorie: calorie,
         createdAt: DateTime.now(),
         viewCount: 0,
         favoriteCount: 0,
         ratingAverage: 0,
         ratingCount: 0,
       );
-      print("Recipe içeriği  ${recipe.toJson()}");
+      // print("Recipe içeriği  ${recipe.toJson()}");
       final result = await recipeService.createRecipe(model: recipe);
 
       await handleResult(
@@ -237,8 +233,6 @@ class CreateRecipeViewModel extends FeedbackCubit<CreateRecipeState> {
           name: ingredient.name,
           unit: ingredient.defaultUnit,
           amount: 0,
-          caloriesPer100g: ingredient.caloriesPer100g,
-          gramsPerPiece: ingredient.gramsPerPiece,
         ),
       );
     }

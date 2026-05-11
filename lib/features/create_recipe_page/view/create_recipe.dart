@@ -19,12 +19,14 @@ import '../../../core/components/bottom_bar_container.dart';
 import '../../../core/components/chip.dart';
 import '../../../core/components/dialog.dart';
 import '../../../core/constants/text_constants.dart';
+import '../../../core/constants/units.dart';
 import '../../../core/cubits/bottom_sheet.dart';
 import '../../../core/feedback/feedback_listener.dart'; // ← yeni
-import '../../home_page/state/category_state.dart';
-import '../../home_page/viewmodel/category_view_model.dart';
+// import '../../home_page/state/category_state.dart';
+// import '../../home_page/viewmodel/category_view_model.dart';
 import '../../ingredient/model/recipe_ingredient.dart';
-import '../../ingredient/services/nutrition_service.dart';
+import '../../recipe_feed/state/category_state.dart';
+import '../../recipe_feed/viewmodel/category_viewmodel.dart';
 import '../intites/difficulty_list.dart';
 import '../mixin/create_recipe_mixin.dart';
 import '../model/recipe_media_model.dart';
@@ -494,7 +496,7 @@ class _CreateRecipeState extends State<CreateRecipe>
                                         ListItemSelectionType.idleCard,
                                     subtitle: selectedCategoriesString(
                                       state.recipe.categories ?? [],
-                                      catState.categoryList,
+                                      catState.categories,
                                     ),
                                   ),
                                   if ((state.recipe.categories ?? []).isEmpty)
@@ -641,9 +643,9 @@ class _IngredientRow extends StatelessWidget {
           Expanded(
             flex: 4,
             child: DropdownButtonFormField<String>(
-              value: NutritionService.units.contains(model.unit)
+              value: kUnits.contains(model.unit)
                   ? model.unit
-                  : NutritionService.units.first,
+                  : kUnits.first,
               isExpanded: true,
               decoration: InputDecoration(
                 isDense: true,
@@ -672,7 +674,7 @@ class _IngredientRow extends StatelessWidget {
                 filled: true,
                 fillColor: Constant.fillWhite(context),
               ),
-              items: NutritionService.units
+              items: kUnits
                   .map(
                     (u) => DropdownMenuItem(
                       value: u,

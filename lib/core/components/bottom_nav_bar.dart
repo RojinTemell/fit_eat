@@ -1,11 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:fit_eat/core/components/dialog.dart';
-import 'package:fit_eat/features/auth_page/model/app_user.dart';
 import 'package:fit_eat/features/auth_page/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../features/auth_page/state/auth_state.dart';
 import '../../features/create_recipe_page/viewmodel/create_recipe_viewmodel.dart';
 import '../constants/text_constants.dart';
 
@@ -161,8 +161,8 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 
   bool _checkIfUserIsAnonymous() {
-    final status = context.read<AuthViewmodel>().state.status;
-    if (status == AuthStatus.anonymous) {
+    final status = context.read<AuthViewmodel>().state;
+    if (status is AuthAnonymous) {
       return true;
     } else {
       return false;

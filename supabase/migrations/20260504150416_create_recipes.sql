@@ -41,8 +41,6 @@ create table public.recipes (
     check (slug ~ '^[a-z0-9-]{2,80}$'),
   constraint recipes_servings_positive
     check (servings is null or servings > 0),
-  constraint recipes_prep_time_nonneg
-    check (prep_time_minutes is null or prep_time_minutes >= 0),
   constraint recipes_cook_time_nonneg
     check (cook_time_minutes is null or cook_time_minutes >= 0),
   constraint recipes_published_has_date

@@ -8,7 +8,7 @@ import '../model/app_user.dart';
 
 final class AuthServiceImpl implements IAuthService {
   AuthServiceImpl({required SupabaseClient supabaseClient})
-      : _supabase = supabaseClient;
+    : _supabase = supabaseClient;
 
   final SupabaseClient _supabase;
 
@@ -24,16 +24,16 @@ final class AuthServiceImpl implements IAuthService {
   Future<Result<AppUser>> signInAnonymously() async {
     try {
       final existing = _supabase.auth.currentUser;
-      if (existing != null) return Success(AppUser.fromSupabase(existing));
+      if (existing != null) return Ok(AppUser.fromSupabase(existing));
 
       final response = await _supabase.auth.signInAnonymously();
       final user = response.user;
-      if (user == null) return const Error(UnknownFailure());
-      return Success(AppUser.fromSupabase(user));
+      if (user == null) return Err(UnknownFailure());
+      return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -50,17 +50,17 @@ final class AuthServiceImpl implements IAuthService {
         password: password,
       );
       final user = response.user;
-      if (user == null) return const Error(UnknownFailure());
-      return Success(AppUser.fromSupabase(user));
+      if (user == null) return Err(UnknownFailure());
+      return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
       final msg = e.message.contains('email_not_confirmed')
           ? 'E-posta adresiniz henüz onaylanmamış. Lütfen gelen kutunuzu kontrol edin.'
           : e.message.contains('Invalid login credentials')
-              ? 'E-posta veya şifre hatalı.'
-              : e.message;
-      return Error(ServerFailure(msg));
+          ? 'E-posta veya şifre hatalı.'
+          : e.message;
+      return Err(ServerFailure());
     } catch (e) {
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -77,15 +77,15 @@ final class AuthServiceImpl implements IAuthService {
         password: password,
       );
       final user = response.user;
-      if (user == null) return const Error(UnknownFailure());
-      return Success(AppUser.fromSupabase(user));
+      if (user == null) return Err(UnknownFailure());
+      return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
       final msg = e.message.contains('User already registered')
           ? 'Bu e-posta adresi zaten kullanımda.'
           : e.message;
-      return Error(ServerFailure(msg));
+      return Err(ServerFailure());
     } catch (e) {
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -101,22 +101,20 @@ final class AuthServiceImpl implements IAuthService {
       final account = await GoogleSignIn.instance.authenticate();
       final idToken = account.authentication.idToken;
       if (idToken == null) {
-        return const Error(
-          ServerFailure('Google kimlik doğrulaması başarısız.'),
-        );
+        return Err(ServerFailure());
       }
       final response = await _supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
       );
       final user = response.user;
-      if (user == null) return const Error(UnknownFailure());
-      return Success(AppUser.fromSupabase(user));
+      if (user == null) return Err(UnknownFailure());
+      return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -132,12 +130,12 @@ final class AuthServiceImpl implements IAuthService {
         UserAttributes(email: email, password: password),
       );
       final user = response.user;
-      if (user == null) return const Error(UnknownFailure());
-      return Success(AppUser.fromSupabase(user));
+      if (user == null) return Err(UnknownFailure());
+      return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 
@@ -150,12 +148,12 @@ final class AuthServiceImpl implements IAuthService {
         _supabase.auth.signOut(),
         GoogleSignIn.instance.signOut(),
       ]);
-      return const Success(null);
+      return const Ok(null);
     } on AuthException catch (e) {
-      return Error(ServerFailure(e.message));
+      return Err(ServerFailure());
     } catch (e) {
       debugPrint('signOut error: $e');
-      return const Error(UnknownFailure());
+      return Err(UnknownFailure());
     }
   }
 }

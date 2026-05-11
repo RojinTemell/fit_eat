@@ -14,7 +14,7 @@ class ErrorFeedback extends AppFeedback {
   const ErrorFeedback(this.message);
 
   /// Failure nesnesinden direkt üret — ViewModel'de tekrar tekrar
-  /// failure.message yazmak zorunda kalmayız.
+  /// failure.localizedMessage yazmak zorunda kalmayız.
   factory ErrorFeedback.fromFailure(Failure failure) =>
-      ErrorFeedback(failure.message);
+      ErrorFeedback(failure.localizedMessage);
 }

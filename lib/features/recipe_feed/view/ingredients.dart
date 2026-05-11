@@ -12,10 +12,10 @@ import '../../../core/cubits/bottom_sheet.dart';
 import '../../../core/feedback/feedback_listener.dart';
 import '../../ingredient/state/ingredient_state.dart';
 import '../../ingredient/viewmodel/ingredient_viewmodel.dart';
-import '../state/create_recipe_state.dart';
-import '../viewmodel/create_recipe_viewmodel.dart';
-import '../widget/base_filtre_item.dart';
-import '../widget/create_new_ingredient.dart';
+import '../../create_recipe_page/state/create_recipe_state.dart';
+import '../../create_recipe_page/viewmodel/create_recipe_viewmodel.dart';
+import '../../create_recipe_page/widget/base_filtre_item.dart';
+import '../../create_recipe_page/widget/create_new_ingredient.dart';
 
 class IngredientsPage extends StatefulWidget {
   const IngredientsPage({super.key});

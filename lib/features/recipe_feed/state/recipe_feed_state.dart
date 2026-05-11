@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fit_eat/core/feedback/app_feedback.dart';
 import 'package:fit_eat/features/create_recipe_page/model/recipe_model.dart';
-
 import '../../../core/feedback/feedback_cubit_mixin.dart';
 
 class RecipeFeedState extends Equatable implements HasFeedback {
@@ -13,17 +12,11 @@ class RecipeFeedState extends Equatable implements HasFeedback {
     this.hasMore = true,
   });
 
-  final bool isLoading;
-
   @override
   final AppFeedback? feedback;
-
   final List<RecipeModel> recipes;
-
-  /// The [createdAt] of the last loaded recipe — passed as cursor for the next page.
   final DateTime? cursor;
-
-  /// False when the last page returned fewer items than the page size.
+  final bool isLoading;
   final bool hasMore;
 
   @override
@@ -39,16 +32,15 @@ class RecipeFeedState extends Equatable implements HasFeedback {
     DateTime? cursor,
     bool? hasMore,
     Object? feedback = _absent,
-  }) =>
-      RecipeFeedState(
-        isLoading: isLoading ?? this.isLoading,
-        recipes: recipes ?? this.recipes,
-        cursor: cursor ?? this.cursor,
-        hasMore: hasMore ?? this.hasMore,
-        feedback: identical(feedback, _absent)
-            ? this.feedback
-            : feedback as AppFeedback?,
-      );
+  }) => RecipeFeedState(
+    isLoading: isLoading ?? this.isLoading,
+    recipes: recipes ?? this.recipes,
+    cursor: cursor ?? this.cursor,
+    hasMore: hasMore ?? this.hasMore,
+    feedback: identical(feedback, _absent)
+        ? this.feedback
+        : feedback as AppFeedback?,
+  );
 }
 
 const Object _absent = Object();

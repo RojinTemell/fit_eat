@@ -1,7 +1,6 @@
 import 'package:fit_eat/core/components/appbar.dart';
 import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/constants/text_constants.dart';
-import 'package:fit_eat/features/auth_page/model/app_user.dart';
 import 'package:fit_eat/features/recipe_feed/viewmodel/recipe_feed_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,7 +65,7 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (state.status == AuthStatus.authenticated)
+                if (state is AuthAuthenticated)
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     decoration: BoxDecoration(
@@ -125,8 +124,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-                if (state.status == AuthStatus.anonymous)
-                  AnonimContainerForSignUp(),
+                if (state is AuthAnonymous) AnonimContainerForSignUp(),
                 Padding(
                   padding: EdgeInsets.only(
                     top: 16,

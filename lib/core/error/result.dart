@@ -1,17 +1,24 @@
+import 'package:equatable/equatable.dart';
 import 'package:fit_eat/core/error/failure.dart';
 
-sealed class Result<T> {
+sealed class Result<T> extends Equatable {
   const Result();
 }
 
-class Success<T> extends Result<T> {
+final class Ok<T> extends Result<T> {
   final T data;
-  const Success(this.data);
+  const Ok(this.data);
+
+  @override
+  List<Object?> get props => [data];
 }
 
-class Error<T> extends Result<T> {
+final class Err<T> extends Result<T> {
   final Failure failure;
-  const Error(this.failure);
+  const Err(this.failure);
+
+  @override
+  List<Object?> get props => [failure];
 }
 
 extension ResultX<T> on Result<T> {
@@ -20,26 +27,26 @@ extension ResultX<T> on Result<T> {
     required R Function(Failure failure) onError,
   }) {
     return switch (this) {
-      Success<T>(:final data) => onSuccess(data),
-      Error<T>(:final failure) => onError(failure),
+      Ok<T>(:final data) => onSuccess(data),
+      Err<T>(:final failure) => onError(failure),
     };
   }
 
   /// Sadece başarı durumuna ihtiyaç varsa; hata görmezden gelinir.
   void ifSuccess(void Function(T data) action) {
-    if (this case Success<T>(:final data)) action(data);
+    if (this case Ok<T>(:final data)) action(data);
   }
 
-  bool get isSuccess => this is Success<T>;
-  bool get isError => this is Error<T>;
+  bool get isSuccess => this is Ok<T>;
+  bool get isError => this is Err<T>;
 
   T? get dataOrNull => switch (this) {
-    Success<T>(:final data) => data,
-    Error<T>() => null,
+    Ok<T>(:final data) => data,
+    Err<T>() => null,
   };
 
   Failure? get failureOrNull => switch (this) {
-    Error<T>(:final failure) => failure,
-    Success<T>() => null,
+    Err<T>(:final failure) => failure,
+    Ok<T>() => null,
   };
 }

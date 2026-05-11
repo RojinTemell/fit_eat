@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
-import '../../auth_page/model/app_user.dart';
 import '../../auth_page/state/auth_state.dart';
 import '../../auth_page/viewmodel/auth_viewmodel.dart';
 import '../../home_page/widget/anonim_container_for_signup.dart';
@@ -48,8 +47,9 @@ class _AccountState extends State<Account> with SingleTickerProviderStateMixin {
               length: tabs.length,
               child: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  print("AccountPage rebuild: $state");
                   return [
-                    if (state.status == AuthStatus.authenticated)
+                    if (state is AuthAuthenticated)
                       SliverAppBar(
                         automaticallyImplyLeading: false,
                         backgroundColor: Constant.bgBase(context),
@@ -164,7 +164,7 @@ class _AccountState extends State<Account> with SingleTickerProviderStateMixin {
                           ),
                         ),
                       ),
-                    if (state.status == AuthStatus.anonymous)
+                    if (state is AuthAnonymous)
                       SliverAppBar(
                         automaticallyImplyLeading: false,
                         backgroundColor: Constant.bgBase(context),
@@ -192,7 +192,7 @@ class _AccountState extends State<Account> with SingleTickerProviderStateMixin {
                           ),
                         ),
                       ),
-                    if (state.status == AuthStatus.anonymous)
+                    if (state is AuthAnonymous)
                       SliverPadding(padding: const EdgeInsets.only(bottom: 8)),
                     SliverAppBar(
                       automaticallyImplyLeading: false,

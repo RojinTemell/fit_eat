@@ -106,11 +106,14 @@ class RecipeModel extends Equatable {
           : null,
       ingredients: json['ingredients'] != null
           ? (json['ingredients'] as List)
-                .map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
+                .map(
+                  (e) => RecipeIngredient.fromJson(e as Map<String, dynamic>),
+                )
                 .toList()
           : null,
-      steps:
-          json['steps'] != null ? List<String>.from(json['steps'] as List) : null,
+      steps: json['steps'] != null
+          ? List<String>.from(json['steps'] as List)
+          : null,
       difficulty: json['difficulty'] as String?,
       serving: json['serving'] as int?,
       duration: json['duration'] as int?,
@@ -143,8 +146,6 @@ class RecipeModel extends Equatable {
               name: e.name,
               unit: e.unit,
               amount: e.amount,
-              caloriesPer100g: e.caloriesPer100g,
-              gramsPerPiece: e.gramsPerPiece,
             ).toJson(),
           )
           .toList(),
@@ -181,7 +182,9 @@ class RecipeModel extends Equatable {
           : null,
       ingredients: row['ingredients'] != null
           ? (row['ingredients'] as List)
-                .map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
+                .map(
+                  (e) => RecipeIngredient.fromJson(e as Map<String, dynamic>),
+                )
                 .toList()
           : null,
       steps: row['steps'] != null
@@ -217,14 +220,13 @@ class RecipeModel extends Equatable {
       'description': about,
       'media': media?.map((v) => v.toJson()).toList() ?? [],
       'cover_image_url': coverUrl,
-      'ingredients': ingredients
+      'ingredients':
+          ingredients
               ?.map(
                 (e) => RecipeIngredient(
                   name: e.name,
                   unit: e.unit,
                   amount: e.amount,
-                  caloriesPer100g: e.caloriesPer100g,
-                  gramsPerPiece: e.gramsPerPiece,
                 ).toJson(),
               )
               .toList() ??
@@ -243,26 +245,26 @@ class RecipeModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        authorName,
-        authorAvatar,
-        title,
-        about,
-        media,
-        ingredients,
-        steps,
-        difficulty,
-        serving,
-        duration,
-        categories,
-        calorie,
-        viewCount,
-        favoriteCount,
-        ratingAverage,
-        ratingCount,
-        userId,
-        createdAt,
-      ];
+    id,
+    authorName,
+    authorAvatar,
+    title,
+    about,
+    media,
+    ingredients,
+    steps,
+    difficulty,
+    serving,
+    duration,
+    categories,
+    calorie,
+    viewCount,
+    favoriteCount,
+    ratingAverage,
+    ratingCount,
+    userId,
+    createdAt,
+  ];
 }
 
 class Media extends Equatable {

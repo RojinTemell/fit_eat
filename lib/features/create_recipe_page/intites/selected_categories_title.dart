@@ -1,8 +1,8 @@
-import 'package:fit_eat/core/entities/category/category_model.dart';
+import 'package:fit_eat/features/recipe_feed/model/category_model.dart';
 
 String selectedCategoriesString(
   List<String> selectedCategoryIds,
-  List<Category> categories,
+  List<CategoryModel> categories,
 ) {
   if (selectedCategoryIds.isEmpty) {
     return 'Lütfen kategori seçin';
@@ -12,6 +12,6 @@ String selectedCategoriesString(
 
   return categories
       .where((cat) => selectedSet.contains(cat.id))
-      .map((cat) => cat.title)
+      .map((cat) => cat.name)
       .join(',');
 }

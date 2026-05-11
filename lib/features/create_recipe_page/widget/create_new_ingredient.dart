@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/components/alert_toast.dart';
 import '../../../core/components/base_button.dart';
 import '../../../core/components/text_input.dart';
 import '../../../core/constants/dynamic_constants.dart';
 import '../../../core/constants/text_constants.dart';
+import '../../../core/constants/units.dart';
 import '../../../core/theme/custom_themes/text_theme.dart';
-import '../../ingredient/services/nutrition_service.dart';
 import '../mixin/create_new_recipe_mixin.dart';
 
 class CreateNewIngredient extends StatefulWidget {
@@ -76,7 +75,7 @@ class _CreateNewIngredientState extends State<CreateNewIngredient>
                     ],
                   ),
                   DropdownButtonFormField<String>(
-                    value: NutritionService.units.first,
+                    value: kUnits.first,
                     isExpanded: true,
                     decoration: InputDecoration(
                       isDense: true,
@@ -109,7 +108,7 @@ class _CreateNewIngredientState extends State<CreateNewIngredient>
                       filled: true,
                       fillColor: Constant.fillWhite(context),
                     ),
-                    items: NutritionService.units
+                    items: kUnits
                         .map(
                           (u) => DropdownMenuItem(
                             value: u,

@@ -1,11 +1,13 @@
 // create_recipe_page_mixin.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../recipe_feed/viewmodel/category_viewmodel.dart';
 import '../viewmodel/create_recipe_viewmodel.dart';
 
 mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
   // ViewModel
   late CreateRecipeViewModel viewModel;
+  late CategoryViewModel feedViewmodel;
   late CreateRecipeViewModel mediaViewModel;
   final createRecipeFormKey = GlobalKey<FormState>();
   // Text Controllers
@@ -33,6 +35,8 @@ mixin CreateRecipePageMixin<T extends StatefulWidget> on State<T> {
 
   void _initializeViewModel() {
     viewModel = context.read<CreateRecipeViewModel>();
+    feedViewmodel = context.read<CategoryViewModel>();
+    feedViewmodel.getCategories();
   }
 
   void _initializeControllers() {
