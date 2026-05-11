@@ -31,7 +31,7 @@ final class AuthServiceImpl implements IAuthService {
       if (user == null) return Err(UnknownFailure());
       return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      return Err(ServerFailure());
+      return Err(ServerFailure(message: e.message));
     } catch (e) {
       return Err(UnknownFailure());
     }
@@ -53,12 +53,20 @@ final class AuthServiceImpl implements IAuthService {
       if (user == null) return Err(UnknownFailure());
       return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      final msg = e.message.contains('email_not_confirmed')
-          ? 'E-posta adresiniz henüz onaylanmamış. Lütfen gelen kutunuzu kontrol edin.'
-          : e.message.contains('Invalid login credentials')
-          ? 'E-posta veya şifre hatalı.'
-          : e.message;
-      return Err(ServerFailure());
+      // Email confirmation V0.1'de kapalı — bu dal pratikte tetiklenmemeli,
+      // defansif olarak tipi koruyoruz. Açıldığında Cubit otomatik
+      // resend + AuthOtpPending'e yönlendirebilir.
+      if (e.message.contains('email_not_confirmed')) {
+        return Err(EmailNotConfirmedFailure(
+          message: 'E-posta adresiniz henüz onaylanmamış.',
+        ));
+      }
+      if (e.message.contains('Invalid login credentials')) {
+        return Err(ServerFailure(
+          message: 'E-posta veya şifre hatalı.',
+        ));
+      }
+      return Err(ServerFailure(message: e.message));
     } catch (e) {
       return Err(UnknownFailure());
     }
@@ -80,10 +88,24 @@ final class AuthServiceImpl implements IAuthService {
       if (user == null) return Err(UnknownFailure());
       return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      final msg = e.message.contains('User already registered')
-          ? 'Bu e-posta adresi zaten kullanımda.'
-          : e.message;
-      return Err(ServerFailure());
+      if (e.message.contains('User already registered') ||
+          e.message.contains('already been registered')) {
+        return Err(ServerFailure(
+          message: 'Bu e-posta adresi zaten kullanımda.',
+        ));
+      }
+      if (e.message.contains('Password should be at least')) {
+        return Err(ValidationFailure(
+          message: 'Şifre en az 6 karakter olmalı.',
+        ));
+      }
+      if (e.message.contains('invalid_email') ||
+          e.message.toLowerCase().contains('invalid email')) {
+        return Err(ValidationFailure(
+          message: 'Geçersiz e-posta adresi.',
+        ));
+      }
+      return Err(ServerFailure(message: e.message));
     } catch (e) {
       return Err(UnknownFailure());
     }
@@ -111,7 +133,7 @@ final class AuthServiceImpl implements IAuthService {
       if (user == null) return Err(UnknownFailure());
       return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      return Err(ServerFailure());
+      return Err(ServerFailure(message: e.message));
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
       return Err(UnknownFailure());
@@ -133,7 +155,19 @@ final class AuthServiceImpl implements IAuthService {
       if (user == null) return Err(UnknownFailure());
       return Ok(AppUser.fromSupabase(user));
     } on AuthException catch (e) {
-      return Err(ServerFailure());
+      if (e.message.contains('User already registered') ||
+          e.message.contains('already been registered') ||
+          e.message.contains('email_exists')) {
+        return Err(ServerFailure(
+          message: 'Bu e-posta adresi zaten kullanımda.',
+        ));
+      }
+      if (e.message.contains('Password should be at least')) {
+        return Err(ValidationFailure(
+          message: 'Şifre en az 6 karakter olmalı.',
+        ));
+      }
+      return Err(ServerFailure(message: e.message));
     } catch (e) {
       return Err(UnknownFailure());
     }
@@ -150,7 +184,7 @@ final class AuthServiceImpl implements IAuthService {
       ]);
       return const Ok(null);
     } on AuthException catch (e) {
-      return Err(ServerFailure());
+      return Err(ServerFailure(message: e.message));
     } catch (e) {
       debugPrint('signOut error: $e');
       return Err(UnknownFailure());

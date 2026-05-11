@@ -5,6 +5,7 @@ import '../features/auth_page/impl/auth_service.dart';
 import '../features/auth_page/impl/auth_service_impl.dart';
 import '../features/auth_page/repo/auth_repository_impl.dart';
 import '../features/auth_page/repo/auth_service_repository.dart';
+import '../features/auth_page/viewmodel/auth_viewmodel.dart';
 import '../features/create_recipe_page/service/abstract_media_service.dart';
 import '../features/create_recipe_page/service/abstract_recipe_service.dart';
 import '../features/create_recipe_page/service/create_recipe_service.dart';
@@ -37,6 +38,9 @@ class ProductContainer {
 
     _getIt.registerLazySingleton<IAuthRepository>(
       () => AuthRepositoryImpl(authService: get<IAuthService>()),
+    );
+    _getIt.registerLazySingleton<AuthViewmodel>(
+      () => AuthViewmodel(get<IAuthRepository>()),
     );
   }
 }

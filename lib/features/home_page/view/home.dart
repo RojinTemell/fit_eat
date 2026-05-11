@@ -61,6 +61,9 @@ class _HomeState extends State<Home> {
       ),
       body: BlocBuilder<AuthViewmodel, AuthState>(
         builder: (context, state) {
+          print(
+            "Building Home with AuthState: ${state is AuthAuthenticated ? (state.user.uid ?? state.user.displayName ?? 'Kullanıcı') : 'Kullanıcı'}",
+          );
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

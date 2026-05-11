@@ -25,7 +25,7 @@ class _SignUpState extends State<SignUp> {
   void initState() {
     viewmodel = context.read<AuthViewmodel>();
     emailController = TextEditingController(text: "rojintemel02@gmail.com");
-    passwordController = TextEditingController(text: "Roj123");
+    passwordController = TextEditingController(text: "Roj1234");
     super.initState();
   }
 

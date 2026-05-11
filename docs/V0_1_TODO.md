@@ -25,13 +25,13 @@ Auth iskeleti **yarı bitmiş** ve iki nesil kod çakışmış durumda:
 
 > Auth davranışı lokal Docker'da test ettiğinle cloud'daki farklı çıkarsa hangi tarafın hatalı olduğunu bilemezsin. Tek doğruluk kaynağı: migration dosyalarındaki SQL.
 
-- [ ] **1.1** Terminalde `supabase link --project-ref <senin-cloud-ref>` çalıştır. Zaten link edilmişse `supabase projects list` ile aktif link'in cloud projene baktığını doğrula.
-- [ ] **1.2** Cloud'da mevcut schema'yı kaydet: `supabase db dump --schema public --linked > /tmp/cloud_before.sql`. Güvenlik ağı.
-- [ ] **1.3** Lokal ile cloud arasındaki farkı gör: `supabase db diff --linked`. Ekrana dökülen SQL = cloud'a uygulanacak değişiklikler. Mantıksız satır var mı kontrol et.
-- [ ] **1.4** Hazırsan push et: `supabase db push --linked`. Hata olursa panik yapma — hata mesajındaki migration dosyası adını not al.
-- [ ] **1.5** Push sonrası Supabase Studio'yu aç (cloud dashboard) → Table Editor → `profiles`, `recipes`, `ingredients`, `categories`, `recipe_ingredients`, `recipe_steps`, `recipe_media`, `recipe_categories` tablolarının hepsinin orada olduğunu gözle doğrula.
+- [ *] **1.1** Terminalde `supabase link --project-ref <senin-cloud-ref>` çalıştır. Zaten link edilmişse `supabase projects list` ile aktif link'in cloud projene baktığını doğrula.
+- [ *] **1.2** Cloud'da mevcut schema'yı kaydet: `supabase db dump --schema public --linked > /tmp/cloud_before.sql`. Güvenlik ağı.
+- [ *] **1.3** Lokal ile cloud arasındaki farkı gör: `supabase db diff --linked`. Ekrana dökülen SQL = cloud'a uygulanacak değişiklikler. Mantıksız satır var mı kontrol et.
+- [* ] **1.4** Hazırsan push et: `supabase db push --linked`. Hata olursa panik yapma — hata mesajındaki migration dosyası adını not al.
+- [* ] **1.5** Push sonrası Supabase Studio'yu aç (cloud dashboard) → Table Editor → `profiles`, `recipes`, `ingredients`, `categories`, `recipe_ingredients`, `recipe_steps`, `recipe_media`, `recipe_categories` tablolarının hepsinin orada olduğunu gözle doğrula.
 - [ ] **1.6** Cloud dashboard → Authentication → Providers → **Anonymous Sign-ins** açık mı kontrol et. Kapalıysa aç.
-- [ ] **1.7** Cloud dashboard → Storage → bucket'lar var mı bak (`avatars`, `recipe-media` — `20260505083737_storage_buckets.sql` migration'ından).
+- [* ] **1.7** Cloud dashboard → Storage → bucket'lar var mı bak (`avatars`, `recipe-media` — `20260505083737_storage_buckets.sql` migration'ından).
 - [ ] **1.8** `.env`'i ikiye böl: `.env.local` (Docker) ve `.env.production` (cloud). V0.1 boyunca lokal Docker kullan — app cloud'a bağlanmayacak, cloud sadece backup gibi duracak.
 
 ---
@@ -59,15 +59,15 @@ Auth iskeleti **yarı bitmiş** ve iki nesil kod çakışmış durumda:
 > Yarı yazılmış sealed class yapısını bitirmek. Yoksa enum ve sealed class iki paralel state mantığı olarak yaşar.
 
 - [ ] **3.1** **Karar:** sealed class'lara geç. Sebep: pattern matching ile compile-time güvenlik + `AuthOtpPending` gibi geçici state'ler enum'a sığmaz + `AuthBusy` zaten yazılmış.
-- [ ] **3.2** `AuthViewmodel`'i sealed state'e geçir:
+- [* ] **3.2** `AuthViewmodel`'i sealed state'e geçir:
   - [ ] `state.copyWith(isLoading: true)` çağrılarını sil
   - [ ] Her method'da pattern matching kullan (`switch (state) { case AuthAnonymous(:final user) => ... }`)
   - [ ] Emit ettiğin state'ler `AuthBusy.signingIn`, `AuthBusy.signingUp` gibi explicit busy değerleri içersin
 - [ ] **3.3** `Splash` ekranını sealed state'e adapte et:
   - [ ] `state.isLoading` → `state is AuthInitial || (state has busy != idle)`
   - [ ] `state.status == AuthStatus.unauthenticated` → `state is AuthUnauthenticated`
-  - [ ] `context.go('/signUp')` yerine `/login` yönlendirmesi
-- [ ] **3.4** `AuthStatus` enum'unu kullanılan tüm yerlerden çıkar, sonra dosyayı sil. `app_user.dart` veya başka model'de geçiyorsa önce çıkar, sonra sil.
+  - [* ] `context.go('/signUp')` yerine `/login` yönlendirmesi
+- [ *] **3.4** `AuthStatus` enum'unu kullanılan tüm yerlerden çıkar, sonra dosyayı sil. `app_user.dart` veya başka model'de geçiyorsa önce çıkar, sonra sil.
 
 ---
 

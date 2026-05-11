@@ -25,7 +25,7 @@ class _SplashState extends State<Splash> {
     return BlocListener<AuthViewmodel, AuthState>(
       listenWhen: (previous, current) => current is! AuthInitial,
       listener: (context, state) {
-        print("SplashListener: $state");
+        print("Auth State Changed: $state ");
         switch (state) {
           case AuthAnonymous() || AuthAuthenticated():
             context.go('/home');

@@ -5,7 +5,6 @@ import '../model/app_user.dart';
 import '../repo/auth_service_repository.dart';
 import '../state/auth_state.dart';
 
-
 class AuthViewmodel extends FeedbackCubit<AuthState> {
   final IAuthRepository _repo;
 
@@ -34,10 +33,7 @@ class AuthViewmodel extends FeedbackCubit<AuthState> {
       ? AuthAnonymous(user: user)
       : AuthAuthenticated(user: user);
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     final current = state;
     if (current is! AuthUnauthenticated && current is! AuthAnonymous) {
       _rejectInvalidAction();
@@ -54,11 +50,7 @@ class AuthViewmodel extends FeedbackCubit<AuthState> {
     );
   }
 
-
-  Future<void> signUp({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signUp({required String email, required String password}) async {
     final current = state;
 
     if (current is AuthAnonymous) {
@@ -180,7 +172,6 @@ class AuthViewmodel extends FeedbackCubit<AuthState> {
         break;
     }
   }
-
 
   void _resetIdle(AuthState state) {
     switch (state) {

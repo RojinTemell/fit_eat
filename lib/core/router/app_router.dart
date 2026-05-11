@@ -70,26 +70,6 @@ class AppRouter {
                   name: "aiAssist",
                   builder: (context, state) => AiAssist(),
                 ),
-                // GoRoute(
-                //   path: "/signUp",
-                //   name: "signUp",
-                //   builder: (context, state) => SignUp(),
-                // ),
-                // GoRoute(
-                //   path: "/login",
-                //   name: "login",
-                //   builder: (context, state) => Login(),
-                // ),
-                // GoRoute(
-                //   path: "/forgotPassword",
-                //   name: "forgotPassword",
-                //   builder: (context, state) => ForgotPassword(),
-                // ),
-                // GoRoute(
-                //   path: "/verificationCode",
-                //   name: "verificationCode",
-                //   builder: (context, state) => VerificationCode(),
-                // ),
               ],
             ),
             StatefulShellBranch(

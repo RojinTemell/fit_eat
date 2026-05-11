@@ -5,7 +5,6 @@ import 'package:fit_eat/core/cubits/bottom_sheet.dart';
 import 'package:fit_eat/features/create_recipe_page/viewmodel/create_recipe_viewmodel.dart';
 import 'package:fit_eat/features/ingredient/viewmodel/ingredient_viewmodel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../features/auth_page/repo/auth_service_repository.dart';
 import '../../features/auth_page/viewmodel/auth_viewmodel.dart';
 import '../../features/create_recipe_page/service/abstract_media_service.dart';
 import '../../features/create_recipe_page/service/abstract_recipe_service.dart';
@@ -16,10 +15,8 @@ class AppProviders {
 
   static List<BlocProvider> getProviders() {
     return [
-      BlocProvider<AuthViewmodel>(
-        lazy: false,
-        create: (_) =>
-            AuthViewmodel(ProductContainer.instance.get<IAuthRepository>()),
+      BlocProvider<AuthViewmodel>.value(
+        value: ProductContainer.instance.get<AuthViewmodel>(),
       ),
       BlocProvider<BottomSheetBloc>(create: (_) => BottomSheetBloc()),
       BlocProvider<IngredientViewmodel>(create: (_) => IngredientViewmodel()),
