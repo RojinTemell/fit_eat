@@ -9,7 +9,7 @@ import '../../../core/feedback/app_feedback.dart';
 import '../../../core/feedback/feedback_listener.dart';
 import '../../ingredient/model/ingredient_request.dart';
 import '../../ingredient/model/recipe_ingredient.dart';
-import '../intites/media_rules.dart';
+import '../entities/media_rules.dart';
 import '../model/recipe_media_model.dart';
 import '../../../core/error/result.dart';
 import '../service/abstract_media_service.dart';

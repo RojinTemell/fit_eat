@@ -29,6 +29,37 @@ class AuthViewmodel extends FeedbackCubit<AuthState> {
     );
   }
 
+  /// /login ekranındaki "Misafir devam et" butonu.
+  /// AuthUnauthenticated → AuthAnonymous geçişi.
+  ///
+  /// bootstrap() AuthInitial dışındaki state'lerden erken döner — yani
+  /// kullanıcı logout sonrası AuthUnauthenticated'a düşmüşse bootstrap'i
+  /// tekrar tetiklemek anon başlatmaz. Bu method onun çözümü.
+  ///
+  /// AuthAnonymous'tan çağrılırsa idempotent: zaten anon olduğu için
+  /// yeni bir signInAnonymously yapılmaz.
+  Future<void> continueAsAnonymous() async {
+    final current = state;
+    if (current is AuthAnonymous) return;
+    if (current is! AuthUnauthenticated && current is! AuthInitial) {
+      _rejectInvalidAction();
+      return;
+    }
+
+    if (current is AuthUnauthenticated) {
+      _setBusy(current, AuthBusy.signingIn);
+    }
+
+    final result = await _repo.signInAnonymously();
+    result.when(
+      onSuccess: (user) => emit(AuthAnonymous(user: user)),
+      onError: (failure) {
+        emit(const AuthUnauthenticated());
+        emitFeedback(ErrorFeedback.fromFailure(failure));
+      },
+    );
+  }
+
   AuthState _resolveFromUser(AppUser user) => user.isAnonymous
       ? AuthAnonymous(user: user)
       : AuthAuthenticated(user: user);

@@ -7,7 +7,7 @@ import 'package:fit_eat/core/components/text_input.dart';
 import 'package:fit_eat/core/constants/dynamic_constants.dart';
 import 'package:fit_eat/core/theme/custom_themes/text_theme.dart';
 import 'package:fit_eat/core/utils/validator.dart';
-import 'package:fit_eat/features/create_recipe_page/intites/selected_categories_title.dart';
+import 'package:fit_eat/features/create_recipe_page/entities/selected_categories_title.dart';
 import 'package:fit_eat/features/create_recipe_page/widget/categories_bottomsheet.dart';
 import 'package:fit_eat/features/create_recipe_page/widget/video_player.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +27,7 @@ import '../../../core/feedback/feedback_listener.dart'; // ← yeni
 import '../../ingredient/model/recipe_ingredient.dart';
 import '../../recipe_feed/state/category_state.dart';
 import '../../recipe_feed/viewmodel/category_viewmodel.dart';
-import '../intites/difficulty_list.dart';
+import '../entities/difficulty_list.dart';
 import '../mixin/create_recipe_mixin.dart';
 import '../model/recipe_media_model.dart';
 import '../state/create_recipe_state.dart';

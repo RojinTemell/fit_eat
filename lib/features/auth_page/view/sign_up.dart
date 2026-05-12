@@ -40,15 +40,12 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return BlocListener<AuthViewmodel, AuthState>(
       // listenWhen: (_, current) => current.feedback != null,
+      // Navigation BURADA YOK — router redirect AuthAuthenticated geçişini
+      // yakalar ve /home'a (veya `from` query'sine) yönlendirir.
       listener: (context, state) {
         if (state.feedback != null) {
           FeedbackHandler.handle(context, state.feedback!);
           context.read<AuthViewmodel>().clearFeedback();
-        }
-
-        if (state is AuthAuthenticated) {
-          // 'go' kullanarak login/signup stack'ini temizleyip ana sayfaya geçmek daha sağlıklıdır
-          context.goNamed('home');
         }
       },
       child: BlocBuilder<AuthViewmodel, AuthState>(
@@ -109,6 +106,9 @@ class _SignUpState extends State<SignUp> {
                   ),
                   SizedBox(height: 20),
 
+                  // V0.1: AuthAnonymous state'inde misafir butonu gizli —
+                  // kullanıcı zaten anon, basmak hiçbir şey yapmaz. Sadece
+                  // AuthUnauthenticated state'inde görünür ve aktif olur.
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
                     opacity: state is! AuthAnonymous ? 1.0 : 0.0,
@@ -116,8 +116,8 @@ class _SignUpState extends State<SignUp> {
                       ignoring: state is AuthAnonymous,
                       child: BaseButton(
                         callback: () async {
-                          await viewmodel.bootstrap();
-                          context.goNamed('home');
+                          await viewmodel.continueAsAnonymous();
+                          // Navigation router redirect tarafından handle edilir.
                         },
                         title: 'Continue with Anonymous',
                         baseButtonType: BaseButtonType.filledGrey,

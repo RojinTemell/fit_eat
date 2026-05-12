@@ -1,6 +1,8 @@
+import 'package:fit_eat/features/auth_page/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,16 +29,26 @@ Future<void> main() async {
 
   ProductContainer.instance.setup();
 
+  // Router AuthViewmodel'i inject ediyor — redirect ve refreshListenable
+  // bu instance üzerinden state'i okuyacak. AuthViewmodel GetIt'te lazy
+  // singleton olduğu için aşağıdaki get() ile MultiBlocProvider'ın
+  // okuduğu aynı instance dönüyor.
+  final appRouter = AppRouter.create(
+    ProductContainer.instance.get<AuthViewmodel>(),
+  );
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider()..loadThemeMode(),
-      child: const MyApp(),
+      child: MyApp(router: appRouter),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.router});
+
+  final GoRouter router;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +60,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'FitEat',
         scrollBehavior: constScrollBehavior,
-        routerConfig: AppRouter.appRouter,
+        routerConfig: router,
         theme: AppTheme.lightTheme(context),
         darkTheme: AppTheme.darkTheme(context),
         themeMode: themeMode,

@@ -9,18 +9,20 @@
 
 **V0.1 — Internal Alpha** (auth foundation + kod tabanı temizliği + lokal/cloud Supabase senkronu).
 
-**Detaylı adım adım to-do list:** [`docs/V0_1_TODO.md`](docs/V0_1_TODO.md)
+**Detaylı adım adım to-do list:** [`docs/V0_1_TODO.md`](docs/V0_1_TODO.md) (kısmen eskimiş — auth sealed state migration ve cleanup büyük ölçüde bitti, bakınız Completed).
 
-Bu dosya 7 blok halinde yapılması gerekenleri sıralıyor:
-1. Cloud Supabase senkronu (1 gün)
-2. Aşama 0 temizliği — Firebase pods, provider, dio, typo'lar (1–2 gün)
-3. Auth sealed state migration (2–3 gün)
-4. Auth provider testleri (2 gün)
-5. Router redirect guard (1 gün)
-6. Splash + bootstrap (1 gün)
-7. Smoke test = definition of done (1 gün)
+### V0.1 kalan iş — bugünden sonra
 
-**Toplam tahmini süre:** 8–11 gün (haftada ~15 saat çalışma).
+- [ ] `flutter clean && flutter pub get && cd ios && pod deintegrate && pod install` — stale Firebase pod'larını silmek için (Pods/Firebase* artıkları, plugin tarafından artık çekilmiyor).
+- [ ] **Smoke test (V0_1_TODO §7'deki 8 madde).** Özellikle:
+  - Anon → email sign-up sonrası `auth.users.id` UUID korunuyor mu? (linkAccount path).
+  - Logout → `/createRecipe` route'unda olan kullanıcı `/login`'e otomatik yönlendiriliyor mu? (refreshListenable testi).
+  - Anon kullanıcı `/createRecipe` tab'ına basınca: bottom_nav modal'ı çıkar (`Giriş Yapmalısın`) → kabul ederse `/signUp`'a gider.
+  - Anon kullanıcı `/listsTabPage` tab'ına basınca: redirect `/login?from=/listsTabPage` yönlendirmeli.
+  - `flutter analyze` — `provider` paketi kaldığı için 0 warning hedefi muhtemelen tutmaz; kabul.
+- [ ] Cloud Supabase'e migration push (`supabase db push --linked`) — V0_1_TODO Blok 1.
+- [ ] Google sign-in lokal Docker'da test edilemiyor; cloud staging projesinde dene veya V0.2'ye ertele.
+- [ ] V0.1 done → `git tag v0.1-internal-alpha`.
 
 **V0.1 bittiğinde:** auth uçtan uca çalışıyor, kod tabanı temiz, lokal Docker ↔ cloud Supabase senkron. Sonrası V0.2 (resimli tarif paylaşımı).
 
@@ -76,6 +78,15 @@ Detayı için Claude'a "V0 V1 V2 V3 planı" diye sor. Özet:
 
 ## Completed
 
+- **2026-05-12** — V0.1 cleanup + router redirect bloğu. Detay:
+  - Auth sealed state migration tamamlandığı doğrulandı (`AuthInitial`/`AuthUnauthenticated`/`AuthOtpPending`/`AuthAnonymous`/`AuthAuthenticated` + `AuthBusy` enum). PROGRESS.md "yarı bitmiş" iddiası yanlıştı.
+  - `AuthViewmodel.continueAsAnonymous()` eklendi — login/signup misafir butonu artık çalışıyor (önceki `bootstrap()` çağrısı `AuthInitial` dışında erken dönüyordu).
+  - **Router redirect Pattern 2** uygulandı: `lib/core/router/go_router_refresh_stream.dart` + `lib/core/router/auth_redirect.dart`. `AppRouter.appRouter` static field'ı `AppRouter.create(AuthViewmodel)` factory'sine çevrildi. `main.dart` GetIt'ten AuthViewmodel alıp inject ediyor.
+  - **Splash + login + signup imperative `context.go()` çağrıları kaldırıldı** — navigation artık tek noktadan, router redirect üzerinden akıyor.
+  - **AI Asistan tamamen silindi** (`lib/features/ai_asistan_page/` + `/aiAssist` route + bottom nav 4. branch + `BottomTabType.signUp` enum değeri). Bottom nav artık 4 sekmeli: home, listsTabPage, createRecipe, account.
+  - **`/verificationCode` route'u app_router'a eklendi** (forgot_password ekranından push'lanıyor; AuthOtpPending pin'i defansif).
+  - **Firebase artıkları silindi**: `firebase.json`, `ios/Runner/GoogleService-Info.plist` kaldırıldı. `ios/Pods/Firebase*` stale (Podfile'da Firebase referansı yok, sonraki `pod install` temizleyecek). `AppDelegate.swift` zaten Firebase init içermiyor.
+  - **Typo rename'leri**: `lib/features/create_recipe_page/intites/` → `entities/`, `lib/features/ingredient/services/` → `service/`. 4 import güncellendi.
 - **2026-05-11** — Senior architecture review delivered. Files created: `CLAUDE.md` (rewritten), `PRD.md`, `PROGRESS.md`, `docs/ARCHITECTURE_REVIEW.md`, `docs/prompts/CLAUDE_CODE_SESSION_PROMPT.md`.
 - **2026-05-05** — `alter_ingredients_add_emoji` migration.
 - **2026-05-05** — `storage_buckets`, `recipe_media`, `recipe_steps`, `recipe_categories`, `profiles_recipes_count_trigger`.
@@ -85,6 +96,12 @@ Detayı için Claude'a "V0 V1 V2 V3 planı" diye sor. Özet:
 
 ## Decisions Log
 
+- **2026-05-12** — **Router redirect = Pattern 2 (redirect + refreshListenable).** Soft prompts (anon kullanıcının like butonu görmesi gibi) Pattern 4 ile V0.5'te eklenecek. `BlocListener + context.go()` (Pattern 3) anti-pattern olarak reddedildi: deep link kırar, geri tuşu kafa karıştırır.
+- **2026-05-12** — **Korumalı route'lar V0.1**: `/createRecipe`, `/account`, `/listsTabPage`. Anon `/listsTabPage`'e basarsa `/login?from=/listsTabPage`'e gider (V0.5'te empty state ile soft prompt'a geçilecek).
+- **2026-05-12** — **Karma routing felsefesi**: `AuthInitial` → /splash, `AuthOtpPending` → /verificationCode pin'leri restrictive; geri kalan state'lerde permissive.
+- **2026-05-12** — **Misafir butonu (continue as anonymous) state-conditional**: `AuthAnonymous`'ta gizli (zaten anon), `AuthUnauthenticated`'da görünür ve `continueAsAnonymous()` çağırır. `bootstrap()` çağrısı (eski) `AuthInitial` dışında erken döndüğü için kırıktı.
+- **2026-05-12** — **Firebase MVP kapsamı dışı.** FCM yerine V1'de push notification gerekirse Supabase Edge Function + native APNs/FCM bridge yolu seçilecek. `firebase.json` + iOS Firebase artıkları silindi.
+- **2026-05-12** — **`provider` paketi V0.1'de kalıyor.** `ThemeProvider` → `ThemeCubit` port'u V0.2'de `RecipeFeedCubit` yazılırken yapılacak. Sebep: V0.1 done tanımını "auth uçtan uca + cleanup" ile sınırlı tutmak.
 - **2026-05-11** — MVP cuts confirmed: AI assistant, custom favorite lists, multi-level threaded comments, recipe rating, in-app chat. See `PRD.md` §5.7.
 - **2026-05-11** — Counter columns will always be denormalized + trigger-maintained, never client-writable. Pattern set in `recipes` migration.
 - **2026-05-11** — Recipe feed pagination = keyset on `(published_at, id)`. Offset is banned.
@@ -94,7 +111,7 @@ Detayı için Claude'a "V0 V1 V2 V3 planı" diye sor. Özet:
 
 ## Open Questions (need user decision)
 
-- [ ] Why are Firebase pods in iOS? FCM push later, or leftover? (Blocks decision on whether to delete `firebase.json`.)
+- [x] ~~Why are Firebase pods in iOS?~~ → **2026-05-12**: V0.1'de Firebase silindi, push notification V1'de Supabase tarafında ele alınacak.
 - [ ] Single "favorites" set for MVP, OR ship custom lists day-one? (PRD says single. Confirm.)
 - [ ] Video uploads in MVP or push to M1? (Storage cost question.)
 - [ ] Admin/moderator role: separate role + dashboard, or just a `is_admin` boolean on `profiles` for MVP?

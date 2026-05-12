@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import '../../auth_page/state/auth_state.dart';
 import '../../auth_page/viewmodel/auth_viewmodel.dart';
 
+/// V0.1: Splash bootstrap'i tetikler ve spinner gösterir.
+/// Navigation BURADA YOK — `auth_redirect.dart` AuthInitial→/splash pin'i
+/// ve bootstrap sonrası state'e göre yönlendirmeyi yapar. Splash sadece
+/// "bootstrap çalışıyor" görsel temsili.
 class Splash extends StatefulWidget {
   const Splash({super.key});
 
@@ -22,22 +24,6 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthViewmodel, AuthState>(
-      listenWhen: (previous, current) => current is! AuthInitial,
-      listener: (context, state) {
-        print("Auth State Changed: $state ");
-        switch (state) {
-          case AuthAnonymous() || AuthAuthenticated():
-            context.go('/home');
-          case AuthUnauthenticated():
-            context.go('/login');
-          case AuthOtpPending():
-            context.go('/verificationCode');
-          case AuthInitial():
-            break; // bekle
-        }
-      },
-      child: const Scaffold(body: Center(child: CircularProgressIndicator())),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

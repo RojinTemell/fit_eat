@@ -243,7 +243,10 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 }
 
-enum BottomTabType { home, listsTabPage, createRecipe, signUp, account }
+/// V0.1: 4 sekmeli bottom nav. AiAssist branch'i kaldırıldı (PRD §5.7).
+/// signUp eskiden 4. sekmeydi ama router branch'i AiAssist'ti — bu
+/// tutarsızlık temizlendi.
+enum BottomTabType { home, listsTabPage, createRecipe, account }
 
 extension BottomTabExtension on BottomTabType {
   String get label => name;
@@ -254,8 +257,6 @@ extension BottomTabExtension on BottomTabType {
         return 'Home';
       case BottomTabType.listsTabPage:
         return 'My Lists';
-      case BottomTabType.signUp:
-        return 'Sign up';
       case BottomTabType.account:
         return "Account";
       case BottomTabType.createRecipe:
@@ -271,8 +272,6 @@ extension BottomTabExtension on BottomTabType {
         return PhosphorIcons.heart(style);
       case BottomTabType.createRecipe:
         return PhosphorIcons.plus(style);
-      case BottomTabType.signUp:
-        return PhosphorIcons.log(style);
       case BottomTabType.account:
         return PhosphorIcons.user(style);
     }

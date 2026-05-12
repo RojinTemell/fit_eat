@@ -2,7 +2,7 @@ import 'package:fit_eat/features/ingredient/model/ingredient.dart';
 import 'package:fit_eat/features/ingredient/state/ingredient_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../services/ingredients_service.dart';
+import '../service/ingredients_service.dart';
 
 class IngredientViewmodel extends Cubit<IngredientState> {
   IngredientViewmodel()
